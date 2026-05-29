@@ -1,0 +1,421 @@
+"""CLI-based Inkscape MCP server for actions and exports."""
+
+import os
+import platform
+import shutil
+import signal
+import subprocess
+import uuid
+from collections.abc import Callable
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Literal, TypeVar, cast
+
+import anyio
+from fastmcp import Context, FastMCP
+from fastmcp.exceptions import ToolError, ValidationError
+from filelock import FileLock
+from pydantic import BaseModel, Field, field_validator
+
+from .config import InkscapeConfig
+
+app = FastMCP("inkscape-cli")
+
+# Type-safe decorator cast for ty compatibility
+F = TypeVar("F", bound=Callable[..., object])
+tool: Callable[[str], Callable[[F], F]] = cast(Any, app.tool)
+
+# Global config and semaphore
+CFG: InkscapeConfig | None = None
+SEM: anyio.Semaphore | None = None
+
+
+def _init_config(config: InkscapeConfig | None = None) -> None:
+    """Initialize global configuration and semaphore."""
+    global CFG, SEM
+    CFG = config or InkscapeConfig()
+    SEM = anyio.Semaphore(CFG.max_concurrent)
+
+
+def _ensure_in_workspace(p: Path) -> Path:
+    """Ensure path is within workspace."""
+    if CFG is None:
+        raise ToolError("Config not initialized")
+
+    # Resolve both paths to handle symlinks and platform-specific prefixes
+    workspace_resolved = CFG.workspace.resolve()
+    p_resolved = (CFG.workspace / p).resolve() if not p.is_absolute() else p.resolve()
+
+    if not (
+        p_resolved == workspace_resolved
+        or str(p_resolved).startswith(str(workspace_resolved) + os.sep)
+    ):
+        raise ValidationError("Path escapes workspace")
+    return p_resolved
+
+
+def _check_size(p: Path) -> None:
+    """Check if file size is within limits."""
+    if CFG is None:
+        raise ToolError("Config not initialized")
+
+    try:
+        if p.stat().st_size > CFG.max_file_size:
+            raise ValidationError(f"File too large: {p.stat().st_size}")
+    except FileNotFoundError as e:
+        raise ValidationError("File not found") from e
+
+
+# Explicit allowlist of safe actions
+SAFE_ACTIONS = {
+    "select-all",
+    "select-clear",
+    "select-by-id",
+    "select-by-class",
+    "select-by-element",
+    "path-union",
+    "path-difference",
+    "path-intersection",
+    "path-division",
+    "path-exclusion",
+    "path-simplify",
+    "object-to-path",
+    "object-stroke-to-path",
+    "selection-group",
+    "selection-ungroup",
+    "export-area-page",
+    "export-area-drawing",
+    "export-type",
+    "export-filename",
+    "export-dpi",
+    "export-do",
+    "file-save",
+    "file-close",
+    "transform-translate",
+    "transform-scale",
+    "transform-rotate",
+    "query-x",
+    "query-y",
+    "query-width",
+    "query-height",
+    "query-all",
+}
+
+
+def _is_safe_action(a: str) -> bool:
+    """Check if action is in the safe allowlist."""
+    aid = a.split(":", 1)[0]
+    return aid in SAFE_ACTIONS
+
+
+@lru_cache(maxsize=1)
+def _resolve_inkscape_executable() -> str:
+    """Locate the Inkscape executable with Windows compatibility in mind."""
+    override = os.getenv("INKS_INKSCAPE_BIN")
+    if override:
+        override_path = Path(override).expanduser()
+        if override_path.is_file():
+            return str(override_path.resolve())
+        resolved_override = shutil.which(override)
+        if resolved_override:
+            return resolved_override
+        raise ToolError(
+            "Inkscape executable not found at the path provided via INKS_INKSCAPE_BIN. "
+            "Update the environment variable to point to the Inkscape binary."
+        )
+
+    for candidate in ("inkscape", "inkscape.exe"):
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+
+    raise ToolError(
+        "Inkscape executable not found. Install Inkscape and ensure it is "
+        "on your PATH, or set INKS_INKSCAPE_BIN to its full path."
+    )
+
+
+class Doc(BaseModel):
+    """Document specification."""
+
+    type: Literal["file", "inline"]
+    path: str | None = None
+    svg: str | None = None
+
+
+class Export(BaseModel):
+    """Export specification."""
+
+    type: Literal["png", "pdf", "svg"]
+    out: str
+    dpi: int | None = None
+    area: Literal["page", "drawing"] = "page"
+
+
+class RunArgs(BaseModel):
+    """Arguments for running Inkscape actions."""
+
+    doc: Doc
+    actions: list[str] = Field(default_factory=list)
+    export: Export | None = None
+    timeout_s: int | None = None
+
+    @field_validator("actions")
+    @classmethod
+    def validate_actions(cls, v: list[str]) -> list[str]:
+        """Validate that all actions are safe."""
+        for a in v:
+            if not _is_safe_action(a):
+                raise ValueError(f"Unsafe action: {a}")
+        return v
+
+
+def _write_inline(svg: str) -> Path:
+    """Write inline SVG to temporary file."""
+    if CFG is None:
+        raise ToolError("Config not initialized")
+
+    if svg is None:
+        raise ValidationError("Missing inline SVG")
+    if len(svg.encode("utf-8")) > CFG.max_file_size:
+        raise ValidationError("Inline SVG too large")
+
+    p = CFG.workspace / f"inline-{uuid.uuid4().hex}.svg"
+    with open(p, "w", encoding="utf-8") as f:
+        f.write(svg)
+    return p
+
+
+def _mk_cmd(infile: Path, args: RunArgs, tmp_export: Path | None) -> list[str]:
+    """Build Inkscape command."""
+    acts = []
+    if any(a.startswith("select-") or a.startswith("query-") for a in args.actions):
+        acts.append("select-clear")
+    acts += args.actions
+
+    if args.export:
+        acts.append(
+            "export-area-page" if args.export.area == "page" else "export-area-drawing"
+        )
+        acts += [f"export-type:{args.export.type}", f"export-filename:{tmp_export}"]
+        if args.export.dpi:
+            acts.append(f"export-dpi:{args.export.dpi}")
+        acts.append("export-do")
+
+    # Let Inkscape close naturally - file-close causes crashes in batch mode
+    inkscape_exe = _resolve_inkscape_executable()
+    return [
+        inkscape_exe,
+        str(infile),
+        f"--actions={';'.join(acts)}",
+        "--batch-process",
+    ]
+
+
+async def _action_list_impl() -> dict:
+    """Internal implementation for listing actions."""
+    if SEM is None:
+        raise ToolError("Server not initialized")
+
+    async with SEM:
+        try:
+            env = os.environ.copy()
+            env["DISPLAY"] = ""  # Force headless mode to prevent GUI issues
+            with anyio.fail_after(5):
+                inkscape_exe = _resolve_inkscape_executable()
+                p = await anyio.run_process([inkscape_exe, "--action-list"], env=env)
+            if p.returncode != 0:
+                raise ToolError("action-list failed")
+
+            items = []
+            for line in p.stdout.decode().splitlines():
+                if " : " in line:
+                    aid, doc = line.split(" : ", 1)
+                    items.append({"id": aid.strip(), "doc": doc.strip()})
+            return {"actions": items}
+        except TimeoutError as e:
+            raise ToolError("action-list timeout") from e
+
+
+@tool("action_list")
+async def action_list(ctx: Context) -> dict:
+    """List available Inkscape actions."""
+    return await _action_list_impl()
+
+
+def _resolve_input(doc: Doc) -> tuple[Path, bool]:
+    """Resolve input file and return (path, is_temporary)."""
+    if doc.type == "file":
+        if not doc.path:
+            raise ValidationError("Missing file path")
+        infile = _ensure_in_workspace(Path(doc.path))
+        _check_size(infile)
+        return infile, False
+    else:
+        if doc.svg is None:
+            raise ValidationError("Missing inline SVG")
+        infile = _write_inline(doc.svg)
+        return infile, True
+
+
+def _prepare_export(export: Export | None) -> tuple[Path | None, Path | None]:
+    """Prepare export paths and return (tmp_export, final_export)."""
+    if not export:
+        return None, None
+
+    final_export = _ensure_in_workspace(Path(export.out))
+    # Preserve the export type extension for Inkscape compatibility
+    tmp_name = final_export.stem + f".tmp-{uuid.uuid4().hex}" + final_export.suffix
+    tmp_export = final_export.parent / tmp_name
+    return tmp_export, final_export
+
+
+def _handle_timeout(proc: subprocess.Popen) -> None:
+    """Handle subprocess timeout with platform-specific termination."""
+    if platform.system() != "Windows":
+        os.killpg(proc.pid, signal.SIGTERM)
+    else:
+        proc.terminate()
+    try:
+        proc.communicate(timeout=5)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.communicate()
+
+
+def _run_inkscape(
+    cmd: list[str], timeout: int, lock_path: Path | None
+) -> tuple[bytes, bytes]:
+    """Execute Inkscape command with locking and timeout handling."""
+    env = os.environ.copy()
+    env["DISPLAY"] = ""  # Force headless mode to prevent GUI issues
+
+    if platform.system() != "Windows":
+        popen_kw = {"preexec_fn": os.setsid, "env": env}
+    else:
+        popen_kw = {
+            "creationflags": 0x00000010,
+            "env": env,
+        }  # CREATE_NEW_PROCESS_GROUP
+
+    if lock_path:
+        lock_file = lock_path.parent / f"{lock_path.name}.lock"
+        with FileLock(str(lock_file)):
+            return _execute_subprocess(cmd, timeout, popen_kw)
+    else:
+        return _execute_subprocess(cmd, timeout, popen_kw)
+
+
+def _execute_subprocess(
+    cmd: list[str], timeout: int, popen_kw: dict
+) -> tuple[bytes, bytes]:
+    """Execute subprocess with timeout handling."""
+    proc = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **popen_kw
+    )
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        _handle_timeout(proc)
+        raise ToolError("Operation timed out") from None
+
+    if proc.returncode != 0:
+        raise ToolError("inkscape failed")
+
+    return stdout, stderr
+
+
+def _finalize_export(tmp_export: Path | None, final_export: Path | None) -> None:
+    """Move temporary export to final destination atomically."""
+    if not tmp_export or not final_export:
+        return
+
+    tmp_export = Path(tmp_export)
+    if not tmp_export.exists():
+        raise ToolError("export missing")
+    final_export.parent.mkdir(parents=True, exist_ok=True)
+    os.replace(tmp_export, final_export)
+
+
+def _cleanup(infile: Path, is_inline: bool, tmp_export: Path | None) -> None:
+    """Clean up temporary files."""
+    # Cleanup tmp inline
+    if is_inline:
+        try:
+            infile.unlink(missing_ok=True)
+        except Exception:
+            pass
+    # Cleanup tmp export if still present
+    if tmp_export:
+        try:
+            Path(tmp_export).unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+async def _action_run_impl(
+    doc: Doc,
+    actions: list[str] | None = None,
+    export: Export | None = None,
+    timeout_s: int | None = None,
+) -> dict:
+    """Internal implementation for running actions."""
+    if CFG is None or SEM is None:
+        raise ToolError("Server not initialized")
+
+    # Create args object for internal use
+    args = RunArgs(
+        doc=doc,
+        actions=actions or [],
+        export=export,
+        timeout_s=timeout_s,
+    )
+
+    timeout = args.timeout_s or CFG.timeout_default
+
+    async with SEM:
+        # 1. Resolve input file
+        infile, is_inline = _resolve_input(args.doc)
+
+        # 2. Prepare export paths
+        tmp_export, final_export = _prepare_export(args.export)
+
+        # 3. Build command
+        lock_path = infile if args.doc.type == "file" else None
+        cmd = _mk_cmd(infile, args, tmp_export)
+
+        try:
+            # 4. Execute Inkscape
+            _run_inkscape(cmd, timeout, lock_path)
+
+            # 5. Finalize export
+            _finalize_export(tmp_export, final_export)
+
+            # 6. Return result
+            return {"ok": True, "out": str(final_export) if final_export else None}
+
+        finally:
+            # 7. Cleanup
+            _cleanup(infile, is_inline, tmp_export)
+
+
+@tool("action_run")
+async def action_run(
+    ctx: Context,
+    doc: Doc,
+    actions: list[str] | None = None,
+    export: Export | None = None,
+    timeout_s: int | None = None,
+) -> dict:
+    """Run Inkscape actions on a document."""
+    return await _action_run_impl(doc, actions, export, timeout_s)
+
+
+def main(config: InkscapeConfig | None = None) -> None:
+    """Main entry point for CLI server."""
+    _init_config(config)
+    app.run()
+
+
+if __name__ == "__main__":
+    main()
