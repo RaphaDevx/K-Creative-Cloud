@@ -1,0 +1,17 @@
+[project]
+name = "video-shorts-mcp"
+version = "1.0.0"
+description = "K-Creative-Cloud: 100-second educational video shorts via Claude + Kokoro TTS + FFmpeg"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.3.0",
+    "fastmcp>=2.0.0",
+    "anthropic>=0.50.0",
+    "Pillow>=10.0.0",
+    "soundfile>=0.12.0",
+    "kokoro-onnx>=0.4.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
