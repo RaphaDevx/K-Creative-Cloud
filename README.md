@@ -7,8 +7,8 @@ Claude behält volle Kontrolle über alle Tools; die GUIs bleiben gleichzeitig b
 
 | Tool | Version | MCP-Status |
 |------|---------|-----------|
-| Blender | 4.0.2 | ✅ in Etappe 2 |
-| GIMP | 2.10.36 | ✅ in Etappe 2 |
+| Blender | 4.0.2 | ✅ MCP bereit (Etappe 2) |
+| GIMP | 3.2.4 (snap) | ✅ MCP bereit (Etappe 2) |
 | Inkscape | 1.2.2 | 🔜 Etappe 3 |
 | FreeCAD | 1.1 (snap) | 🔜 Etappe 3 |
 | Kdenlive | 23.08.5 | 🔜 Etappe 3 |
@@ -36,5 +36,5 @@ Sie laden nur wenn du im `K-Creative-Cloud/` Ordner bist — kein Impact auf and
 ## Etappen
 
 - **Etappe 1** ✅ Programme installiert, Repo angelegt, GitHub bereinigt
-- **Etappe 2** 🔜 Blender-MCP + GIMP-MCP (maturste Implementierungen)
+- **Etappe 2** ✅ Blender-MCP (v1.5.5) + GIMP-MCP (56 Tools, GIMP 3.2.4)
 - **Etappe 3** 🔜 Inkscape, FreeCAD (CAM/G-Code), Kdenlive, LMMS
