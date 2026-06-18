@@ -1,0 +1,28 @@
+{
+  "create-reel": {
+    "name": "create-reel",
+    "description": "Create Reel — Animated Social Media Video Engine (Remotion)",
+    "claude_path": "/home/claude/.claude/commands/create-reel.md",
+    "ollama_modelfile": "skill-converter/modelfiles/create-reel.Modelfile",
+    "openwebui_prompt": "skill-converter/prompts/create-reel.json",
+    "plain_txt": "skill-converter/system_prompts/create-reel.txt",
+    "best_qwen_approach": "system_prompt",
+    "notes": "Uses MCP calls (remotion-shorts) which Qwen cannot execute directly. Best approach: use system_prompt to generate the JSON storyboard, then pipe to Remotion manually or via script.",
+    "last_converted": "2026-06-18T00:00:00",
+    "qwen_usage": {
+      "ollama_create": "ollama create create-reel -f skill-converter/modelfiles/create-reel.Modelfile",
+      "ollama_run": "ollama run create-reel",
+      "api_example": "curl http://localhost:11434/api/generate -d '{\"model\": \"create-reel\", \"prompt\": \"Mach ein Reel über Normalverteilung\"}'",
+      "openwebui_import": "OpenWebUI → Workspace → Prompts → Import JSON → skill-converter/prompts/create-reel.json"
+    }
+  },
+  "_meta": {
+    "created": "2026-06-18",
+    "description": "Index of all Claude Code skills and their Qwen/Ollama conversions",
+    "converter_script": "skill-converter/convert_skill.py",
+    "sync_script": "skill-converter/sync_skills.py",
+    "add_more_skills": "python3 skill-converter/convert_skill.py ~/.claude/commands/<skill>.md",
+    "convert_all": "python3 skill-converter/sync_skills.py --once",
+    "watch_mode": "python3 skill-converter/sync_skills.py --watch"
+  }
+}
