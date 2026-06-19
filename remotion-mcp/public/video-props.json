@@ -1,0 +1,95 @@
+{
+  "scenes": [
+    {
+      "id": 0,
+      "type": "hook",
+      "headline": "4 MARKETS, 0 POOLING",
+      "subtext": "Without postponement, every country buffers alone.",
+      "emoji": "\ud83c\udf0d",
+      "accent_hex": "#FF4444",
+      "spoken": "You sell one product in four countries \u2014 Switzerland, Germany, Great Britain, and Italy. Each market gets its own variant. Without postponement, your supply chain treats every variant as a completely separate product. That means four independent safety stocks, four separate orders \u2014 and four times the cost.",
+      "audioFile": "e5dc314d/scene_000.wav",
+      "durationFrames": 522
+    },
+    {
+      "id": 1,
+      "type": "fact",
+      "headline": "EACH VARIANT = OWN PRODUCT",
+      "subtext": "Same newsvendor formula, four times over.",
+      "emoji": "\ud83d\udce6",
+      "accent_hex": "#FFD700",
+      "spoken": "The setup: lead time is six weeks, holding cost is five francs per unit per week, and penalty cost for stockouts is ninety-five francs. Calculate the critical ratio first: CR equals H divided by H plus P \u2014 that gives you five over one hundred, or five percent. Look up the Z-value and the F-value from the standard normal table. You need both for the formulas ahead.",
+      "audioFile": "e5dc314d/scene_001.wav",
+      "durationFrames": 631
+    },
+    {
+      "id": 2,
+      "type": "explanation",
+      "headline": "CV REVEALS THE RISK",
+      "subtext": "Coefficient of variance: \u03c3 divided by \u03bc.",
+      "emoji": "\ud83d\udcca",
+      "accent_hex": "#4FC3F7",
+      "spoken": "Before you calculate anything, compare the markets. Do not just look at the raw standard deviation \u2014 divide it by the mean to get the coefficient of variance. Switzerland and Germany have high CV \u2014 demand is highly variable relative to the mean. Great Britain and Italy have low CV \u2014 demand is much more stable. High CV means higher safety stock, higher cost.",
+      "audioFile": "e5dc314d/scene_002.wav",
+      "durationFrames": 599
+    },
+    {
+      "id": 3,
+      "type": "explanation",
+      "headline": "EXCEL TIP: NAME YOUR CELLS",
+      "subtext": "LT, H, P, CR, Z, F \u2014 no magic numbers.",
+      "emoji": "\ud83d\udca1",
+      "accent_hex": "#4FC3F7",
+      "spoken": "Here is an exam tip that saves time and prevents errors. In Excel, name your parameter cells: call E4 LT for lead time, E5 H for holding cost, E6 P for penalty cost. Then name the derived values CR, Z, and F. Now your formulas read like the textbook \u2014 no cryptic cell addresses, no wrong references. Just type LT, H, Z directly.",
+      "audioFile": "e5dc314d/scene_003.wav",
+      "durationFrames": 626
+    },
+    {
+      "id": 4,
+      "type": "explanation",
+      "headline": "ORDER QUANTITY FORMULA",
+      "subtext": "Optimal Q* per country \u2014 Newsvendor extended with lead time.",
+      "emoji": "\ud83d\udcd0",
+      "accent_hex": "#FFD700",
+      "spoken": "The optimal order quantity for each country extends the newsvendor formula with lead time. Q-star equals LT plus one multiplied by the expected weekly demand, plus Z times sigma times the square root of LT plus one. In Excel for Switzerland: equals LT plus one times mu, plus Z times sigma times SQRT of LT plus one. Copy the formula down for Germany, Great Britain, and Italy.",
+      "viz": {
+        "type": "latex",
+        "latex": "Q^* = (LT+1)\\cdot\\mu + Z\\cdot\\sigma\\cdot\\sqrt{LT+1}",
+        "caption": "Newsvendor extended with lead time"
+      },
+      "audioFile": "e5dc314d/scene_004.wav",
+      "durationFrames": 683
+    },
+    {
+      "id": 5,
+      "type": "explanation",
+      "headline": "COST FORMULA PER COUNTRY",
+      "subtext": "Expected cost for each country configuration.",
+      "emoji": "\ud83d\udcb0",
+      "accent_hex": "#FF7043",
+      "spoken": "The expected cost for each configuration: H plus P times F times sigma times square root of LT plus one. In Excel: equals H plus P times F times sigma times SQRT of LT plus one. Copy down for all four countries. Then sum the order quantities and sum the costs. These totals are your baseline \u2014 the cost of running the supply chain WITHOUT pooling.",
+      "viz": {
+        "type": "latex",
+        "latex": "C = (H+P)\\cdot F\\cdot\\sigma\\cdot\\sqrt{LT+1}",
+        "caption": "Expected cost per country configuration"
+      },
+      "audioFile": "e5dc314d/scene_005.wav",
+      "durationFrames": 638
+    },
+    {
+      "id": 6,
+      "type": "takeaway",
+      "headline": "THIS IS YOUR BASELINE",
+      "subtext": "Next: postponement cuts this cost by pooling stock.",
+      "emoji": "\u26a0\ufe0f",
+      "accent_hex": "#CE93D8",
+      "spoken": "Four separate safety stocks mean four times the insurance against demand uncertainty. The total cost you just calculated is the without-postponement baseline. In the next video, postponement pools all four variants into one stock, reducing total safety stock dramatically \u2014 because the variances partially cancel out. Remember the formula, remember CV, and name your cells in Excel. That's supply chain without postponement.",
+      "audioFile": "e5dc314d/scene_006.wav",
+      "durationFrames": 674
+    }
+  ],
+  "title": "Supply Chain without Postponement \u2014 OM HSG",
+  "totalDurationFrames": 4373,
+  "style": "minimal",
+  "characterId": "default"
+}
