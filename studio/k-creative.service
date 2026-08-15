@@ -1,0 +1,28 @@
+# K-Creative Studio — systemd user service
+# Install:
+#   cp studio/k-creative.service ~/.config/systemd/user/k-creative.service
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now k-creative
+#   systemctl --user status k-creative
+
+[Unit]
+Description=K-Creative Studio (FastAPI + DJ Engine)
+After=network.target pipewire.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/K-Creative-Cloud/studio
+ExecStart=%h/K-Creative-Cloud/.venv/bin/python server.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Audio realtime scheduling
+# Requires user to be in the 'audio' group (setup_mac_audio_linux.sh does this)
+LimitRTPRIO=95
+LimitMEMLOCK=infinity
+Nice=-10
+
+[Install]
+WantedBy=default.target

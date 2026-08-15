@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="de" data-mode="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knowledge Blocks — Design System v0.2 · Fineline</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ── Fineline Palette ── */
+:root {
+  --bg:        #F8F6F0;
+  --surface:   #FFFFFF;
+  --surface-2: #F2EFE9;
+  --border:    #E5E0D5;
+  --text:      #18191B;
+  --text-2:    #6E6D68;
+  --text-3:    #A2A098;
+
+  --accent:    #2B4C7E;
+  --accent-bg: rgba(43,76,126,.07);
+  --success:   #5B8266;
+  --review:    #B85D43;
+
+  --s1: #3B5A8A;   /* Mathematik  */
+  --s2: #7A6030;   /* Wirtschaft  */
+  --s3: #5E4A7A;   /* Theorie     */
+  --s4: #4A7A5A;   /* Fallstudien */
+  --s5: #8B4A35;   /* Praxis      */
+  --s6: #7A5035;   /* Projekte    */
+  --s7: #2E6B6B;   /* Forschung   */
+
+  --r-xs: 4px; --r-sm: 6px; --r: 10px; --r-lg: 18px;
+  --font-d: 'Space Grotesk', sans-serif;
+  --font-b: 'Inter', sans-serif;
+  --font-m: 'JetBrains Mono', monospace;
+}
+
+[data-mode="dark"] {
+  --bg:        #111215;
+  --surface:   #18191E;
+  --surface-2: #1E1F25;
+  --border:    #272930;
+  --text:      #EAE6DF;
+  --text-2:    #8C8D94;
+  --text-3:    #4A4B52;
+
+  --accent:    #5279B0;
+  --accent-bg: rgba(82,121,176,.1);
+  --success:   #6C9A78;
+  --review:    #C86E54;
+
+  --s1: #5279B0;
+  --s2: #9A7A3A;
+  --s3: #7A5E99;
+  --s4: #5E9A70;
+  --s5: #B05E45;
+  --s6: #9A6845;
+  --s7: #3E8A8A;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background .3s, color .3s;
+}
+
+.page { max-width: 1200px; margin: 0 auto; padding: 48px 32px 120px; }
+section { margin-bottom: 72px; }
+
+.ds-label {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.ds-title {
+  font-family: var(--font-d);
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: -.02em;
+}
+.ds-sub { color: var(--text-2); font-size: 13px; margin-bottom: 24px; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 64px 0; }
+
+/* ── HEADER ── */
+.ds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 56px;
+}
+.kb-logo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  width: 28px; height: 28px;
+}
+.kb-logo span { background: var(--accent); border-radius: 3px; display: block; transition: background .3s; }
+.ds-wordmark { font-family: var(--font-d); font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
+.ds-wordmark small {
+  display: block;
+  font-family: var(--font-m);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-2);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+.ds-meta { display: flex; align-items: center; gap: 10px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--r-xs);
+  font-family: var(--font-m);
+  font-size: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: var(--font-m);
+  font-size: 11px;
+  color: var(--text-2);
+  transition: all .2s;
+}
+.mode-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.icon-btn {
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-family: var(--font-m);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PALETTE SWATCHES ── */
+.canvas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.canvas-card {
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.canvas-header {
+  padding: 12px 16px;
+  font-family: var(--font-m);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  border-bottom: 1px solid var(--border);
+}
+.swatch-list { display: flex; flex-direction: column; }
+.sw {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.sw:last-child { border-bottom: none; }
+.sw-left { display: flex; align-items: center; gap: 10px; }
+.sw-dot { width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(0,0,0,.08); }
+.sw-name { font-weight: 500; }
+.sw-hex { font-family: var(--font-m); font-size: 11px; color: var(--text-3); }
+
+.accent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.accent-option {
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  cursor: pointer;
+  background: var(--surface);
+  transition: all .2s;
+}
+.accent-option:hover { transform: translateY(-1px); }
+.accent-option.active { border-color: var(--accent); background: var(--accent-bg); }
+.ao-dot { width: 32px; height: 32px; border-radius: var(--r-sm); margin-bottom: 10px; }
+.ao-name { font-family: var(--font-d); font-weight: 600; font-size: 13px; }
+.ao-role { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+.ao-hex  { font-family: var(--font-m); font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+.subj {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.subj-dot { width: 100%; aspect-ratio: 1; border-radius: var(--r-sm); }
+.subj-name { font-family: var(--font-m); font-size: 9px; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; }
+.subj-label { font-family: var(--font-d); font-size: 11px; font-weight: 500; line-height: 1.3; }
+.subj-hex { font-family: var(--font-m); font-size: 9px; color: var(--text-3); }
+
+/* ── TYPOGRAPHY ── */
+.font-switcher { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.font-btn {
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all .2s;
+}
+.font-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+.type-scale { display: flex; flex-direction: column; gap: 2px; }
+.ts-row {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.ts-meta { min-width: 100px; flex-shrink: 0; }
+.ts-role { font-family: var(--font-m); font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; }
+.ts-spec { font-family: var(--font-m); font-size: 10px; color: var(--text-3); margin-top: 2px; }
+
+/* ── COMPONENTS ── */
+.comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.comp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+}
+.comp-span2 { grid-column: span 2; }
+.comp-title {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 7px; }
+.kb-btn {
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-d);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: opacity .15s;
+  letter-spacing: -.01em;
+}
+.kb-btn:hover { opacity: .82; }
+.kb-btn.primary  { background: var(--accent); color: #fff; }
+.kb-btn.secondary{ background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.kb-btn.ghost    { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.kb-btn.danger   { background: transparent; border: 1px solid var(--review); color: var(--review); }
+.kb-btn.sm { padding: 5px 11px; font-size: 12px; }
+.kb-btn.lg { padding: 12px 24px; font-size: 15px; }
+
+.kb-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--font-b);
+  font-size: 13px;
+  margin-bottom: 6px;
+  outline: none;
+  transition: border-color .2s;
+}
+.kb-input:focus { border-color: var(--accent); background: var(--surface); }
+.kb-input::placeholder { color: var(--text-3); }
+
+.tag-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+.kb-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--r-xs);
+  font-size: 11px;
+  font-family: var(--font-m);
+  font-weight: 500;
+  border: 1px solid;
+}
+.kb-tag.accent  { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+.kb-tag.success { background: rgba(91,130,102,.08); border-color: var(--success); color: var(--success); }
+.kb-tag.review  { background: rgba(184,93,67,.08); border-color: var(--review); color: var(--review); }
+.kb-tag.neutral { background: var(--surface-2); border-color: var(--border); color: var(--text-2); }
+
+.pb-blocks { display: flex; gap: 3px; }
+.pb { height: 6px; flex: 1; border-radius: 2px; background: var(--surface-2); border: 1px solid var(--border); }
+.pb.done    { background: var(--success); border-color: var(--success); }
+.pb.error   { background: var(--review); border-color: var(--review); }
+.pb.current { background: var(--accent); border-color: var(--accent); opacity: .5; }
+
+.kb-nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 10px; border-radius: var(--r-sm); }
+.nav-item.active { background: var(--accent-bg); }
+.nav-icon { width: 18px; height: 18px; background: var(--border); border-radius: 3px; }
+.nav-item.active .nav-icon { background: var(--accent); }
+.nav-label { font-size: 9px; font-family: var(--font-m); color: var(--text-3); }
+.nav-item.active .nav-label { color: var(--accent); }
+.nav-center {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 2px; padding: 8px 10px; background: var(--accent); border-radius: var(--r-sm);
+}
+.nav-center span { background: rgba(255,255,255,.65); border-radius: 2px; }
+
+/* ── SCREENS ── */
+.screens-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.screen-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.screen-frame {
+  width: 100%;
+  aspect-ratio: 9/19.5;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: background .3s, border-color .3s;
+}
+.screen-di {
+  width: 60px; height: 20px;
+  background: var(--bg);
+  border-radius: 0 0 12px 12px;
+  margin: 0 auto;
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.screen-body {
+  flex: 1;
+  padding: 6px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: hidden;
+}
+.screen-label {
+  font-family: var(--font-m);
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: center;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* Wireframe primitives */
+.wf { height: 8px; border-radius: 2px; background: var(--border); }
+.wf.accent { background: var(--accent); opacity: .7; }
+.wf.success { background: var(--success); opacity: .7; }
+.wf.review { background: var(--review); opacity: .7; }
+.wf.sm { height: 6px; }
+.wf.xs { height: 4px; }
+.wf.lg { height: 14px; }
+.wf.w100 { width:100%; } .wf.w75 { width:75%; }
+.wf.w50 { width:50%; } .wf.w30 { width:30%; }
+.wf-img {
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.wf-img span { font-family: var(--font-m); font-size: 8px; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; }
+.wf-row { display: flex; gap: 4px; align-items: center; }
+.wf-col { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.wf-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.wf-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 6px; display: flex; flex-direction: column; gap: 3px; }
+.wf-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.wf-dot.accent { background: var(--accent); }
+
+.snav {
+  height: 32px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+.sn-dot { width: 14px; height: 14px; border-radius: 3px; background: var(--border); }
+.sn-dot.active { background: var(--accent); }
+.sn-center {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 2px; padding: 3px;
+}
+.sn-center span { background: rgba(255,255,255,.6); border-radius: 1px; }
+
+/* ── TOKENS ── */
+.token-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.token-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.token-title { font-family: var(--font-m); font-size: 11px; color: var(--text-2); }
+.copy-btn {
+  padding: 4px 11px;
+  border-radius: var(--r-xs);
+  background: var(--border);
+  border: none;
+  color: var(--text-2);
+  font-family: var(--font-m);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.copy-btn:hover { background: var(--accent); color: #fff; }
+pre {
+  padding: 22px 24px;
+  font-family: var(--font-m);
+  font-size: 12px;
+  line-height: 1.9;
+  overflow-x: auto;
+  color: var(--text);
+}
+.cc { color: var(--text-3); }
+.cp { color: var(--s1); }
+.cv { color: var(--success); }
+.cb { color: var(--accent); }
+
+@media(max-width:900px) { .screens-row { grid-template-columns: 1fr 1fr; } .subject-grid { grid-template-columns: repeat(4,1fr); } }
+@media(max-width:640px) { .canvas-grid { grid-template-columns: 1fr; } .accent-grid { grid-template-columns: 1fr; } .page { padding: 24px 16px 80px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<header class="ds-header">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="kb-logo"><span></span><span></span><span></span><span></span></div>
+    <div class="ds-wordmark">
+      Knowledge Blocks
+      <small>Fineline · Design System v0.2</small>
+    </div>
+  </div>
+  <div class="ds-meta">
+    <span class="badge">Aug 2026</span>
+    <button class="mode-toggle" onclick="toggleMode(this)">
+      <span id="modeIcon">☀</span> <span id="modeLabel">Light</span>
+    </button>
+    <button class="icon-btn" onclick="exportTokens()">↓ tokens.json</button>
+  </div>
+</header>
+
+<!-- 01 PALETTE -->
+<section>
+  <div class="ds-label">01 — Fineline Palette</div>
+  <div class="ds-title">Canvas & Farben</div>
+  <div class="ds-sub">Eggshell für fokussiertes Lesen · Obsidian für Abend-Sessions · kognitive Entlastung durch gedämpfte Töne</div>
+
+  <!-- Canvas Cards -->
+  <div class="canvas-grid">
+    <div class="canvas-card">
+      <div class="canvas-header" style="background:#F8F6F0;color:#6E6D68;border-color:#E5E0D5">Light · Eggshell Canvas</div>
+      <div class="swatch-list" style="background:#F8F6F0">
+        <div class="sw" style="border-color:#E5E0D5;color:#18191B">
+          <div class="sw-left"><div class="sw-dot" style="background:#F8F6F0;border-color:#ccc"></div><div><div class="sw-name">Eggshell BG</div></div></div>
+          <div class="sw-hex">#F8F6F0</div>
+        </div>
+        <div class="sw" style="border-color:#E5E0D5;color:#18191B">
+          <div class="sw-left"><div class="sw-dot" style="background:#FFFFFF;border-color:#ccc"></div><div><div class="sw-name">Vellum Surface</div></div></div>
+          <div class="sw-hex">#FFFFFF</div>
+        </div>
+        <div class="sw" style="border-color:#E5E0D5;color:#18191B">
+          <div class="sw-left"><div class="sw-dot" style="background:#E5E0D5"></div><div><div class="sw-name">Fineline Border</div></div></div>
+          <div class="sw-hex">#E5E0D5</div>
+        </div>
+        <div class="sw" style="border-color:#E5E0D5;color:#18191B">
+          <div class="sw-left"><div class="sw-dot" style="background:#18191B"></div><div><div class="sw-name">Deep Ink (Text)</div></div></div>
+          <div class="sw-hex">#18191B</div>
+        </div>
+        <div class="sw" style="border-color:#E5E0D5;color:#18191B">
+          <div class="sw-left"><div class="sw-dot" style="background:#6E6D68"></div><div><div class="sw-name">Secondary Text</div></div></div>
+          <div class="sw-hex">#6E6D68</div>
+        </div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <div class="canvas-header" style="background:#18191E;color:#8C8D94;border-color:#272930">Dark · Obsidian Canvas</div>
+      <div class="swatch-list" style="background:#18191E">
+        <div class="sw" style="border-color:#272930;color:#EAE6DF">
+          <div class="sw-left"><div class="sw-dot" style="background:#111215;border-color:#444"></div><div><div class="sw-name">Obsidian BG</div></div></div>
+          <div class="sw-hex" style="color:#5A5B62">#111215</div>
+        </div>
+        <div class="sw" style="border-color:#272930;color:#EAE6DF">
+          <div class="sw-left"><div class="sw-dot" style="background:#18191E;border-color:#444"></div><div><div class="sw-name">Basalt Surface</div></div></div>
+          <div class="sw-hex" style="color:#5A5B62">#18191E</div>
+        </div>
+        <div class="sw" style="border-color:#272930;color:#EAE6DF">
+          <div class="sw-left"><div class="sw-dot" style="background:#272930"></div><div><div class="sw-name">Hairline Border</div></div></div>
+          <div class="sw-hex" style="color:#5A5B62">#272930</div>
+        </div>
+        <div class="sw" style="border-color:#272930;color:#EAE6DF">
+          <div class="sw-left"><div class="sw-dot" style="background:#EAE6DF;border-color:#999"></div><div><div class="sw-name">Alabaster (Text)</div></div></div>
+          <div class="sw-hex" style="color:#5A5B62">#EAE6DF</div>
+        </div>
+        <div class="sw" style="border-color:#272930;color:#EAE6DF">
+          <div class="sw-left"><div class="sw-dot" style="background:#8C8D94"></div><div><div class="sw-name">Muted Text</div></div></div>
+          <div class="sw-hex" style="color:#5A5B62">#8C8D94</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accent -->
+  <div class="ds-label">Akademische Akzente</div>
+  <div class="ds-sub">Drei Funktionsfarben — Primär · Erfolg · Wiederholung</div>
+  <div class="accent-grid">
+    <div class="accent-option active" id="ao0" onclick="selectAccent(0,this)">
+      <div class="ao-dot" style="background:var(--accent)"></div>
+      <div class="ao-name">Kyanit Focus</div>
+      <div class="ao-role">Primary / Interaktion</div>
+      <div class="ao-hex" id="ao0hex">#2B4C7E</div>
+    </div>
+    <div class="accent-option" id="ao1" onclick="selectAccent(1,this)">
+      <div class="ao-dot" style="background:var(--success)"></div>
+      <div class="ao-name">Sage</div>
+      <div class="ao-role">Erfolg / Gewusst</div>
+      <div class="ao-hex">#5B8266</div>
+    </div>
+    <div class="accent-option" id="ao2" onclick="selectAccent(2,this)">
+      <div class="ao-dot" style="background:var(--review)"></div>
+      <div class="ao-name">Rust</div>
+      <div class="ao-role">Review / Nochmal</div>
+      <div class="ao-hex">#B85D43</div>
+    </div>
+  </div>
+
+  <!-- Subject Colors -->
+  <div class="ds-label" style="margin-top:8px">Fachbereich-Farben</div>
+  <div class="ds-sub">7 gedämpfte Töne — akademisch, blendfrei</div>
+  <div class="subject-grid">
+    <div class="subj"><div class="subj-dot" style="background:var(--s1)"></div><div class="subj-name">S-1</div><div class="subj-label">Mathematik</div><div class="subj-hex">#3B5A8A</div></div>
+    <div class="subj"><div class="subj-dot" style="background:var(--s2)"></div><div class="subj-name">S-2</div><div class="subj-label">Wirtschaft</div><div class="subj-hex">#7A6030</div></div>
+    <div class="subj"><div class="subj-dot" style="background:var(--s3)"></div><div class="subj-name">S-3</div><div class="subj-label">Theorie</div><div class="subj-hex">#5E4A7A</div></div>
+    <div class="subj"><div class="subj-dot" style="background:var(--s4)"></div><div class="subj-name">S-4</div><div class="subj-label">Fallstudien</div><div class="subj-hex">#4A7A5A</div></div>
+    <div class="subj"><div class="subj-dot" style="background:var(--s5)"></div><div class="subj-name">S-5</div><div class="subj-label">Praxis</div><div class="subj-hex">#8B4A35</div></div>
+    <div class="subj"><div class="subj-dot" style="background:var(--s6)"></div><div class="subj-name">S-6</div><div class="subj-label">Projekte</div><div class="subj-hex">#7A5035</div></div>
+    <div class="subj"><div class="subj-dot" style="background:var(--s7)"></div><div class="subj-name">S-7</div><div class="subj-label">Forschung</div><div class="subj-hex">#2E6B6B</div></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 02 TYPOGRAPHY -->
+<section>
+  <div class="ds-label">02 — Typography</div>
+  <div class="ds-title">Type System</div>
+  <div class="ds-sub">Display für Struktur · Inter für Lesbarkeit · Mono für Labels und Daten</div>
+
+  <div class="font-switcher">
+    <button class="font-btn active" onclick="setFont('Space Grotesk',this)">Space Grotesk</button>
+    <button class="font-btn" onclick="setFont('DM Sans',this)">DM Sans</button>
+    <button class="font-btn" onclick="setFont('Inter',this)">Inter Uniform</button>
+  </div>
+
+  <div class="type-scale">
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">Display</div><div class="ts-spec">40 · 700 · -0.5px</div></div>
+      <div style="font-family:var(--font-d);font-size:40px;font-weight:700;letter-spacing:-0.5px;line-height:1.1">Knowledge Blocks</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">H1</div><div class="ts-spec">26 · 600 · -0.3px</div></div>
+      <div style="font-family:var(--font-d);font-size:26px;font-weight:600;letter-spacing:-0.3px">Today's Block</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">H2</div><div class="ts-spec">18 · 600</div></div>
+      <div style="font-family:var(--font-d);font-size:18px;font-weight:600">Fachgebiete</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">H3</div><div class="ts-spec">15 · 600</div></div>
+      <div style="font-family:var(--font-d);font-size:15px;font-weight:600">Makroökonomie II · Block #104</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">Body</div><div class="ts-spec">14 · 400 · 1.6</div></div>
+      <div style="font-size:14px;color:var(--text-2);line-height:1.6">Lerne in Blöcken — jede Karte baut deinen Wissensturm. Wiederhole täglich, verfolge deinen Fortschritt, und bereite dich gezielt auf Prüfungen vor.</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">Caption</div><div class="ts-spec">12 · 400 · 1.4</div></div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.4">Zuletzt geübt vor 2 Stunden · 12 offene Karten · Prüfung in 18 Tagen</div>
+    </div>
+    <div class="ts-row">
+      <div class="ts-meta"><div class="ts-role">Mono</div><div class="ts-spec">11 · 500 · +0.1em</div></div>
+      <div style="font-family:var(--font-m);font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)">S-1 · Mathematik · #3B5A8A</div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 03 COMPONENTS -->
+<section>
+  <div class="ds-label">03 — Component Library</div>
+  <div class="ds-title">UI Komponenten</div>
+  <div class="ds-sub">Basiselemente — React Native / Expo / Web</div>
+
+  <div class="comp-grid">
+    <div class="comp-card">
+      <div class="comp-title">Button</div>
+      <div class="btn-row">
+        <button class="kb-btn primary">Primary</button>
+        <button class="kb-btn secondary">Secondary</button>
+      </div>
+      <div class="btn-row">
+        <button class="kb-btn ghost">Ghost</button>
+        <button class="kb-btn danger">Review</button>
+      </div>
+      <div class="btn-row" style="margin-top:4px">
+        <button class="kb-btn primary sm">Small</button>
+        <button class="kb-btn primary">Medium</button>
+        <button class="kb-btn primary lg">Large</button>
+      </div>
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-title">Input / Search</div>
+      <input class="kb-input" type="text" placeholder="Thema oder Block suchen…">
+      <input class="kb-input" type="text" placeholder="Passwort" style="letter-spacing:.18em">
+      <input class="kb-input" type="text" placeholder="Pflichtfeld fehlt" style="border-color:var(--review)">
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-title">Tags / Status</div>
+      <div class="tag-row">
+        <span class="kb-tag accent">Kyanit</span>
+        <span class="kb-tag success">Gewusst</span>
+        <span class="kb-tag review">Nochmal</span>
+      </div>
+      <div class="tag-row">
+        <span class="kb-tag neutral">Neutral</span>
+        <span class="kb-tag neutral">Mathe</span>
+        <span class="kb-tag neutral">BWL</span>
+      </div>
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-title">Progress Block</div>
+      <div style="font-family:var(--font-m);font-size:10px;color:var(--text-3);margin-bottom:7px">12 / 20 Karten</div>
+      <div class="pb-blocks" style="margin-bottom:10px">
+        <div class="pb done"></div><div class="pb done"></div>
+        <div class="pb done"></div><div class="pb error"></div>
+        <div class="pb done"></div><div class="pb done"></div>
+        <div class="pb done"></div><div class="pb done"></div>
+        <div class="pb done"></div><div class="pb done"></div>
+        <div class="pb done"></div><div class="pb done"></div>
+        <div class="pb current"></div><div class="pb"></div>
+        <div class="pb"></div><div class="pb"></div>
+        <div class="pb"></div><div class="pb"></div>
+        <div class="pb"></div><div class="pb"></div>
+      </div>
+      <div style="display:flex;gap:14px;font-family:var(--font-m);font-size:10px">
+        <span style="color:var(--success)">■ Gewusst</span>
+        <span style="color:var(--review)">■ Nochmal</span>
+        <span style="color:var(--text-3)">■ Offen</span>
+      </div>
+    </div>
+
+    <div class="comp-card comp-span2">
+      <div class="comp-title">Bottom Navigation</div>
+      <div class="kb-nav">
+        <div class="nav-item active"><div class="nav-icon"></div><div class="nav-label">Home</div></div>
+        <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">Explore</div></div>
+        <div class="nav-center"><span></span><span></span><span></span><span></span></div>
+        <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">Learn</div></div>
+        <div class="nav-item"><div class="nav-icon"></div><div class="nav-label">Profil</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 04 WIREFRAMES -->
+<section>
+  <div class="ds-label">04 — Screen Wireframes</div>
+  <div class="ds-title">App Screens</div>
+  <div class="ds-sub">Strukturelle Layouts — keine Inhalte, nur Hierarchie. Akzentfarbe = Kyanit aus Sektion 01.</div>
+
+  <div class="screens-row">
+
+    <!-- HOME -->
+    <div class="screen-wrap">
+      <div class="screen-frame">
+        <div class="screen-di"></div>
+        <div class="screen-body">
+          <div class="wf-row" style="justify-content:space-between">
+            <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;width:13px;height:13px">
+              <span style="background:var(--accent);border-radius:1px;display:block;opacity:.8"></span>
+              <span style="background:var(--accent);border-radius:1px;display:block;opacity:.8"></span>
+              <span style="background:var(--accent);border-radius:1px;display:block;opacity:.8"></span>
+              <span style="background:var(--accent);border-radius:1px;display:block;opacity:.8"></span>
+            </div>
+            <div class="wf-dot accent"></div>
+          </div>
+          <div class="wf-img" style="height:68px;flex-direction:column;gap:5px">
+            <div class="wf accent" style="width:55%;height:8px"></div>
+            <div class="wf" style="width:70%;height:6px;opacity:.35"></div>
+            <span>Featured Block</span>
+          </div>
+          <div class="wf" style="width:50%;height:6px;opacity:.3"></div>
+          <div class="wf-g2" style="gap:4px">
+            <div class="wf-card"><div class="wf accent" style="height:3px;width:40%"></div><div class="wf sm" style="opacity:.3"></div><div style="height:2px;background:var(--border);border-radius:1px"></div></div>
+            <div class="wf-card"><div class="wf" style="height:3px;width:40%;background:var(--s2);opacity:.8"></div><div class="wf sm" style="opacity:.3"></div><div style="height:2px;background:var(--border);border-radius:1px"></div></div>
+            <div class="wf-card"><div class="wf" style="height:3px;width:40%;background:var(--s1);opacity:.8"></div><div class="wf sm" style="opacity:.3"></div><div style="height:2px;background:var(--border);border-radius:1px"></div></div>
+            <div class="wf-card"><div class="wf" style="height:3px;width:40%;background:var(--s4);opacity:.8"></div><div class="wf sm" style="opacity:.3"></div><div style="height:2px;background:var(--border);border-radius:1px"></div></div>
+          </div>
+          <div class="wf-row" style="gap:3px">
+            <div class="wf-card" style="flex:1;align-items:center"><div class="wf accent" style="height:10px;width:55%"></div><div class="wf xs" style="width:70%;opacity:.3;margin-top:2px"></div></div>
+            <div class="wf-card" style="flex:1;align-items:center"><div class="wf success" style="height:10px;width:55%"></div><div class="wf xs" style="width:70%;opacity:.3;margin-top:2px"></div></div>
+            <div class="wf-card" style="flex:1;align-items:center"><div class="wf" style="height:10px;width:55%;background:var(--s2);opacity:.8"></div><div class="wf xs" style="width:70%;opacity:.3;margin-top:2px"></div></div>
+          </div>
+        </div>
+        <div class="snav"><div class="sn-dot active"></div><div class="sn-dot"></div><div class="sn-center"><span></span><span></span><span></span><span></span></div><div class="sn-dot"></div><div class="sn-dot"></div></div>
+      </div>
+      <div class="screen-label">Home</div>
+    </div>
+
+    <!-- LEARN -->
+    <div class="screen-wrap">
+      <div class="screen-frame">
+        <div class="screen-di"></div>
+        <div class="screen-body">
+          <div class="pb-blocks" style="gap:2px">
+            <div class="pb done" style="height:4px"></div><div class="pb done" style="height:4px"></div>
+            <div class="pb done" style="height:4px"></div><div class="pb error" style="height:4px"></div>
+            <div class="pb done" style="height:4px"></div><div class="pb current" style="height:4px"></div>
+            <div class="pb" style="height:4px"></div><div class="pb" style="height:4px"></div>
+            <div class="pb" style="height:4px"></div><div class="pb" style="height:4px"></div>
+          </div>
+          <div class="wf-img" style="flex:1;min-height:80px;flex-direction:column;gap:6px">
+            <div class="wf accent" style="width:55%;height:8px"></div>
+            <div class="wf" style="width:80%;height:6px;opacity:.35"></div>
+            <div class="wf" style="width:60%;height:6px;opacity:.2"></div>
+            <span>Flashcard</span>
+          </div>
+          <div class="wf-row" style="gap:5px">
+            <div style="flex:1;height:32px;border-radius:5px;border:1px solid var(--review);display:flex;align-items:center;justify-content:center">
+              <span style="font-family:var(--font-m);font-size:8px;color:var(--review)">Nochmal</span>
+            </div>
+            <div style="flex:1;height:32px;border-radius:5px;border:1px solid var(--success);display:flex;align-items:center;justify-content:center">
+              <span style="font-family:var(--font-m);font-size:8px;color:var(--success)">Gewusst</span>
+            </div>
+          </div>
+        </div>
+        <div class="snav"><div class="sn-dot"></div><div class="sn-dot"></div><div class="sn-center"><span></span><span></span><span></span><span></span></div><div class="sn-dot active"></div><div class="sn-dot"></div></div>
+      </div>
+      <div class="screen-label">Learn</div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div class="screen-wrap">
+      <div class="screen-frame">
+        <div class="screen-di"></div>
+        <div class="screen-body">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;height:20px;display:flex;align-items:center;padding:0 7px;gap:5px">
+            <div class="wf" style="width:11px;height:11px;border-radius:2px"></div>
+            <div class="wf" style="flex:1;height:6px;opacity:.3"></div>
+          </div>
+          <div class="wf-row" style="gap:3px;flex-wrap:wrap">
+            <div style="background:var(--accent);border-radius:3px;padding:2px 7px"><div class="wf" style="width:22px;height:5px;background:rgba(255,255,255,.5)"></div></div>
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:2px 7px"><div class="wf" style="width:18px;height:5px;opacity:.3"></div></div>
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:3px;padding:2px 7px"><div class="wf" style="width:20px;height:5px;opacity:.3"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:1">
+            <div class="wf-img" style="height:55px"><span>Block</span></div>
+            <div class="wf-img" style="height:38px"><span>Block</span></div>
+            <div class="wf-img" style="height:38px"><span>Block</span></div>
+            <div class="wf-img" style="height:55px"><span>Block</span></div>
+            <div class="wf-img" style="height:32px"><span>Block</span></div>
+            <div class="wf-img" style="height:32px"><span>Block</span></div>
+          </div>
+        </div>
+        <div class="snav"><div class="sn-dot"></div><div class="sn-dot active"></div><div class="sn-center"><span></span><span></span><span></span><span></span></div><div class="sn-dot"></div><div class="sn-dot"></div></div>
+      </div>
+      <div class="screen-label">Explore</div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen-wrap">
+      <div class="screen-frame">
+        <div class="screen-di"></div>
+        <div class="screen-body">
+          <div class="wf-row" style="gap:7px">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1.5px solid var(--accent);flex-shrink:0"></div>
+            <div class="wf-col"><div class="wf" style="width:58%;height:7px"></div><div class="wf xs" style="width:76%;opacity:.3;margin-top:2px"></div></div>
+          </div>
+          <div class="wf xs" style="width:44%;opacity:.2"></div>
+          <div style="display:flex;gap:3px;align-items:flex-end;height:40px;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:5px">
+            <div style="flex:1;height:30%;background:var(--s1);opacity:.8;border-radius:2px"></div>
+            <div style="flex:1;height:75%;background:var(--s2);opacity:.8;border-radius:2px"></div>
+            <div style="flex:1;height:55%;background:var(--accent);border-radius:2px"></div>
+            <div style="flex:1;height:40%;background:var(--s4);opacity:.8;border-radius:2px"></div>
+            <div style="flex:1;height:85%;background:var(--s5);opacity:.8;border-radius:2px"></div>
+            <div style="flex:1;height:35%;background:var(--s6);opacity:.8;border-radius:2px"></div>
+            <div style="flex:1;height:60%;background:var(--s7);opacity:.8;border-radius:2px"></div>
+          </div>
+          <div class="wf xs" style="width:44%;opacity:.2"></div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.7"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--border);border-radius:2px"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.5"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.8"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.6"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--border);border-radius:2px"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.8"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--border);border-radius:2px"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.7"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.8"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.4"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--border);border-radius:2px"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.8"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.7"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--border);border-radius:2px"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+            <div style="aspect-ratio:1;background:var(--accent);border-radius:2px;opacity:.9"></div>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:6px;display:flex;align-items:center;gap:6px;margin-top:auto">
+            <div style="width:18px;height:18px;background:var(--accent);border-radius:4px;flex-shrink:0;opacity:.8"></div>
+            <div class="wf-col"><div class="wf" style="width:65%;height:6px"></div><div class="wf xs" style="width:48%;opacity:.3;margin-top:2px"></div></div>
+          </div>
+        </div>
+        <div class="snav"><div class="sn-dot"></div><div class="sn-dot"></div><div class="sn-center"><span></span><span></span><span></span><span></span></div><div class="sn-dot"></div><div class="sn-dot active"></div></div>
+      </div>
+      <div class="screen-label">Profil</div>
+    </div>
+
+  </div>
+</section>
+
+<hr>
+
+<!-- 05 TOKENS -->
+<section>
+  <div class="ds-label">05 — Design Tokens</div>
+  <div class="ds-title">CSS Variables & JSON Export</div>
+  <div class="ds-sub">Direkt einsetzbar — React Native StyleSheet · Web CSS :root · Figma Token Studio</div>
+
+  <div class="token-block">
+    <div class="token-header">
+      <span class="token-title">fineline-tokens.css · aktuelle Auswahl</span>
+      <div style="display:flex;gap:7px">
+        <button class="copy-btn" onclick="copyCSS()">CSS kopieren</button>
+        <button class="copy-btn" onclick="exportTokens()">↓ JSON</button>
+      </div>
+    </div>
+    <pre id="tokenPre"></pre>
+  </div>
+</section>
+
+</div>
+
+<script>
+let darkMode = false;
+
+const ACCENTS = [
+  { name:'Kyanit Focus', hex_l:'#2B4C7E', hex_d:'#5279B0', role:'Primary / Interaktion' },
+  { name:'Sage',         hex_l:'#5B8266', hex_d:'#6C9A78', role:'Erfolg / Gewusst' },
+  { name:'Rust',         hex_l:'#B85D43', hex_d:'#C86E54', role:'Review / Nochmal' },
+];
+let selAccent = 0;
+
+function toggleMode(btn) {
+  darkMode = !darkMode;
+  document.documentElement.setAttribute('data-mode', darkMode ? 'dark' : 'light');
+  document.getElementById('modeIcon').textContent = darkMode ? '☽' : '☀';
+  document.getElementById('modeLabel').textContent = darkMode ? 'Dark' : 'Light';
+  renderTokenBlock();
+}
+
+function selectAccent(i, el) {
+  document.querySelectorAll('.accent-option').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  selAccent = i;
+  const a = ACCENTS[i];
+  const hex = darkMode ? a.hex_d : a.hex_l;
+  document.documentElement.style.setProperty('--accent', hex);
+  document.documentElement.style.setProperty('--accent-bg', `color-mix(in srgb, ${hex} 10%, transparent)`);
+  renderTokenBlock();
+}
+
+function setFont(family, btn) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${family.replace(/ /g,'+')}:wght@300;400;500;600;700&display=swap`;
+  document.head.appendChild(link);
+  document.documentElement.style.setProperty('--font-d', `'${family}', sans-serif`);
+  document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderTokenBlock() {
+  const m = darkMode ? 'dark' : 'light';
+  const a = ACCENTS[selAccent];
+  const now = new Date().toISOString().split('T')[0];
+  document.getElementById('tokenPre').innerHTML =
+`<span class="cc">/* Knowledge Blocks · Fineline Tokens · ${now} */</span>
+<span class="cc">/* Mode: ${m} · Accent: ${a.name} */</span>
+
+<span class="cc">/* Canvas */</span>
+<span class="cp">--kb-bg</span>:        <span class="cv">${darkMode?'#111215':'#F8F6F0'}</span>;
+<span class="cp">--kb-surface</span>:   <span class="cv">${darkMode?'#18191E':'#FFFFFF'}</span>;
+<span class="cp">--kb-surface-2</span>: <span class="cv">${darkMode?'#1E1F25':'#F2EFE9'}</span>;
+<span class="cp">--kb-border</span>:    <span class="cv">${darkMode?'#272930':'#E5E0D5'}</span>;
+<span class="cp">--kb-text</span>:      <span class="cv">${darkMode?'#EAE6DF':'#18191B'}</span>;
+<span class="cp">--kb-text-2</span>:    <span class="cv">${darkMode?'#8C8D94':'#6E6D68'}</span>;
+
+<span class="cc">/* Accent (${a.name}) */</span>
+<span class="cp">--kb-accent</span>:    <span class="cb">${darkMode?a.hex_d:a.hex_l}</span>;
+<span class="cp">--kb-success</span>:   <span class="cv">${darkMode?'#6C9A78':'#5B8266'}</span>;
+<span class="cp">--kb-review</span>:    <span class="cv">${darkMode?'#C86E54':'#B85D43'}</span>;
+
+<span class="cc">/* Subject Colors */</span>
+<span class="cp">--kb-s1</span>: <span class="cv">${darkMode?'#5279B0':'#3B5A8A'}</span>; <span class="cc">/* Mathematik */</span>
+<span class="cp">--kb-s2</span>: <span class="cv">${darkMode?'#9A7A3A':'#7A6030'}</span>; <span class="cc">/* Wirtschaft */</span>
+<span class="cp">--kb-s3</span>: <span class="cv">${darkMode?'#7A5E99':'#5E4A7A'}</span>; <span class="cc">/* Theorie */</span>
+<span class="cp">--kb-s4</span>: <span class="cv">${darkMode?'#5E9A70':'#4A7A5A'}</span>; <span class="cc">/* Fallstudien */</span>
+<span class="cp">--kb-s5</span>: <span class="cv">${darkMode?'#B05E45':'#8B4A35'}</span>; <span class="cc">/* Praxis */</span>
+<span class="cp">--kb-s6</span>: <span class="cv">${darkMode?'#9A6845':'#7A5035'}</span>; <span class="cc">/* Projekte */</span>
+<span class="cp">--kb-s7</span>: <span class="cv">${darkMode?'#3E8A8A':'#2E6B6B'}</span>; <span class="cc">/* Forschung */</span>
+
+<span class="cc">/* Radius */</span>
+<span class="cp">--kb-r-xs</span>: <span class="cv">4px</span>; <span class="cp">--kb-r-sm</span>: <span class="cv">6px</span>; <span class="cp">--kb-r</span>: <span class="cv">10px</span>; <span class="cp">--kb-r-lg</span>: <span class="cv">18px</span>;
+
+<span class="cc">/* Typography */</span>
+<span class="cp">--kb-font-display</span>: <span class="cv">'Space Grotesk', sans-serif</span>;
+<span class="cp">--kb-font-body</span>:    <span class="cv">'Inter', sans-serif</span>;
+<span class="cp">--kb-font-mono</span>:    <span class="cv">'JetBrains Mono', monospace</span>;`;
+}
+
+function copyCSS() {
+  const raw = document.getElementById('tokenPre').innerText;
+  navigator.clipboard.writeText(raw).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Kopiert ✓';
+    setTimeout(() => btn.textContent = 'CSS kopieren', 2000);
+  });
+}
+
+function exportTokens() {
+  const m = darkMode ? 'dark' : 'light';
+  const a = ACCENTS[selAccent];
+  const obj = {
+    meta: { version:'0.2', name:'Knowledge Blocks · Fineline', mode: m, accent: a.name, generated: new Date().toISOString().split('T')[0] },
+    canvas: {
+      bg:       darkMode ? '#111215' : '#F8F6F0',
+      surface:  darkMode ? '#18191E' : '#FFFFFF',
+      surface2: darkMode ? '#1E1F25' : '#F2EFE9',
+      border:   darkMode ? '#272930' : '#E5E0D5',
+      text:     darkMode ? '#EAE6DF' : '#18191B',
+      text2:    darkMode ? '#8C8D94' : '#6E6D68',
+    },
+    accent: { name: a.name, color: darkMode ? a.hex_d : a.hex_l, role: a.role },
+    functional: { success: darkMode ? '#6C9A78' : '#5B8266', review: darkMode ? '#C86E54' : '#B85D43' },
+    subjects: {
+      S1: { name:'Mathematik',  light:'#3B5A8A', dark:'#5279B0' },
+      S2: { name:'Wirtschaft',  light:'#7A6030', dark:'#9A7A3A' },
+      S3: { name:'Theorie',     light:'#5E4A7A', dark:'#7A5E99' },
+      S4: { name:'Fallstudien', light:'#4A7A5A', dark:'#5E9A70' },
+      S5: { name:'Praxis',      light:'#8B4A35', dark:'#B05E45' },
+      S6: { name:'Projekte',    light:'#7A5035', dark:'#9A6845' },
+      S7: { name:'Forschung',   light:'#2E6B6B', dark:'#3E8A8A' },
+    },
+    radius: { xs:'4px', sm:'6px', base:'10px', lg:'18px' },
+    typography: { display:"'Space Grotesk',sans-serif", body:"'Inter',sans-serif", mono:"'JetBrains Mono',monospace" }
+  };
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type:'application/json' });
+  const a2 = document.createElement('a');
+  a2.href = URL.createObjectURL(blob);
+  a2.download = 'kb-fineline-tokens.json';
+  a2.click();
+}
+
+renderTokenBlock();
+</script>
+</body>
+</html>

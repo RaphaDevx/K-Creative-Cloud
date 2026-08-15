@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Knowledge Blocks · Final Wireframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:         #FBF9F5;
+  --surface:    #FFFFFF;
+  --border:     #EFECE6;
+  --border-2:   #E2DDD6;
+  --text:       #161618;
+  --text-2:     #82807A;
+  --text-3:     #B8B4AC;
+  --bx:         #7A1C30;      /* Bordeaux */
+  --bx-soft:    rgba(122,28,48,.06);
+  --bx-mid:     rgba(122,28,48,.14);
+  --bx-ring:    rgba(122,28,48,.28);
+  --sakura:     #E8D5CE;
+  --green-ok:   #3E7A52;
+  --green-bg:   rgba(62,122,82,.06);
+  --shadow:     0 1px 3px rgba(0,0,0,.04);
+  --shadow-md:  0 2px 10px rgba(0,0,0,.07);
+  --dm:         'DM Sans', -apple-system, 'Helvetica Neue', sans-serif;
+  --inter:      'Inter', -apple-system, 'Helvetica Neue', sans-serif;
+  --mono:       'JetBrains Mono', 'Menlo', 'Monaco', monospace;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { border: none; cursor: pointer; font-family: inherit; }
+
+/* ── PAGE ── */
+body {
+  background: #E8E3DA;
+  min-height: 100vh;
+  font-family: var(--inter);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px 60px;
+}
+
+/* ── TOP SCREEN SWITCHER ── */
+.page-header {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 36px 0 20px;
+}
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kb-mark {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  width: 20px; height: 20px;
+}
+.kb-mark span { display: block; background: var(--bx); border-radius: 2px; }
+.brand-name {
+  font-family: var(--dm);
+  font-size: 14px;
+  font-weight: 700;
+  color: #2A2520;
+  letter-spacing: -.02em;
+}
+.version-chip {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #9A948C;
+  letter-spacing: .08em;
+}
+
+.screen-tabs {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(8px);
+}
+.stab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 34px;
+  border-radius: 9px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: #9A948C;
+  background: transparent;
+  transition: background .18s, color .18s;
+}
+.stab:hover { color: var(--text); }
+.stab.active {
+  background: var(--surface);
+  color: var(--bx);
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.stab svg { flex-shrink: 0; }
+
+/* ── PHONE SHELL ── */
+.phone-wrap {
+  width: 320px;
+  position: relative;
+}
+.phone {
+  width: 320px;
+  height: 692px;
+  background: var(--bg);
+  border-radius: 46px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.2),
+    0 4px 6px rgba(0,0,0,.06),
+    0 12px 44px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* Dynamic Island */
+.island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 94px; height: 28px;
+  background: #0D0D0D;
+  border-radius: 20px;
+  z-index: 20;
+}
+
+/* Status bar */
+.status-bar {
+  height: 50px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 26px 8px;
+  font-family: var(--inter);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sb-right { display: flex; align-items: center; gap: 5px; }
+
+/* Screen container */
+.screen-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: flex; }
+
+/* Bottom nav */
+.bottom-nav {
+  height: 70px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px 10px;
+}
+.nt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: transparent;
+  transition: background .15s;
+}
+.nt.active { background: var(--bx-soft); }
+.nt-icon { line-height: 0; }
+.nt-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: .04em;
+}
+.nt.active .nt-label { color: var(--bx); }
+
+/* ── SHARED COMPONENTS ── */
+.sec-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border: 1px solid var(--bx-ring);
+  border-radius: 4px;
+  background: var(--bx-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--bx);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.star-deco { color: var(--bx); opacity: .3; font-size: 10px; line-height: 1; }
+
+/* Fineline divider */
+.fl-div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 20px;
+}
+.fl-div::before, .fl-div::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.fl-div-star { font-size: 8px; color: var(--text-3); }
+
+/* ══════════════════════════════════════
+   SCREEN 1 — HOME
+══════════════════════════════════════ */
+
+/* App header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 18px 10px;
+  flex-shrink: 0;
+}
+.ah-brand { display: flex; align-items: center; gap: 7px; }
+.ah-name {
+  font-family: var(--dm);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+.icon-btn-round {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stories */
+.stories {
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+  padding: 2px 12px 14px;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.stories::-webkit-scrollbar { display: none; }
+.story {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.story-ring {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bx);
+  padding: 2.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.story-ring.inactive { border-color: var(--border-2); }
+.story-ring.dashed { border-style: dashed; border-color: var(--border-2); }
+.story-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.story-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-2);
+  text-align: center;
+  letter-spacing: .03em;
+}
+.story.on .story-lbl { color: var(--bx); }
+
+/* Greeting */
+.greeting {
+  padding: 4px 18px 14px;
+  flex-shrink: 0;
+}
+.greeting-line {
+  font-family: var(--dm);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.02em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.streak-pill {
+  margin-top: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 23px;
+  padding: 0 10px;
+  border: 1px solid var(--bx-ring);
+  border-radius: 12px;
+  background: var(--bx-soft);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--bx);
+}
+
+/* Block cards */
+.blocks-wrap { padding: 2px 14px 16px; }
+.blocks-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+.view-all {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--bx);
+}
+.block-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 13px 11px 15px;
+  margin-bottom: 7px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.block-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--bx);
+  opacity: .6;
+  border-radius: 10px 0 0 10px;
+}
+.bc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.bc-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+.bc-title {
+  font-family: var(--dm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+  margin-bottom: 2px;
+}
+.bc-sub { font-size: 11px; color: var(--text-2); }
+.bc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+}
+.bc-bar-wrap { flex: 1; margin-right: 10px; }
+.bc-bar-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+.bc-bar-fill {
+  height: 100%;
+  background: var(--bx);
+  border-radius: 2px;
+  opacity: .65;
+}
+.bc-count { font-family: var(--mono); font-size: 10px; color: var(--text-3); }
+.bc-cta {
+  height: 26px;
+  padding: 0 11px;
+  background: var(--bx);
+  border-radius: 5px;
+  font-family: var(--dm);
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   SCREEN 2 — LEARN
+══════════════════════════════════════ */
+.learn-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px 8px;
+  flex-shrink: 0;
+}
+.back-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.learn-ctr {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-2);
+  flex: 1;
+}
+.prog-wrap { padding: 0 18px 12px; flex-shrink: 0; }
+.prog-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.prog-fill { height: 100%; background: var(--bx); opacity: .7; border-radius: 2px; }
+
+.session-stats {
+  display: flex;
+  gap: 6px;
+  padding: 0 18px 12px;
+  flex-shrink: 0;
+}
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 9px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+.stat-pill.ok { border-color: rgba(62,122,82,.25); background: var(--green-bg); color: var(--green-ok); }
+.stat-pill.rx { border-color: var(--bx-ring); background: var(--bx-soft); color: var(--bx); }
+
+/* Flashcard */
+.card-zone {
+  padding: 0 14px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.card-perspective {
+  flex: 1;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.flash-card {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,.2,.2,1);
+}
+.flash-card.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  padding: 20px 18px 18px;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card-back { transform: rotateY(180deg); }
+.fc-deco-star { position: absolute; top: 14px; right: 16px; font-size: 12px; color: var(--bx); opacity: .22; }
+.fc-deco-moon { position: absolute; bottom: 48px; left: 16px; font-size: 10px; color: var(--text-3); opacity: .45; }
+.fc-tag { margin-bottom: 14px; }
+.fc-question {
+  font-family: var(--dm);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.02em;
+  line-height: 1.45;
+  flex: 1;
+}
+.fc-answer {
+  font-family: var(--inter);
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+  flex: 1;
+}
+.fc-answer strong { color: var(--bx); font-weight: 600; }
+.fc-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+.fc-divider::before, .fc-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.fc-divider span { font-size: 9px; color: var(--text-3); }
+.fc-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Answer buttons */
+.answer-row {
+  display: flex;
+  gap: 7px;
+  padding: 8px 14px 10px;
+  flex-shrink: 0;
+}
+.ans-btn {
+  flex: 1;
+  height: 52px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: var(--surface);
+}
+.ans-btn.nochmal {
+  border: 1px solid var(--border-2);
+}
+.ans-btn.gewusst {
+  border: 1px solid var(--bx-ring);
+  background: var(--bx-soft);
+}
+.ans-icon { font-size: 16px; line-height: 1; }
+.ans-label {
+  font-family: var(--dm);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.ans-btn.nochmal .ans-label { color: var(--text-2); }
+.ans-btn.gewusst .ans-label { color: var(--bx); }
+
+.flip-hint {
+  text-align: center;
+  padding: 4px 18px 10px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   SCREEN 3 — PROFILE
+══════════════════════════════════════ */
+.profile-top {
+  padding: 6px 18px 12px;
+  flex-shrink: 0;
+}
+.profile-title {
+  font-family: var(--dm);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow);
+}
+.avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--sakura);
+  border: 1.5px solid var(--bx-ring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--dm);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bx);
+  flex-shrink: 0;
+}
+.pf-info { flex: 1; min-width: 0; }
+.pf-name {
+  font-family: var(--dm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+.pf-meta { font-size: 11px; color: var(--text-2); margin-top: 1px; }
+.exam-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+.countdown-num {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--bx);
+  line-height: 1;
+}
+.countdown-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  text-align: center;
+}
+
+/* Streak grid */
+.streak-section { padding: 4px 18px 12px; }
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.streak-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.sg {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--border);
+}
+.sg.d0 { background: var(--bx); opacity: .15; }
+.sg.d1 { background: var(--bx); opacity: .35; }
+.sg.d2 { background: var(--bx); opacity: .6; }
+.sg.d3 { background: var(--bx); opacity: .85; }
+
+/* Knowledge tower */
+.tower-section { padding: 0 18px 12px; }
+.tower-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+.tower-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-2);
+  width: 56px;
+  flex-shrink: 0;
+}
+.tower-track {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.tower-fill {
+  height: 100%;
+  background: var(--bx);
+  opacity: .6;
+  border-radius: 4px;
+}
+.tower-pct {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  width: 28px;
+  text-align: right;
+}
+
+/* Exam cards */
+.exam-list { padding: 0 18px 10px; }
+.exam-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px 12px 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow);
+  margin-bottom: 7px;
+}
+.exam-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--bx-soft);
+  border: 1px solid var(--bx-ring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.exam-info { flex: 1; min-width: 0; }
+.exam-title {
+  font-family: var(--dm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+.exam-sub { font-size: 11px; color: var(--text-2); margin-top: 1px; }
+
+/* ── COLOR SWATCH FOOTER ── */
+.swatch-footer {
+  width: 100%;
+  max-width: 440px;
+  margin-top: 20px;
+}
+.sf-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #9A948C;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.swatches {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.sw {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,.5);
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 7px;
+}
+.sw-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(0,0,0,.06); }
+.sw-name { font-size: 10px; font-weight: 500; color: #3A3530; font-family: var(--inter); }
+.sw-hex { font-family: var(--mono); font-size: 9px; color: #9A948C; }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="brand-row">
+    <div class="kb-mark"><span></span><span></span><span></span><span></span></div>
+    <span class="brand-name">Knowledge Blocks</span>
+  </div>
+  <span class="version-chip">Wireframe · v1.0</span>
+</div>
+
+<!-- ── SCREEN TABS ── -->
+<div class="screen-tabs">
+  <button class="stab active" onclick="showScreen('home',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>
+    Home
+  </button>
+  <button class="stab" onclick="showScreen('learn',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Learn
+  </button>
+  <button class="stab" onclick="showScreen('profile',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profil
+  </button>
+</div>
+
+<!-- ── PHONE ── -->
+<div class="phone-wrap">
+  <div class="island"></div>
+  <div class="phone">
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="sb-right">
+        <svg width="15" height="11" viewBox="0 0 24 18" fill="var(--text)">
+          <rect x="0" y="6" width="4" height="12" rx="1"/>
+          <rect x="6" y="4" width="4" height="14" rx="1"/>
+          <rect x="12" y="1" width="4" height="17" rx="1"/>
+          <rect x="18" y="0" width="4" height="18" rx="1"/>
+        </svg>
+        <svg width="15" height="11" viewBox="0 0 24 18" fill="none" stroke="var(--text)" stroke-width="1.5">
+          <path d="M1 1s5.5-4 11.5 0S23 1 23 1" opacity=".4"/>
+          <path d="M5 7s3-2 7 0 7 0 7 0" opacity=".7"/>
+          <path d="M9 13s1.5-1 3 0 3 0 3 0"/>
+          <circle cx="12" cy="17" r="1" fill="var(--text)"/>
+        </svg>
+        <svg width="22" height="11" viewBox="0 0 34 16" fill="none">
+          <rect x=".5" y=".5" width="29" height="15" rx="3.5" stroke="var(--text)" stroke-opacity=".35"/>
+          <rect x="2" y="2" width="20" height="12" rx="2" fill="var(--text)"/>
+          <path d="M31 5v6a2 2 0 000-6z" fill="var(--text)" opacity=".4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ─── SCREEN CONTAINER ─── -->
+    <div class="screen-container">
+
+      <!-- ══════════════════ HOME ══════════════════ -->
+      <div class="screen active" id="screen-home">
+
+        <div class="app-header">
+          <div class="ah-brand">
+            <div class="kb-mark"><span></span><span></span><span></span><span></span></div>
+            <span class="ah-name">Knowledge Blocks</span>
+          </div>
+          <div class="icon-btn-round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </div>
+        </div>
+
+        <!-- Stories -->
+        <div class="stories">
+          <div class="story on">
+            <div class="story-ring">
+              <div class="story-inner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7A1C30" stroke-width="1.5" stroke-linecap="round"><polyline points="3,17 8,11 13,14 21,6"/></svg>
+              </div>
+            </div>
+            <span class="story-lbl">Makro</span>
+          </div>
+          <div class="story on">
+            <div class="story-ring">
+              <div class="story-inner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7A1C30" stroke-width="1.5" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              </div>
+            </div>
+            <span class="story-lbl">Statistik</span>
+          </div>
+          <div class="story">
+            <div class="story-ring inactive">
+              <div class="story-inner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M4 12H2M22 12h-2M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 2v2M12 20v2"/></svg>
+              </div>
+            </div>
+            <span class="story-lbl">OM</span>
+          </div>
+          <div class="story">
+            <div class="story-ring inactive">
+              <div class="story-inner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              </div>
+            </div>
+            <span class="story-lbl">BWL</span>
+          </div>
+          <div class="story">
+            <div class="story-ring inactive">
+              <div class="story-inner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+              </div>
+            </div>
+            <span class="story-lbl">Theorie</span>
+          </div>
+          <div class="story">
+            <div class="story-ring dashed">
+              <div class="story-inner" style="background:var(--bg)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </div>
+            </div>
+            <span class="story-lbl">+ Fach</span>
+          </div>
+        </div>
+
+        <div class="fl-div"><span class="fl-div-star">✦</span></div>
+
+        <!-- Greeting -->
+        <div class="greeting">
+          <div class="greeting-line">Guten Morgen, Raphael <span class="star-deco">✦</span></div>
+          <div class="streak-pill">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--bx)"><path d="M13.5 2C13.5 2 13 6 10 8.5c-2.5 2-6 .5-6 .5s1 3 4 5c2 1.4 4 1.5 4 1.5s.2-2 2-3c1.5-1 4-1 4-1s-1 2.5-1 5c0 2-.9 3.6-3.5 4.5C16 22 20 18.5 20 14c0-4.5-3-7-3-7s.5 1.5-1 2.5C15 10.5 13.5 2 13.5 2z"/></svg>
+            14 Tage Streak
+          </div>
+        </div>
+
+        <!-- Block cards -->
+        <div class="blocks-wrap">
+          <div class="blocks-head">
+            <span class="sec-label">Fällige Blöcke</span>
+            <span class="view-all">Alle anzeigen →</span>
+          </div>
+
+          <div class="block-card">
+            <div class="bc-top">
+              <span class="badge">Makro II</span>
+              <div class="bc-meta">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                8 fällig
+              </div>
+            </div>
+            <div class="bc-title">IS-LM Modell</div>
+            <div class="bc-sub">Gleichgewicht im Güter- und Geldmarkt</div>
+            <div class="bc-footer">
+              <div class="bc-bar-wrap">
+                <div class="bc-bar-track"><div class="bc-bar-fill" style="width:57%"></div></div>
+                <div class="bc-count">8 / 14 Karten</div>
+              </div>
+              <button class="bc-cta">Lernen →</button>
+            </div>
+          </div>
+
+          <div class="block-card">
+            <div class="bc-top">
+              <span class="badge">Statistik</span>
+              <div class="bc-meta">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                5 fällig
+              </div>
+            </div>
+            <div class="bc-title">Normalverteilung</div>
+            <div class="bc-sub">Dichtefunktion & Standardisierung</div>
+            <div class="bc-footer">
+              <div class="bc-bar-wrap">
+                <div class="bc-bar-track"><div class="bc-bar-fill" style="width:33%"></div></div>
+                <div class="bc-count">4 / 12 Karten</div>
+              </div>
+              <button class="bc-cta">Lernen →</button>
+            </div>
+          </div>
+
+          <div class="block-card">
+            <div class="bc-top">
+              <span class="badge">OM</span>
+              <div class="bc-meta">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                3 fällig
+              </div>
+            </div>
+            <div class="bc-title">Lineare Optimierung</div>
+            <div class="bc-sub">Simplexmethode & Grundlösungen</div>
+            <div class="bc-footer">
+              <div class="bc-bar-wrap">
+                <div class="bc-bar-track"><div class="bc-bar-fill" style="width:80%"></div></div>
+                <div class="bc-count">12 / 15 Karten</div>
+              </div>
+              <button class="bc-cta">Lernen →</button>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div><!-- /home -->
+
+      <!-- ══════════════════ LEARN ══════════════════ -->
+      <div class="screen" id="screen-learn">
+
+        <div class="learn-topbar">
+          <button class="back-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="1.8" stroke-linecap="round"><polyline points="15,18 9,12 15,6"/></svg>
+          </button>
+          <span class="learn-ctr">Block 3 / 12</span>
+          <span class="badge">Makro II</span>
+        </div>
+
+        <div class="prog-wrap">
+          <div class="prog-track"><div class="prog-fill" style="width:25%"></div></div>
+        </div>
+
+        <div class="session-stats">
+          <div class="stat-pill ok">✓ 2 Gewusst</div>
+          <div class="stat-pill rx">↺ 1 Nochmal</div>
+        </div>
+
+        <div class="card-zone">
+          <div class="card-perspective" onclick="flipCard()">
+            <div class="flash-card" id="flashCard">
+
+              <!-- Front -->
+              <div class="card-face card-front">
+                <div class="fc-deco-star">✦</div>
+                <div class="fc-deco-moon">☽</div>
+                <div class="fc-tag">
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--text-3)">Frage #104 · IS-LM</span>
+                </div>
+                <div class="fc-question">
+                  Wie wirkt expansive Geldpolitik auf den Gleichgewichtszins im IS-LM-Modell?
+                </div>
+                <div class="fc-divider"><span>✦</span></div>
+                <div class="fc-hint">Tippe zum Aufdecken</div>
+              </div>
+
+              <!-- Back -->
+              <div class="card-face card-back">
+                <div class="fc-deco-star" style="opacity:.15">✦</div>
+                <div class="fc-tag">
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--green-ok)">Antwort</span>
+                </div>
+                <div class="fc-answer">
+                  <strong>Sinkender Zinssatz:</strong> Die LM-Kurve verschiebt sich nach rechts → niedrigerer Gleichgewichtszins bei höherem Volkseinkommen.<br><br>
+                  <span style="color:var(--text-2);font-size:13px">Die erhöhte Geldmenge senkt den Preis des Geldes (Zins) und stimuliert so Investitionen.</span>
+                </div>
+                <div class="fc-divider"><span>✦</span></div>
+                <div class="fc-hint">Bewerte deine Antwort ↓</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-hint" id="flipHint">Karte antippen zum Aufdecken</div>
+
+        <div class="answer-row">
+          <button class="ans-btn nochmal" onclick="handleAnswer('nochmal')">
+            <svg class="ans-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" stroke-width="1.6" stroke-linecap="round"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            <span class="ans-label">Nochmal</span>
+          </button>
+          <button class="ans-btn gewusst" onclick="handleAnswer('gewusst')">
+            <svg class="ans-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--bx)" stroke-width="1.8" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg>
+            <span class="ans-label">Gewusst</span>
+          </button>
+        </div>
+
+        <div style="padding:4px 18px 12px;text-align:center;flex-shrink:0">
+          <span style="font-size:11px;color:var(--text-3);font-style:italic">Schwierigkeit · Mittel · ⌀ 42 Sek</span>
+        </div>
+
+      </div><!-- /learn -->
+
+      <!-- ══════════════════ PROFILE ══════════════════ -->
+      <div class="screen" id="screen-profile">
+
+        <div class="profile-top">
+          <div class="profile-title">
+            Mein Profil <span class="star-deco">✦</span>
+          </div>
+          <div class="profile-card">
+            <div class="avatar">R</div>
+            <div class="pf-info">
+              <div class="pf-name">Raphael Kaufmann</div>
+              <div class="pf-meta">BWL · Universität Zürich</div>
+            </div>
+            <div class="exam-countdown">
+              <div class="countdown-num">18</div>
+              <div class="countdown-lbl">Tage bis<br>Prüfung</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fl-div"><span class="fl-div-star">✦</span></div>
+
+        <!-- Streak -->
+        <div class="streak-section">
+          <div class="sec-head">
+            <span class="sec-label">28-Tage Streak</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--bx)">🔥 14 Tage</span>
+          </div>
+          <div class="streak-grid">
+            <div class="sg d3"></div><div class="sg d3"></div><div class="sg d2"></div><div class="sg"></div><div class="sg d3"></div><div class="sg d3"></div><div class="sg d1"></div>
+            <div class="sg d3"></div><div class="sg d2"></div><div class="sg d3"></div><div class="sg d1"></div><div class="sg d3"></div><div class="sg"></div><div class="sg d3"></div>
+            <div class="sg d3"></div><div class="sg d3"></div><div class="sg"></div><div class="sg d2"></div><div class="sg d3"></div><div class="sg d1"></div><div class="sg d3"></div>
+            <div class="sg d3"></div><div class="sg d2"></div><div class="sg d3"></div><div class="sg"></div><div class="sg d3"></div><div class="sg d3"></div><div class="sg d3"></div>
+          </div>
+        </div>
+
+        <div class="fl-div"><span class="fl-div-star">✦</span></div>
+
+        <!-- Tower -->
+        <div class="tower-section">
+          <div class="sec-head" style="margin-bottom:10px">
+            <span class="sec-label">Knowledge Tower</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-3)">287 Karten</span>
+          </div>
+          <div class="tower-row">
+            <span class="tower-lbl">Makro II</span>
+            <div class="tower-track"><div class="tower-fill" style="width:82%"></div></div>
+            <span class="tower-pct">82%</span>
+          </div>
+          <div class="tower-row">
+            <span class="tower-lbl">Statistik</span>
+            <div class="tower-track"><div class="tower-fill" style="width:55%"></div></div>
+            <span class="tower-pct">55%</span>
+          </div>
+          <div class="tower-row">
+            <span class="tower-lbl">OM</span>
+            <div class="tower-track"><div class="tower-fill" style="width:71%"></div></div>
+            <span class="tower-pct">71%</span>
+          </div>
+          <div class="tower-row">
+            <span class="tower-lbl">BWL</span>
+            <div class="tower-track"><div class="tower-fill" style="width:38%"></div></div>
+            <span class="tower-pct">38%</span>
+          </div>
+          <div class="tower-row">
+            <span class="tower-lbl">Theorie</span>
+            <div class="tower-track"><div class="tower-fill" style="width:60%"></div></div>
+            <span class="tower-pct">60%</span>
+          </div>
+        </div>
+
+        <div class="fl-div"><span class="fl-div-star">✦</span></div>
+
+        <!-- Exams -->
+        <div class="exam-list">
+          <div style="margin-bottom:8px;padding:0 2px"><span class="sec-label">Prüfungen</span></div>
+          <div class="exam-item">
+            <div class="exam-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bx)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="exam-info">
+              <div class="exam-title">Makroökonomie II</div>
+              <div class="exam-sub">Di, 2. Sep · Mündlich · Zürich</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round"><polyline points="9,18 15,12 9,6"/></svg>
+          </div>
+          <div class="exam-item">
+            <div class="exam-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bx)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="exam-info">
+              <div class="exam-title">Statistik</div>
+              <div class="exam-sub">Fr, 12. Sep · Schriftlich · Online</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.5" stroke-linecap="round"><polyline points="9,18 15,12 9,6"/></svg>
+          </div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div><!-- /profile -->
+
+    </div><!-- /screen-container -->
+
+    <!-- ── BOTTOM NAV ── -->
+    <div class="bottom-nav">
+      <button class="nt active" id="nt-home" onclick="showScreen('home',null)">
+        <div class="nt-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><polyline points="9,21 9,13 15,13 15,21"/></svg>
+        </div>
+        <span class="nt-label">Home</span>
+      </button>
+      <button class="nt" id="nt-explore" onclick="showScreen('explore',null)">
+        <div class="nt-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <span class="nt-label">Explore</span>
+      </button>
+      <button class="nt" id="nt-learn" onclick="showScreen('learn',null)">
+        <div class="nt-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <span class="nt-label">Karten</span>
+      </button>
+      <button class="nt" id="nt-profile" onclick="showScreen('profile',null)">
+        <div class="nt-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <span class="nt-label">Profil</span>
+      </button>
+    </div>
+
+  </div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<!-- ── PALETTE REFERENCE ── -->
+<div class="swatch-footer">
+  <div class="sf-label">Fineline Palette · Eggshell × Bordeaux</div>
+  <div class="swatches">
+    <div class="sw"><div class="sw-dot" style="background:#FBF9F5;border-color:#ccc"></div><div><div class="sw-name">Eggshell Canvas</div><div class="sw-hex">#FBF9F5</div></div></div>
+    <div class="sw"><div class="sw-dot" style="background:#EFECE6"></div><div><div class="sw-name">Fineline Border</div><div class="sw-hex">#EFECE6</div></div></div>
+    <div class="sw"><div class="sw-dot" style="background:#161618"></div><div><div class="sw-name">Deep Charcoal</div><div class="sw-hex">#161618</div></div></div>
+    <div class="sw"><div class="sw-dot" style="background:#7A1C30"></div><div><div class="sw-name">Bordeaux</div><div class="sw-hex">#7A1C30</div></div></div>
+    <div class="sw"><div class="sw-dot" style="background:#E8D5CE"></div><div><div class="sw-name">Sakura Blush</div><div class="sw-hex">#E8D5CE</div></div></div>
+  </div>
+</div>
+
+<script>
+// ── SCREEN SWITCHING ──
+function showScreen(id, tabBtn) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+  });
+  // Show target
+  const target = document.getElementById('screen-' + id);
+  if (target) target.classList.add('active');
+
+  // Update top tabs
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  if (tabBtn) {
+    tabBtn.classList.add('active');
+  } else {
+    const tabMap = { home: 0, learn: 2, profile: 1 };
+    const tabs = document.querySelectorAll('.stab');
+    const idx = { home: 0, learn: 1, profile: 2 }[id];
+    if (idx !== undefined && tabs[idx]) tabs[idx].classList.add('active');
+  }
+
+  // Update bottom nav
+  ['home','explore','learn','profile'].forEach(k => {
+    const el = document.getElementById('nt-' + k);
+    if (el) el.classList.remove('active');
+  });
+  const navMap = { home: 'home', learn: 'learn', profile: 'profile' };
+  const navKey = navMap[id];
+  if (navKey) {
+    const navEl = document.getElementById('nt-' + navKey);
+    if (navEl) navEl.classList.add('active');
+  }
+
+  // Reset flashcard on entering learn
+  if (id === 'learn') {
+    const card = document.getElementById('flashCard');
+    if (card) card.classList.remove('flipped');
+    const hint = document.getElementById('flipHint');
+    if (hint) hint.textContent = 'Karte antippen zum Aufdecken';
+  }
+}
+
+// ── FLASHCARD FLIP ──
+let isFlipped = false;
+function flipCard() {
+  const card = document.getElementById('flashCard');
+  const hint = document.getElementById('flipHint');
+  isFlipped = !isFlipped;
+  if (isFlipped) {
+    card.classList.add('flipped');
+    hint.textContent = 'Bewerte deine Antwort ↓';
+  } else {
+    card.classList.remove('flipped');
+    hint.textContent = 'Karte antippen zum Aufdecken';
+  }
+}
+
+// ── ANSWER HANDLER ──
+function handleAnswer(type) {
+  const hint = document.getElementById('flipHint');
+  if (type === 'gewusst') {
+    hint.textContent = '✓ Gespeichert — nächste Karte…';
+    hint.style.color = 'var(--green-ok)';
+  } else {
+    hint.textContent = '↺ Wird wiederholt…';
+    hint.style.color = 'var(--bx)';
+  }
+  const card = document.getElementById('flashCard');
+  setTimeout(() => {
+    card.classList.remove('flipped');
+    isFlipped = false;
+    hint.textContent = 'Karte antippen zum Aufdecken';
+    hint.style.color = '';
+  }, 1200);
+}
+
+// ── INIT ──
+showScreen('home', document.querySelector('.stab'));
+</script>
+</body>
+</html>

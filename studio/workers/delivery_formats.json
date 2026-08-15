@@ -1,0 +1,150 @@
+{
+  "$schema": "https://k-creative.local/schemas/delivery-formats-v1.json",
+  "version": "1.0.0",
+  "tiers": {
+    "01_CLIENT_PREVIEW": {
+      "description": "Maximale Kompatibilität — öffnet nativ auf iPhone/Mac/Windows ohne Zusatzsoftware",
+      "formats": {
+        "video": {
+          "container": "mp4",
+          "codec": "libx264",
+          "pixel_format": "yuv420p",
+          "profile": "high",
+          "level": "4.2",
+          "movflags": "+faststart",
+          "colorspace": "bt709",
+          "audio_codec": "aac",
+          "audio_bitrate": "192k",
+          "audio_sample_rate": 48000
+        },
+        "image": {
+          "format": "jpg",
+          "colorspace": "sRGB",
+          "bitdepth": 8,
+          "quality": 95,
+          "strip_metadata": true
+        },
+        "3d": {
+          "format": "usdz",
+          "description": "Apple QuickLook & AR auf iOS/macOS"
+        },
+        "audio": {
+          "format": "mp3",
+          "bitrate": "320k",
+          "mode": "CBR"
+        },
+        "vector": {
+          "format": "pdf",
+          "colorspace": "sRGB"
+        }
+      }
+    },
+    "02_PRO_MASTER": {
+      "description": "Verlustfreie Profi-Qualität für Agenturen, Druck und Post-Production",
+      "formats": {
+        "video": {
+          "container": "mov",
+          "codec": "prores_ks",
+          "profile": "3",
+          "description": "ProRes 422 HQ; für Alpha: profile 4444"
+        },
+        "image": {
+          "format": "tiff",
+          "bitdepth": 16,
+          "colorspace": "AdobeRGB",
+          "compression": "lzw",
+          "print_variant": {
+            "colorspace": "CMYK",
+            "icc_profile": "ISOcoated_v2_300_eci.icc",
+            "dpi": 300,
+            "format": "tiff"
+          },
+          "vfx_variant": {
+            "format": "exr",
+            "bitdepth": 32,
+            "colorspace": "ACEScg"
+          }
+        },
+        "3d": {
+          "format": "blend",
+          "pack_textures": true,
+          "alt_format": "fbx",
+          "texture_resolution": "4096"
+        },
+        "audio": {
+          "format": "wav",
+          "bitdepth": 24,
+          "sample_rate": 48000,
+          "standard": "BWF"
+        },
+        "vector": {
+          "format": "pdf",
+          "standard": "PDF/X-4",
+          "colorspace": "CMYK",
+          "embed_fonts": true,
+          "embed_icc": true
+        }
+      }
+    },
+    "03_PLATFORM_PUBLISH": {
+      "description": "Perfekt komprimiert für Social Media und Web",
+      "formats": {
+        "instagram_reel": {
+          "container": "mp4",
+          "codec": "libx264",
+          "resolution": "1080x1920",
+          "aspect": "9:16",
+          "fps": 30,
+          "crf": 20,
+          "preset": "slow",
+          "audio_lufs": -14
+        },
+        "youtube_4k": {
+          "container": "mp4",
+          "codec": "libx265",
+          "resolution": "3840x2160",
+          "crf": 18,
+          "audio_codec": "aac",
+          "audio_bitrate": "384k"
+        },
+        "web_image": {
+          "format": "webp",
+          "quality": 90,
+          "fallback": "png",
+          "avif_quality": 85
+        },
+        "web_3d": {
+          "format": "glb",
+          "compression": "draco",
+          "texture_format": "ktx2",
+          "texture_compression": "webp"
+        },
+        "audio_streaming": {
+          "format": "aac",
+          "bitrate": "192k",
+          "lufs_target": -14,
+          "true_peak": -1.0
+        },
+        "vector_web": {
+          "format": "svg",
+          "optimizer": "svgo",
+          "remove_metadata": true
+        }
+      }
+    }
+  },
+  "qa_checks": {
+    "resolution_min": {
+      "web": [1920, 1080],
+      "print": [3000, 2000],
+      "social": [1080, 1080]
+    },
+    "audio_lufs_targets": {
+      "streaming": -14.0,
+      "youtube": -14.0,
+      "broadcast": -23.0
+    },
+    "color_gamut_check": true,
+    "metadata_strip_preview": true
+  }
+}

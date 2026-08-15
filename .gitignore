@@ -1,12 +1,60 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 .env
 .venv/
 venv/
+.python-version
+
+# Node
 node_modules/
-*.log
-.DS_Store
-*.tmp
 dist/
 build/
+*.log
+
+# OS
+.DS_Store
+*.tmp
+Thumbs.db
+
+# K-Creative generated outputs (large, machine-specific)
+renders/
+*.blend1
+*.blend2
+
+# DJ Engine — local state, never commit
+studio/dj_library.db
+studio/dj_api_keys.json
+
+# Secrets & tokens
+*.key
+*.pem
+secrets.json
+tokens.env
+
+# Large audio/video binaries
+*.wav
+*.mp3
+*.flac
+*.m4a
+*.ogg
+*.aiff
+*.mp4
+*.mov
+*.mkv
+
+# Kokoro TTS models (too large — download separately via install.sh)
+kokoro-tts/*.onnx
+kokoro-tts/*.bin
+
+# AppImage build artifacts
+desktop/release/linux-unpacked/
+desktop/release/*.AppImage
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K-Creative Studio</title>
+<!-- xterm.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+<!-- model-viewer for GLB/GLTF -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+<style>
+:root{
+  --bg:#09090f;--s1:#111019;--s2:#18162a;--s3:#201e35;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#6C47FF;--al:rgba(108,71,255,.15);--ab:rgba(108,71,255,.35);
+  --txt:#f0eeff;--t2:rgba(240,238,255,.55);--t3:rgba(240,238,255,.28);
+  --green:#3DD68C;--yellow:#FFB347;--red:#FF6B6B;--blue:#60A5FA;
+  --sidebar:220px;--tools-w:48px;--header:40px;--status:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;
+  background:var(--bg);color:var(--txt);font-size:12px;-webkit-font-smoothing:antialiased}
+
+/* ── Layout ──────────────────────────── */
+#app{display:grid;height:100vh;
+  grid-template-rows:var(--header) 1fr var(--status);
+  grid-template-columns:var(--tools-w) var(--sidebar) 1fr 320px;
+  grid-template-areas:
+    "hd hd hd hd"
+    "tb sb main chat"
+    "st st st st";}
+
+/* ── Header ──────────────────────────── */
+#header{grid-area:hd;background:var(--s1);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:10px;z-index:20;}
+.logo{font-weight:800;font-size:14px;
+  background:linear-gradient(135deg,#6C47FF,#A855F7);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hd-sep{width:1px;height:18px;background:var(--border2);margin:0 2px}
+.hd-btn{height:26px;padding:0 10px;border-radius:5px;border:1px solid var(--border);
+  background:transparent;color:var(--t2);font-size:11px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:4px}
+.hd-btn:hover{background:var(--s3);color:var(--txt);border-color:var(--border2)}
+.hd-btn.act{background:var(--al);color:#a78bfa;border-color:var(--ab)}
+#hd-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+#mode-badge{font-size:10px;padding:2px 8px;border-radius:99px;
+  background:var(--al);color:#a78bfa;border:1px solid var(--ab);font-weight:600}
+
+/* ── Tool Rail ─────────────────────── */
+#toolrail{grid-area:tb;background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px}
+.rail-btn{width:36px;height:36px;border-radius:8px;border:none;background:transparent;
+  color:var(--t3);cursor:pointer;font-size:16px;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;position:relative}
+.rail-btn:hover{background:var(--s3);color:var(--txt)}
+.rail-btn.act{background:var(--al);color:#a78bfa}
+.rail-btn .badge{position:absolute;top:4px;right:4px;width:6px;height:6px;
+  border-radius:50%;background:var(--green)}
+.rail-sep{width:24px;height:1px;background:var(--border);margin:4px 0}
+
+/* ── Sidebar ──────────────────────── */
+#sidebar{grid-area:sb;background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden}
+.sb-section{padding:8px 10px 4px;font-size:10px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.sb-item{display:flex;align-items:center;gap:7px;padding:6px 10px;
+  cursor:pointer;border-radius:6px;margin:0 4px;transition:all .12s;color:var(--t2)}
+.sb-item:hover{background:var(--s2);color:var(--txt)}
+.sb-item.act{background:var(--al);color:#a78bfa}
+.sb-item .icon{font-size:13px;flex-shrink:0}
+.sb-item .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px}
+.sb-item .count{font-size:10px;color:var(--t3);background:var(--s3);
+  padding:1px 5px;border-radius:99px}
+.sb-divider{height:1px;background:var(--border);margin:4px 10px}
+#sb-files{flex:1;overflow-y:auto;padding-bottom:8px}
+#sb-files::-webkit-scrollbar{width:3px}
+#sb-files::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.file-item{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 24px;
+  cursor:pointer;color:var(--t3);transition:color .12s}
+.file-item:hover{color:var(--t2)}
+
+/* ── Main Area ────────────────────── */
+#main{grid-area:main;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* View tab bar */
+.view-tab-bar{height:30px;background:var(--s1);border-bottom:1px solid var(--border);
+  display:flex;align-items:stretch;padding:0 6px;flex-shrink:0}
+.vtab{padding:0 12px;font-size:11px;color:var(--t3);cursor:pointer;
+  border-bottom:2px solid transparent;display:flex;align-items:center;gap:4px;transition:all .15s}
+.vtab:hover{color:var(--t2)}
+.vtab.act{color:var(--txt);border-bottom-color:var(--accent)}
+.vtab-right{margin-left:auto}
+
+/* Viewer */
+#viewer{flex:1;position:relative;background:#07060f;overflow:hidden;min-height:0}
+.view-pane{position:absolute;inset:30px 0 0 0;display:none;overflow:hidden}
+.view-pane.act{display:flex;align-items:center;justify-content:center}
+
+/* 3D model-viewer */
+#model-viewer-wrap{width:100%;height:100%;background:#07060f;position:relative}
+model-viewer{width:100%;height:100%;background:transparent}
+.mv-empty{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--t3);
+  position:absolute;inset:0;justify-content:center;pointer-events:none}
+.mv-empty .big{font-size:48px;opacity:.15}
+.mv-empty p{font-size:11px;text-align:center}
+
+/* Render gallery */
+#pane-renders{flex-direction:column;align-items:stretch;overflow-y:auto;padding:12px;gap:8px}
+.render-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.render-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;cursor:pointer;transition:all .15s;position:relative}
+.render-card:hover{border-color:var(--ab);transform:scale(1.02)}
+.render-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.render-card .rc-name{font-size:9px;padding:4px 6px;color:var(--t3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.render-card .rc-badge{position:absolute;top:4px;right:4px;font-size:9px;
+  padding:1px 5px;border-radius:99px;background:var(--s1);color:var(--t2)}
+
+/* Preview pane */
+#pane-preview img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px}
+.no-content{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--t3)}
+.no-content .big{font-size:40px;opacity:.25}
+
+/* VNC debug pane */
+#pane-vnc{flex-direction:column}
+.vnc-notice{padding:8px 12px;background:rgba(255,179,71,.08);border-bottom:1px solid rgba(255,179,71,.15);
+  font-size:10.5px;color:var(--yellow);display:flex;align-items:center;gap:6px;flex-shrink:0}
+#vnc-frame{flex:1;border:none;width:100%;background:#07060f}
+
+/* Job status overlay in 3D viewer */
+#job-overlay{position:absolute;bottom:8px;left:8px;right:8px;z-index:10;
+  display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.job-pill{display:flex;align-items:center;gap:8px;padding:6px 10px;
+  background:rgba(9,9,15,.85);border:1px solid var(--border2);border-radius:8px;
+  backdrop-filter:blur(8px);font-size:11px;pointer-events:all}
+.job-pill .jp-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.jp-dot.running{background:var(--yellow);animation:pulse 1s infinite}
+.jp-dot.done{background:var(--green)}
+.jp-dot.error,.jp-dot.timeout{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.jp-label{flex:1;color:var(--t2)}
+.jp-log-btn{font-size:10px;color:var(--t3);cursor:pointer;padding:1px 5px;
+  border:1px solid var(--border);border-radius:4px;background:transparent}
+.jp-log-btn:hover{color:var(--txt);border-color:var(--border2)}
+
+/* Terminal split */
+#term-area{height:220px;flex-shrink:0;border-top:1px solid var(--border);
+  display:flex;flex-direction:column;background:#050508}
+.term-tabs{height:28px;background:var(--s1);border-bottom:1px solid var(--border);
+  display:flex;align-items:stretch;padding:0 6px;gap:0}
+.term-tab{padding:0 12px;font-size:11px;color:var(--t3);cursor:pointer;
+  border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;transition:all .15s}
+.term-tab:hover{color:var(--t2)}
+.term-tab.act{color:var(--green);border-bottom-color:var(--green)}
+.term-dot{width:5px;height:5px;border-radius:50%;background:var(--t3)}
+.term-dot.live{background:var(--green)}
+#term-container{flex:1;overflow:hidden;padding:4px 2px}
+#term-resize{height:4px;background:transparent;cursor:ns-resize;flex-shrink:0}
+#term-resize:hover{background:var(--ab)}
+
+/* ── Context Panel ────────────────── */
+#ctx-panel{grid-area:chat;display:flex;flex-direction:column;
+  border-left:1px solid var(--border);overflow:hidden;background:var(--s1)}
+.ctx-header{height:var(--header);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:8px;font-size:11.5px;font-weight:600;color:var(--t2)}
+.ctx-tabs{display:flex;border-bottom:1px solid var(--border)}
+.ctx-tab{flex:1;height:28px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.ctx-tab:hover{color:var(--t2)}
+.ctx-tab.act{color:var(--txt);border-bottom-color:var(--accent)}
+
+#ctx-body{flex:1;overflow-y:auto;padding:10px}
+#ctx-body::-webkit-scrollbar{width:3px}
+#ctx-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.ctx-block{margin-bottom:14px}
+.ctx-block-title{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:6px}
+.ctx-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;font-size:11px;line-height:1.6;color:var(--t2)}
+.ctx-swatch{display:flex;align-items:center;gap:6px;padding:3px 0}
+.ctx-swatch .dot{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+.ctx-swatch .hex{font-family:monospace;font-size:10px;color:var(--t3)}
+.version-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;
+  background:var(--al);color:#a78bfa;border:1px solid var(--ab);border-radius:99px;font-size:10px;font-weight:600}
+
+/* Jobs list in ctx panel */
+.job-row{display:flex;align-items:center;gap:6px;padding:5px 8px;
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;
+  margin-bottom:4px;cursor:pointer;transition:all .12s}
+.job-row:hover{border-color:var(--ab)}
+.jr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.jr-dot.running{background:var(--yellow);animation:pulse 1s infinite}
+.jr-dot.done{background:var(--green)}
+.jr-dot.error,.jr-dot.timeout{background:var(--red)}
+.jr-meta{flex:1;min-width:0}
+.jr-id{font-size:10px;color:var(--t3);font-family:monospace}
+.jr-status{font-size:11px;color:var(--txt);font-weight:600}
+
+/* Exec panel */
+.exec-tool-btn{width:100%;height:30px;border-radius:7px;border:1px solid var(--border);
+  background:var(--s2);color:var(--t2);font-size:11px;cursor:pointer;
+  transition:all .15s;margin-bottom:5px;display:flex;align-items:center;
+  justify-content:center;gap:6px}
+.exec-tool-btn:hover{border-color:var(--ab);background:var(--al);color:#a78bfa}
+.exec-tool-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.exec-tool-btn.primary:hover{background:#7c5cfc}
+
+/* Version / render items */
+.ver-item{display:flex;align-items:center;gap:8px;padding:5px 8px;
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;cursor:pointer;
+  transition:all .12s;margin-bottom:4px}
+.ver-item:hover{border-color:var(--ab);background:var(--al)}
+.ver-thumb{width:36px;height:36px;border-radius:4px;background:var(--s3);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  flex-shrink:0;overflow:hidden}
+.ver-thumb img{width:100%;height:100%;object-fit:cover}
+.ver-meta{flex:1;min-width:0}
+.ver-name{font-size:11px;color:var(--txt);font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ver-date{font-size:10px;color:var(--t3)}
+
+/* Prompt area */
+#prompt-area{padding:10px;background:var(--s1);border-top:1px solid var(--border);flex-shrink:0}
+.prompt-quick{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
+.qb{font-size:10px;padding:2px 7px;border-radius:99px;border:1px solid var(--border);
+  background:transparent;color:var(--t3);cursor:pointer;transition:all .15s}
+.qb:hover{border-color:var(--ab);color:#a78bfa;background:var(--al)}
+.prompt-row{display:flex;gap:5px;align-items:flex-end}
+#prompt-input{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:7px;
+  padding:7px 9px;color:var(--txt);font-size:11.5px;font-family:inherit;
+  resize:none;outline:none;min-height:32px;max-height:100px;line-height:1.5;transition:border-color .15s}
+#prompt-input:focus{border-color:var(--ab)}
+#prompt-input::placeholder{color:var(--t3)}
+#send-btn{width:30px;height:30px;border-radius:7px;border:none;background:var(--accent);
+  color:#fff;font-size:13px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#send-btn:hover{background:#7c5cfc;transform:scale(1.05)}
+
+/* Log modal */
+#log-modal{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+#log-modal.show{display:flex}
+.log-box{background:var(--s1);border:1px solid var(--border2);border-radius:10px;
+  width:min(700px,90vw);max-height:70vh;display:flex;flex-direction:column;overflow:hidden}
+.log-box-head{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:8px}
+.log-box-head span{flex:1;font-size:12px;font-weight:600;color:var(--txt)}
+.log-close{cursor:pointer;font-size:16px;color:var(--t3)}
+.log-close:hover{color:var(--txt)}
+.log-content{flex:1;overflow-y:auto;padding:12px 14px;font-family:monospace;
+  font-size:11px;color:var(--t2);line-height:1.6;white-space:pre-wrap;background:var(--bg)}
+
+/* Status bar */
+#statusbar{grid-area:st;background:var(--s1);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:14px;color:var(--t3);font-size:10.5px}
+.st-item{display:flex;align-items:center;gap:4px}
+.st-dot{width:5px;height:5px;border-radius:50%;background:var(--t3)}
+.st-dot.ok{background:var(--green);box-shadow:0 0 5px rgba(61,214,140,.5)}
+.st-dot.warn{background:var(--yellow)}
+.st-dot.err{background:var(--red)}
+#st-right{margin-left:auto;color:var(--t3)}
+
+/* ── Design System Pane ──────────────────────────────────── */
+#pane-design{flex-direction:column;overflow:hidden;background:var(--bg)}
+.ds-layout{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;
+  flex:1;background:var(--border);overflow:hidden}
+.ds-module{background:var(--s1);display:flex;flex-direction:column;overflow:hidden}
+.ds-module-head{height:30px;border-bottom:1px solid var(--border);display:flex;
+  align-items:center;padding:0 10px;gap:6px;flex-shrink:0;background:var(--s2)}
+.ds-module-title{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--t3);flex:1}
+.ds-module-body{flex:1;overflow-y:auto;padding:10px}
+.ds-module-body::-webkit-scrollbar{width:3px}
+.ds-module-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* Token Inspector */
+.token-group{margin-bottom:12px}
+.token-group-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.token-row{display:flex;align-items:center;gap:7px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.token-swatch{width:18px;height:18px;border-radius:3px;border:1px solid var(--border2);flex-shrink:0}
+.token-name{font-family:monospace;font-size:10px;color:var(--t3);flex:1;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.token-value{font-family:monospace;font-size:10px;color:var(--t2)}
+.token-wcag{font-size:9px;padding:1px 5px;border-radius:99px;font-weight:600}
+.wcag-aa{background:rgba(61,214,140,.15);color:#3DD68C}
+.wcag-fail{background:rgba(255,107,107,.12);color:#FF6B6B}
+.spacing-row{display:flex;align-items:center;gap:7px;padding:3px 0}
+.spacing-bar{height:8px;background:var(--accent);border-radius:2px;opacity:.7}
+.spacing-label{font-size:9px;color:var(--t3);font-family:monospace;min-width:28px}
+.spacing-val{font-size:10px;color:var(--t2);font-family:monospace}
+.type-row{display:flex;align-items:baseline;gap:10px;padding:4px 0;
+  border-bottom:1px solid rgba(255,255,255,.03)}
+.type-sample{color:var(--txt);line-height:1.2;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.type-meta{font-size:9px;color:var(--t3);font-family:monospace;flex-shrink:0}
+
+/* Component Sandbox */
+.ds-token-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--s1)}
+.ds-ttab{padding:0 10px;height:26px;font-size:10px;color:var(--t3);cursor:pointer;
+  border-bottom:2px solid transparent;display:flex;align-items:center;transition:all .12s}
+.ds-ttab:hover{color:var(--t2)}
+.ds-ttab.act{color:var(--txt);border-bottom-color:var(--accent)}
+.comp-section{display:none}
+.comp-section.act{display:block}
+.comp-preview{background:var(--s2);border:1px solid var(--border);border-radius:8px;
+  padding:14px;margin-bottom:8px}
+.comp-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.comp-label{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;
+  margin-bottom:5px;display:block}
+
+/* Sandbox buttons */
+.sb-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;
+  padding:0 12px;height:30px;border:none}
+.sb-btn.primary{background:#7A1C30;color:#fff}
+.sb-btn.primary:hover{background:#62162A}
+.sb-btn.secondary{background:transparent;color:#7A1C30;border:1px solid rgba(122,28,48,.28)}
+.sb-btn.secondary:hover{background:rgba(122,28,48,.06)}
+.sb-btn.ghost{background:transparent;color:var(--t2);border:1px solid var(--border)}
+.sb-btn.ghost:hover{background:var(--s3);color:var(--txt)}
+.sb-btn.disabled{opacity:.4;cursor:not-allowed}
+.sb-btn.sm{height:24px;font-size:10px;padding:0 8px;border-radius:4px}
+.sb-btn.lg{height:40px;font-size:13px;padding:0 18px;border-radius:8px}
+
+/* Sandbox badges */
+.sb-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;
+  border-radius:99px;font-size:9.5px;font-weight:600}
+.sb-badge.default{background:var(--s3);color:var(--t2);border:1px solid var(--border)}
+.sb-badge.accent{background:rgba(108,71,255,.15);color:#a78bfa;border:1px solid rgba(108,71,255,.3)}
+.sb-badge.success{background:rgba(61,214,140,.12);color:#3DD68C;border:1px solid rgba(61,214,140,.3)}
+.sb-badge.warn{background:rgba(255,179,71,.12);color:#FFB347;border:1px solid rgba(255,179,71,.3)}
+.sb-badge.error{background:rgba(255,107,107,.12);color:#FF6B6B;border:1px solid rgba(255,107,107,.3)}
+
+/* Sandbox inputs */
+.sb-input{width:100%;height:30px;background:var(--s2);border:1px solid var(--border);
+  border-radius:6px;color:var(--txt);font-size:11px;padding:0 9px;outline:none;
+  font-family:inherit;transition:border-color .15s}
+.sb-input:focus{border-color:rgba(108,71,255,.5)}
+.sb-input.error{border-color:rgba(255,107,107,.5)}
+.sb-card-demo{background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  padding:12px;position:relative;overflow:hidden;margin-bottom:6px}
+.sb-card-demo::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:#7A1C30;border-radius:10px 0 0 10px}
+
+/* Wireframe Canvas */
+#ds-wireframe-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.wf-item{display:flex;align-items:center;gap:6px;padding:5px 8px;
+  background:var(--s2);border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;transition:all .12s;font-size:11px;color:var(--t2)}
+.wf-item:hover{border-color:var(--ab);color:var(--txt)}
+.wf-item.act{border-color:var(--accent);color:#a78bfa;background:var(--al)}
+#ds-wireframe-preview{flex:1;overflow-y:auto;font-size:10px;color:var(--t3);
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;
+  font-family:monospace;line-height:1.6;white-space:pre-wrap;word-break:break-all}
+
+/* Export / Sync */
+.ds-build-status{padding:8px 10px;border-radius:6px;font-size:11px;
+  margin-bottom:8px;line-height:1.5}
+.ds-build-status.idle{background:var(--s2);color:var(--t3);border:1px solid var(--border)}
+.ds-build-status.running{background:rgba(255,179,71,.08);color:var(--yellow);
+  border:1px solid rgba(255,179,71,.2)}
+.ds-build-status.done{background:rgba(61,214,140,.08);color:#3DD68C;
+  border:1px solid rgba(61,214,140,.2)}
+.ds-build-status.error{background:rgba(255,107,107,.08);color:#FF6B6B;
+  border:1px solid rgba(255,107,107,.2)}
+.ds-file-output{font-family:monospace;font-size:9.5px;color:var(--t3);
+  background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px;
+  margin-top:4px;line-height:1.7}
+.ds-schema-tree{font-family:monospace;font-size:10px;color:var(--t2);
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:8px;line-height:1.8;white-space:pre}
+.ds-schema-tree .dir{color:#a78bfa}
+.ds-schema-tree .file{color:var(--t2)}
+.ds-schema-tree .comment{color:var(--t3)}
+
+/* ── DJ Engine UI ─────────────────────────────────────────── */
+#pane-dj{flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* Deck grid */
+.dj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;flex-shrink:0}
+.deck-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px;
+  position:relative;overflow:hidden}
+.deck-card.active{border-color:var(--ab);box-shadow:0 0 12px rgba(108,71,255,.2)}
+.deck-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.deck-label .play-dot{width:6px;height:6px;border-radius:50%;background:var(--t3)}
+.deck-label .play-dot.playing{background:var(--green);animation:pulse 1s infinite}
+.deck-bpm{font-size:22px;font-weight:800;color:var(--txt);line-height:1}
+.deck-bpm span{font-size:10px;font-weight:400;color:var(--t3);margin-left:3px}
+.deck-track{font-size:10.5px;color:var(--t2);margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deck-pattern{font-size:9.5px;color:var(--accent);margin-top:2px;font-style:italic}
+.deck-mini-grid{display:grid;grid-template-columns:repeat(16,1fr);gap:1px;margin-top:6px;height:8px}
+.deck-step{border-radius:1px;background:var(--border)}
+.deck-step.on{background:var(--accent)}
+.deck-step.cur{background:var(--green)}
+
+/* Live code editor */
+.live-code-bar{display:flex;align-items:center;padding:6px 10px;
+  background:var(--s1);border-bottom:1px solid var(--border);gap:8px;flex-shrink:0}
+.live-code-bar span{font-size:10px;font-weight:700;color:var(--t3);
+  letter-spacing:.08em;text-transform:uppercase}
+.lc-slot-btn{height:22px;min-width:36px;padding:0 8px;border-radius:5px;
+  border:1px solid var(--border);background:transparent;color:var(--t3);
+  font-size:10px;cursor:pointer;transition:all .15s}
+.lc-slot-btn:hover{border-color:var(--ab);color:#a78bfa}
+.lc-slot-btn.act{background:var(--al);color:#a78bfa;border-color:var(--ab)}
+#lc-editor{flex:1;background:#050508;font-family:'JetBrains Mono','Fira Code',monospace;
+  font-size:11.5px;color:#e2d9ff;padding:8px 10px;resize:none;outline:none;
+  border:none;line-height:1.6;tab-size:2;min-height:0}
+.lc-actions{display:flex;align-items:center;gap:4px;padding:6px 10px;
+  background:var(--s1);border-top:1px solid var(--border);flex-shrink:0}
+.lc-btn{height:26px;padding:0 10px;border-radius:5px;font-size:10.5px;cursor:pointer;
+  border:1px solid var(--border);background:var(--s2);color:var(--t2);transition:all .15s}
+.lc-btn:hover{border-color:var(--ab);color:#a78bfa;background:var(--al)}
+.lc-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.lc-btn.primary:hover{background:#7c5cfc}
+.lc-btn.warn{border-color:rgba(255,107,107,.4);color:var(--red)}
+.lc-btn.warn:hover{background:rgba(255,107,107,.1)}
+
+/* MIDI indicator in status bar */
+.midi-bar{display:flex;align-items:center;gap:3px;font-size:10px;
+  background:var(--s2);padding:1px 6px;border-radius:99px;border:1px solid var(--border)}
+#midi-activity{width:5px;height:5px;border-radius:50%;background:var(--t3);
+  transition:background .05s}
+#midi-activity.flash{background:var(--accent)}
+
+/* Pattern quick-select chips */
+.pattern-chips{display:flex;gap:4px;flex-wrap:wrap;padding:6px 10px;
+  border-bottom:1px solid var(--border);flex-shrink:0}
+.pchip{font-size:9.5px;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--border);background:transparent;color:var(--t3);
+  cursor:pointer;transition:all .12s;white-space:nowrap}
+.pchip:hover{border-color:var(--ab);color:#a78bfa;background:var(--al)}
+.pchip.act{background:var(--al);color:#a78bfa;border-color:var(--ab)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── Header ─────────────────────────────── -->
+<header id="header">
+  <span class="logo">K-Creative</span>
+  <div class="hd-sep"></div>
+  <button class="hd-btn act" onclick="setMode('design')">✏ Design</button>
+  <button class="hd-btn" onclick="setMode('auto')">⚡ Autonom</button>
+  <button class="hd-btn" onclick="setMode('review')">👁 Review</button>
+  <div class="hd-sep"></div>
+  <button class="hd-btn" id="proj-label" onclick="showCtxTab('project')">📁 K-Learning</button>
+  <div id="hd-right">
+    <span id="mode-badge">Design Mode</span>
+    <button class="hd-btn" onclick="refreshView()">↺</button>
+    <button class="hd-btn" onclick="takeScreenshot()">📷</button>
+  </div>
+</header>
+
+<!-- ── Tool Rail ──────────────────────────── -->
+<nav id="toolrail">
+  <button class="rail-btn act" title="Blender" onclick="switchTool('blender',this)">⬡</button>
+  <button class="rail-btn" title="Inkscape" onclick="switchTool('inkscape',this)">✏</button>
+  <button class="rail-btn" title="GIMP" onclick="switchTool('gimp',this)">🖼</button>
+  <button class="rail-btn" title="LMMS" onclick="switchTool('lmms',this)">🎵</button>
+  <button class="rail-btn" title="DJ Engine" onclick="switchTool('dj',this);switchView('dj',null)">🎛</button>
+  <div class="rail-sep"></div>
+  <button class="rail-btn" title="Renders" onclick="switchView('renders',null)">🎬</button>
+  <button class="rail-btn" title="Assets" onclick="switchView('assets',null)">📁</button>
+</nav>
+
+<!-- ── Sidebar ────────────────────────────── -->
+<aside id="sidebar">
+  <div class="sb-section">Projekte</div>
+  <div class="sb-item act" onclick="loadProject('k-learning',this)">
+    <span class="icon">🎓</span><span class="name">K-Learning</span><span class="count">App</span>
+  </div>
+  <div class="sb-item" onclick="loadProject('logo',this)">
+    <span class="icon">🔷</span><span class="name">Logos</span>
+  </div>
+  <div class="sb-item" onclick="loadProject('icons',this)">
+    <span class="icon">🔲</span><span class="name">Icons</span>
+  </div>
+  <div class="sb-item" onclick="loadProject('sounds',this)">
+    <span class="icon">🎵</span><span class="name">Sounds</span>
+  </div>
+  <div class="sb-item" onclick="loadProject('motion',this)">
+    <span class="icon">🎬</span><span class="name">Motion</span>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-section">Dateien</div>
+  <div id="sb-files"></div>
+</aside>
+
+<!-- ── Main: Viewer + Terminal ────────────── -->
+<main id="main">
+  <div id="viewer">
+    <div class="view-tab-bar">
+      <div class="vtab act" data-v="model" onclick="switchView('model',this)">⬡ 3D Viewer</div>
+      <div class="vtab" data-v="renders" onclick="switchView('renders',this)">🎬 Renders</div>
+      <div class="vtab" data-v="preview" onclick="switchView('preview',this)">🖼 Preview</div>
+      <div class="vtab" data-v="assets" onclick="switchView('assets',this)">📁 Assets</div>
+      <div class="vtab" data-v="dj" onclick="switchView('dj',this)">🎛 DJ</div>
+      <div class="vtab" data-v="design" onclick="switchView('design',this)">🎨 Design System</div>
+      <div class="vtab vtab-right" data-v="vnc" onclick="switchView('vnc',this)"
+        title="VNC-Debug (benötigt start-blender-studio.sh)">
+        🖥 VNC</div>
+    </div>
+
+    <!-- 3D Model Viewer (primary) -->
+    <div class="view-pane act" id="pane-model" style="flex-direction:column">
+      <div id="model-viewer-wrap">
+        <div class="mv-empty" id="mv-empty">
+          <div class="big">⬡</div>
+          <p>Kein 3D-Asset geladen<br>
+          <span style="font-size:10px;opacity:.6">Claude: "Erstelle ein GLB" → erscheint hier automatisch</span></p>
+        </div>
+        <model-viewer id="mv" style="display:none"
+          camera-controls auto-rotate shadow-intensity="1"
+          environment-image="neutral" exposure="1"
+          alt="3D Asset Viewer">
+        </model-viewer>
+      </div>
+      <div id="job-overlay"></div>
+    </div>
+
+    <!-- Render Gallery -->
+    <div class="view-pane" id="pane-renders" style="flex-direction:column;align-items:stretch;overflow-y:auto;padding:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:11px;color:var(--t2);font-weight:600">Render-Ausgaben</span>
+        <button onclick="loadRenderGallery()" class="exec-tool-btn" style="width:auto;height:22px;padding:0 10px;margin:0">↺ Aktualisieren</button>
+      </div>
+      <div class="render-gallery" id="render-gallery">
+        <div style="color:var(--t3);font-size:11px;grid-column:1/-1;padding:20px 0;text-align:center">
+          Noch keine Renders. Claude ausführen lassen → erscheinen hier.
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="view-pane" id="pane-preview">
+      <div class="no-content" id="no-preview">
+        <div class="big">🖼</div>
+        <p>Noch kein Preview</p>
+        <p style="font-size:10px;margin-top:4px">Claude: "Screenshot" oder Datei aus Sidebar klicken</p>
+      </div>
+      <img id="preview-img" style="display:none;max-width:100%;max-height:100%;object-fit:contain;border-radius:4px">
+    </div>
+
+    <!-- Assets Grid -->
+    <div class="view-pane" id="pane-assets" style="flex-direction:column;align-items:stretch;overflow:auto;padding:12px">
+      <div id="assets-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px"></div>
+    </div>
+
+    <!-- DJ Engine Pane -->
+    <div class="view-pane" id="pane-dj">
+      <!-- Deck cards -->
+      <div style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden">
+        <div class="dj-grid">
+          <!-- Deck A -->
+          <div class="deck-card active" id="deck-A">
+            <div class="deck-label">
+              <div class="play-dot" id="dot-deck-A"></div> Deck A
+              <div style="margin-left:auto;display:flex;gap:4px">
+                <button class="lc-btn" style="height:18px;padding:0 6px;font-size:9px"
+                  onclick="djPatternQuick('A')">P</button>
+                <button class="lc-btn" style="height:18px;padding:0 6px;font-size:9px"
+                  onclick="djSoundQuick('A')">S</button>
+              </div>
+            </div>
+            <div class="deck-bpm" id="bpm-A">—<span>BPM</span></div>
+            <div class="deck-track" id="track-A">Kein Track</div>
+            <div class="deck-pattern" id="pattern-A">—</div>
+            <div class="deck-mini-grid" id="grid-A"></div>
+          </div>
+          <!-- Deck B -->
+          <div class="deck-card" id="deck-B">
+            <div class="deck-label">
+              <div class="play-dot" id="dot-deck-B"></div> Deck B
+              <div style="margin-left:auto;display:flex;gap:4px">
+                <button class="lc-btn" style="height:18px;padding:0 6px;font-size:9px"
+                  onclick="djPatternQuick('B')">P</button>
+                <button class="lc-btn" style="height:18px;padding:0 6px;font-size:9px"
+                  onclick="djSoundQuick('B')">S</button>
+              </div>
+            </div>
+            <div class="deck-bpm" id="bpm-B">—<span>BPM</span></div>
+            <div class="deck-track" id="track-B">Kein Track</div>
+            <div class="deck-pattern" id="pattern-B">—</div>
+            <div class="deck-mini-grid" id="grid-B"></div>
+          </div>
+          <!-- Deck C -->
+          <div class="deck-card" id="deck-C">
+            <div class="deck-label">
+              <div class="play-dot" id="dot-deck-C"></div> Deck C · SC Slot 2
+            </div>
+            <div class="deck-bpm" id="bpm-C">—<span>BPM</span></div>
+            <div class="deck-track" id="track-C">SuperCollider Slot 2</div>
+            <div class="deck-pattern" id="pattern-C">—</div>
+            <div class="deck-mini-grid" id="grid-C"></div>
+          </div>
+          <!-- Deck D -->
+          <div class="deck-card" id="deck-D">
+            <div class="deck-label">
+              <div class="play-dot" id="dot-deck-D"></div> Deck D · SC Slot 3
+            </div>
+            <div class="deck-bpm" id="bpm-D">—<span>BPM</span></div>
+            <div class="deck-track" id="track-D">SuperCollider Slot 3</div>
+            <div class="deck-pattern" id="pattern-D">—</div>
+            <div class="deck-mini-grid" id="grid-D"></div>
+          </div>
+        </div>
+
+        <!-- Pattern quick-select -->
+        <div class="pattern-chips">
+          <span style="font-size:9px;color:var(--t3);line-height:20px;margin-right:2px">Pattern:</span>
+          <button class="pchip act" onclick="djSelectPattern('four_to_floor',this)">4-to-Floor</button>
+          <button class="pchip" onclick="djSelectPattern('breakbeat',this)">Breakbeat</button>
+          <button class="pchip" onclick="djSelectPattern('house',this)">House</button>
+          <button class="pchip" onclick="djSelectPattern('minimal_techno',this)">Minimal</button>
+          <button class="pchip" onclick="djSelectPattern('trap',this)">Trap</button>
+          <button class="pchip" onclick="djSelectPattern('dnb',this)">DnB</button>
+        </div>
+
+        <!-- Live code editor -->
+        <div class="live-code-bar">
+          <span>Live Code</span>
+          <div style="display:flex;gap:3px">
+            <button class="lc-slot-btn act" data-slot="0" onclick="selectLcSlot(0,this)">Slot 0</button>
+            <button class="lc-slot-btn" data-slot="1" onclick="selectLcSlot(1,this)">Slot 1</button>
+            <button class="lc-slot-btn" data-slot="2" onclick="selectLcSlot(2,this)">Slot 2</button>
+            <button class="lc-slot-btn" data-slot="3" onclick="selectLcSlot(3,this)">Slot 3</button>
+          </div>
+          <span style="margin-left:auto;font-size:9px" id="lc-status">Ctrl+Enter = ausführen</span>
+        </div>
+        <textarea id="lc-editor" spellcheck="false"
+          placeholder="// SuperCollider live code — direkt in Slot senden
+// Vordefinierte Patterns: four_to_floor, breakbeat, house, minimal_techno, trap, dnb
+// Oder: roher SC-Code
+Pbind(
+  \instrument, \bass,
+  \degree, Pseq([0, 3, 5, 7], inf),
+  \dur, 0.5,
+  \amp, 0.6
+).play;"
+          onkeydown="handleLcKey(event)"></textarea>
+        <div class="lc-actions">
+          <span style="font-size:9px;color:var(--t3)">BPM:</span>
+          <input id="lc-bpm" type="number" value="128" min="60" max="200"
+            style="width:52px;height:22px;background:var(--s2);border:1px solid var(--border);
+                   border-radius:4px;color:var(--txt);font-size:11px;padding:0 5px;outline:none">
+          <button class="lc-btn primary" onclick="djSendCode()">▶ Ausführen</button>
+          <button class="lc-btn" onclick="djStopSlot()">■ Stop Slot</button>
+          <button class="lc-btn" onclick="djInitSC()">⚙ Init SC</button>
+          <button class="lc-btn" onclick="djSyncPipeline()">↺ Hot-Reload</button>
+          <button class="lc-btn" onclick="djScanLibrary()">📂 Library scannen</button>
+          <button class="lc-btn warn" onclick="djReloadSynthDefs()">♻ SynthDefs</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design System -->
+    <div class="view-pane" id="pane-design">
+      <div id="pane-design-inner" style="display:flex;flex-direction:column;width:100%;height:100%">
+        <!-- Sub-tabs -->
+        <div class="ds-token-tabs" id="ds-tabs">
+          <div class="ds-ttab act" onclick="dsTab('tokens',this)">⬡ Tokens</div>
+          <div class="ds-ttab" onclick="dsTab('sandbox',this)">⬜ Sandbox</div>
+          <div class="ds-ttab" onclick="dsTab('wireframes',this)">⊞ Wireframes</div>
+          <div class="ds-ttab" onclick="dsTab('export',this)">↗ Export</div>
+        </div>
+
+        <!-- ── Module 1: Token Inspector ── -->
+        <div class="comp-section act ds-module-body" id="ds-tokens" style="flex:1;overflow-y:auto">
+          <div class="ds-layout" style="display:block">
+            <!-- Color Section -->
+            <div class="token-group" id="ds-color-tokens">
+              <div class="token-group-label">🎨 Farben — W3C DTCG</div>
+              <div id="ds-color-list" style="color:var(--t3);font-size:10px;padding:8px 0">Lade Tokens…</div>
+            </div>
+            <!-- Spacing Section -->
+            <div class="token-group" id="ds-spacing-tokens">
+              <div class="token-group-label">📐 Spacing — 4pt/8pt Grid</div>
+              <div id="ds-spacing-list"></div>
+            </div>
+            <!-- Typography Section -->
+            <div class="token-group">
+              <div class="token-group-label">Aa Typografie — Modular Scale × 1.25</div>
+              <div id="ds-type-list"></div>
+            </div>
+            <!-- Radius Section -->
+            <div class="token-group">
+              <div class="token-group-label">◌ Border Radius</div>
+              <div id="ds-radius-list" style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Module 2: Component Sandbox ── -->
+        <div class="comp-section ds-module-body" id="ds-sandbox" style="flex:1;overflow-y:auto">
+          <!-- Buttons -->
+          <div class="comp-preview">
+            <span class="comp-label">Buttons</span>
+            <div class="comp-row">
+              <button class="sb-btn primary">Primary</button>
+              <button class="sb-btn secondary">Secondary</button>
+              <button class="sb-btn ghost">Ghost</button>
+              <button class="sb-btn primary disabled" disabled>Disabled</button>
+            </div>
+            <div class="comp-row">
+              <button class="sb-btn primary sm">Small</button>
+              <button class="sb-btn primary">Default</button>
+              <button class="sb-btn primary lg">Large</button>
+            </div>
+          </div>
+          <!-- Badges -->
+          <div class="comp-preview">
+            <span class="comp-label">Badges & Status</span>
+            <div class="comp-row">
+              <span class="sb-badge default">Default</span>
+              <span class="sb-badge accent">● K-Violet</span>
+              <span class="sb-badge success">✓ Done</span>
+              <span class="sb-badge warn">⚠ Review</span>
+              <span class="sb-badge error">✕ Error</span>
+            </div>
+          </div>
+          <!-- Inputs -->
+          <div class="comp-preview">
+            <span class="comp-label">Inputs</span>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <input class="sb-input" placeholder="Default Input" value="">
+              <input class="sb-input" placeholder="Focus (click)" style="border-color:rgba(108,71,255,.5)">
+              <input class="sb-input error" placeholder="Error state" value="Ungültige Eingabe">
+            </div>
+          </div>
+          <!-- Cards -->
+          <div class="comp-preview">
+            <span class="comp-label">Block Cards</span>
+            <div class="sb-card-demo">
+              <div style="font-size:11.5px;font-weight:600;color:var(--txt);margin-bottom:3px">Makroökonomie II</div>
+              <div style="font-size:10px;color:var(--t3)">Kapitel 3 · IS-LM Modell</div>
+              <div style="margin-top:8px;height:3px;background:var(--border2);border-radius:2px">
+                <div style="width:45%;height:100%;background:#7A1C30;border-radius:2px;opacity:.7"></div>
+              </div>
+            </div>
+            <div class="sb-card-demo" style="border-left:none">
+              <div style="font-size:11.5px;font-weight:600;color:var(--txt);margin-bottom:3px">Elevated Card</div>
+              <div style="font-size:10px;color:var(--t3)">Kein Accent-Border</div>
+            </div>
+          </div>
+          <!-- Typography -->
+          <div class="comp-preview">
+            <span class="comp-label">Typografie-Skala (r = 1.25)</span>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:39px;line-height:1;color:var(--txt);font-weight:700">4xl · 39px</div>
+              <div style="font-size:31px;line-height:1.1;color:var(--txt);font-weight:600">3xl · 31px</div>
+              <div style="font-size:25px;line-height:1.2;color:var(--txt);font-weight:600">2xl · 25px</div>
+              <div style="font-size:20px;color:var(--txt);font-weight:500">xl · 20px — Überschrift</div>
+              <div style="font-size:16px;color:var(--t2)">md · 16px — Fließtext Base</div>
+              <div style="font-size:13px;color:var(--t2)">sm · 13px — UI Text</div>
+              <div style="font-size:10px;color:var(--t3);font-family:monospace">xs · 10px · Mono</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Module 3: Wireframe Canvas ── -->
+        <div class="comp-section ds-module-body" id="ds-wireframes" style="flex:1;overflow-y:auto">
+          <div id="ds-wireframe-list">Lade Wireframes…</div>
+          <div class="token-group-label" style="margin-top:8px">JSON Vorschau</div>
+          <div id="ds-wireframe-preview" style="min-height:150px">Wähle eine Wireframe-Datei</div>
+        </div>
+
+        <!-- ── Module 4: Export & Sync ── -->
+        <div class="comp-section ds-module-body" id="ds-export" style="flex:1;overflow-y:auto">
+          <div class="ds-build-status idle" id="ds-build-status">
+            Bereit — Tokens werden aus <code>packages/design-system/tokens/</code> gelesen
+          </div>
+          <button class="exec-tool-btn primary" style="margin-bottom:8px"
+            onclick="dsBuild()">⚡ Sync to Codebase</button>
+          <button class="exec-tool-btn" style="margin-bottom:12px"
+            onclick="dsLoadTokens()">↺ Tokens neu laden</button>
+
+          <div class="token-group-label">Ausgabe-Dateien</div>
+          <div class="ds-file-output" id="ds-build-output">
+packages/design-system/dist/
+  css/variables.css    — CSS Custom Properties
+  ts/tokens.ts         — TypeScript Typed Enums
+  tailwind/theme.js    — Tailwind/UnoCSS Config</div>
+
+          <div class="token-group-label" style="margin-top:12px">Ordner-Struktur (SSOT)</div>
+          <div class="ds-schema-tree"><span class="dir">packages/design-system/</span>
+<span class="dir">├── tokens/</span>              <span class="comment"># ← K-Creative schreibt hier</span>
+<span class="dir">│   ├── base/</span>
+<span class="file">│   │   ├── colors.json</span>      <span class="comment"># W3C DTCG</span>
+<span class="file">│   │   ├── spacing.json</span>
+<span class="file">│   │   ├── typography.json</span>
+<span class="file">│   │   └── radius.json</span>
+<span class="dir">│   ├── semantic/</span>
+<span class="file">│   │   ├── dark.json</span>
+<span class="file">│   │   └── light.json</span>
+<span class="dir">│   └── components/</span>
+<span class="file">│       ├── button.json</span>
+<span class="file">│       └── card.json</span>
+<span class="dir">├── wireframes/</span>             <span class="comment"># Layout-Graphen</span>
+<span class="file">│   └── dashboard.layout.json</span>
+<span class="dir">└── dist/</span>                   <span class="comment"># ← Build-Artefakte</span>
+<span class="file">    ├── css/variables.css</span>
+<span class="file">    ├── tailwind/theme.js</span>
+<span class="file">    └── ts/tokens.ts</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VNC Debug (optional) -->
+    <div class="view-pane" id="pane-vnc" style="flex-direction:column">
+      <div class="vnc-notice">
+        ⚠ VNC-Debug — benötigt <code>start-blender-studio.sh</code>.
+        Für normale Workflows: 3D Viewer oder Renders verwenden.
+        <button onclick="connectVnc()" class="exec-tool-btn" style="width:auto;height:22px;padding:0 10px;margin:0;margin-left:auto">Verbinden</button>
+      </div>
+      <iframe id="vnc-frame" src="about:blank"></iframe>
+    </div>
+  </div>
+
+  <!-- Terminal resize -->
+  <div id="term-resize" onmousedown="startTermResize(event)"></div>
+
+  <!-- Terminal -->
+  <div id="term-area">
+    <div class="term-tabs">
+      <div class="term-tab act" data-sess="global" onclick="switchTerm('global',this)">
+        <div class="term-dot live"></div> K-Creative
+      </div>
+      <div class="term-tab" data-sess="blender" onclick="switchTerm('blender',this)">
+        <div class="term-dot"></div> Blender
+      </div>
+      <div class="term-tab" data-sess="inkscape" onclick="switchTerm('inkscape',this)">
+        <div class="term-dot"></div> Inkscape
+      </div>
+      <div class="term-tab" data-sess="lmms" onclick="switchTerm('lmms',this)">
+        <div class="term-dot"></div> LMMS
+      </div>
+      <div class="term-tab" data-sess="sc" onclick="switchTerm('sc',this)">
+        <div class="term-dot" id="sc-term-dot"></div> SuperCollider
+      </div>
+    </div>
+    <div id="term-container"></div>
+  </div>
+</main>
+
+<!-- ── Context Panel ──────────────────────── -->
+<aside id="ctx-panel">
+  <div class="ctx-header">
+    <div style="width:7px;height:7px;border-radius:50%;background:var(--accent)"></div>
+    Projekt-Kontext
+  </div>
+  <div class="ctx-tabs">
+    <div class="ctx-tab act" onclick="showCtxTab('project',this)">Projekt</div>
+    <div class="ctx-tab" onclick="showCtxTab('exec',this)">Exec</div>
+    <div class="ctx-tab" onclick="showCtxTab('versions',this)">Render</div>
+    <div class="ctx-tab" onclick="showCtxTab('brief',this)">Brief</div>
+    <div class="ctx-tab" onclick="showCtxTab('dj',this)">🎛 DJ</div>
+  </div>
+
+  <div id="ctx-body">
+    <!-- Project tab -->
+    <div id="ctx-project">
+      <div class="ctx-block">
+        <div class="ctx-block-title">Brand</div>
+        <div class="ctx-card">
+          <span class="version-pill">V3.0</span><br><br>
+          <strong>K-Learning</strong><br>
+          Accent: #6C47FF K-Violet<br>
+          Font: Nunito + Latin Modern
+        </div>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">Farben</div>
+        <div class="ctx-card" id="ctx-colors">
+          <div class="ctx-swatch"><div class="dot" style="background:#6C47FF"></div><span>K-Violet</span><span class="hex">#6C47FF</span></div>
+          <div class="ctx-swatch"><div class="dot" style="background:#A855F7"></div><span>Purple</span><span class="hex">#A855F7</span></div>
+          <div class="ctx-swatch"><div class="dot" style="background:#3DD68C"></div><span>Success</span><span class="hex">#3DD68C</span></div>
+          <div class="ctx-swatch"><div class="dot" style="background:#0D0D16"></div><span>Dark BG</span><span class="hex">#0D0D16</span></div>
+        </div>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">Pipeline</div>
+        <div class="ctx-card" style="font-size:10.5px;line-height:1.8">
+          Prompt ➔ Script ➔ Headless Exec<br>
+          ➔ GLB/PNG ➔ Web Viewer<br>
+          <span style="color:var(--t3)">Kein VNC/GUI erforderlich</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exec tab -->
+    <div id="ctx-exec" style="display:none">
+      <div class="ctx-block">
+        <div class="ctx-block-title">Headless Execution</div>
+        <button class="exec-tool-btn primary" onclick="runBlenderTemplate()">⬡ Blender Template ausführen</button>
+        <button class="exec-tool-btn" onclick="runBlenderScript()">⬡ Custom Script…</button>
+        <button class="exec-tool-btn" onclick="runInkscapeExport()">✏ Inkscape → PNG/SVG</button>
+        <button class="exec-tool-btn" onclick="loadRenderGallery();switchView('renders',null)">🎬 Renders laden</button>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">Jobs</div>
+        <div id="jobs-list">
+          <div style="color:var(--t3);font-size:11px;padding:8px 0;text-align:center">
+            Keine Jobs aktiv
+          </div>
+        </div>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">Quick Script</div>
+        <textarea id="quick-script"
+          style="width:100%;min-height:100px;background:var(--s2);border:1px solid var(--border);
+                 border-radius:7px;padding:8px;color:var(--txt);font-family:monospace;
+                 font-size:10.5px;resize:vertical;outline:none;line-height:1.5"
+          placeholder="# Blender Python (bpy)
+import bpy
+# Dein Code..."></textarea>
+        <button onclick="submitQuickScript()" class="exec-tool-btn primary" style="margin-top:5px">
+          ▶ Ausführen
+        </button>
+      </div>
+    </div>
+
+    <!-- Render/Versions tab -->
+    <div id="ctx-versions" style="display:none">
+      <div class="ctx-block">
+        <div class="ctx-block-title">Letzte Renders</div>
+        <div id="render-list">
+          <div style="color:var(--t3);font-size:11px;padding:8px 0;text-align:center">Lädt…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DJ tab -->
+    <div id="ctx-dj" style="display:none">
+      <div class="ctx-block">
+        <div class="ctx-block-title">DJ Status</div>
+        <div class="ctx-card" id="dj-status-card" style="font-size:11px;line-height:1.9">
+          <span id="dj-sc-line">◎ SC nicht verbunden</span><br>
+          <span id="dj-numark-line">◎ Numark nicht erkannt</span><br>
+          <span id="dj-lib-line">◎ Library: —</span>
+        </div>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">Sound Swap (aktiver Slot)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <button class="exec-tool-btn" onclick="djSwapSound('kick')">🥁 Kick</button>
+          <button class="exec-tool-btn" onclick="djSwapSound('snare')">🎯 Snare</button>
+          <button class="exec-tool-btn" onclick="djSwapSound('bass')">🎸 Bass</button>
+          <button class="exec-tool-btn" onclick="djSwapSound('pad')">🎹 Pad</button>
+          <button class="exec-tool-btn" onclick="djSwapSound('lead')">🎺 Lead</button>
+          <button class="exec-tool-btn" onclick="djSwapSound('reese')">⚡ Reese</button>
+        </div>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">FX Knobs (Slot 0)</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px;color:var(--t3);width:40px">Filter</span>
+            <input type="range" min="0" max="127" value="64" style="flex:1"
+              oninput="djFxKnob(0,'filter',this.value/127)">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px;color:var(--t3);width:40px">Reverb</span>
+            <input type="range" min="0" max="127" value="0" style="flex:1"
+              oninput="djFxKnob(0,'reverb',this.value/127)">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px;color:var(--t3);width:40px">Pitch</span>
+            <input type="range" min="0" max="127" value="64" style="flex:1"
+              oninput="djFxKnob(0,'pitch',this.value/127)">
+          </div>
+        </div>
+      </div>
+      <div class="ctx-block">
+        <div class="ctx-block-title">Sync</div>
+        <button class="exec-tool-btn primary" onclick="djSyncPipeline()">↺ Hot-Reload alle</button>
+        <button class="exec-tool-btn" onclick="djSyncPipeline('mappings')">♩ MIDI-Mappings</button>
+        <button class="exec-tool-btn" onclick="djSyncPipeline('sc_loops')">♻ SC Loops</button>
+      </div>
+    </div>
+
+    <!-- Brief tab -->
+    <div id="ctx-brief" style="display:none">
+      <div class="ctx-block">
+        <div class="ctx-block-title">Projekt-Brief</div>
+        <textarea id="brief-text"
+          style="width:100%;min-height:180px;background:var(--s2);border:1px solid var(--border);
+                 border-radius:8px;padding:10px;color:var(--txt);font-size:11.5px;
+                 font-family:inherit;resize:vertical;outline:none;line-height:1.6"
+          placeholder="Briefing hier eingeben…"></textarea>
+        <button onclick="sendBriefToContext()"
+          style="margin-top:6px;width:100%;height:28px;border-radius:6px;border:none;
+                 background:var(--accent);color:#fff;font-size:11px;cursor:pointer">
+          Brief in Terminal laden
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt Area -->
+  <div id="prompt-area">
+    <div class="prompt-quick">
+      <button class="qb" onclick="quickCmd('Blender Template ausführen und GLB exportieren')">⬡ Run</button>
+      <button class="qb" onclick="quickCmd('Screenshot Inkscape SVG')">✏ SVG</button>
+      <button class="qb" onclick="quickCmd('Render als PNG 1024px')">🎬 Render</button>
+      <button class="qb" onclick="quickCmd('Exportiere alle Asset-Formate')">↗ Export</button>
+      <button class="qb" onclick="quickCmd('Zeige letzten Job-Log')">📋 Log</button>
+      <button class="qb" onclick="quickCmd('Was wurde zuletzt erstellt?')">🔍 Status</button>
+    </div>
+    <div class="prompt-row">
+      <textarea id="prompt-input" rows="1" placeholder="Idee oder Befehl…"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendPrompt()">↑</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Status Bar ──────────────────────────── -->
+<footer id="statusbar">
+  <div class="st-item"><div class="st-dot" id="dot-blender"></div> Blender MCP</div>
+  <div class="st-item"><div class="st-dot ok" id="dot-inkscape"></div> Inkscape</div>
+  <div class="st-item"><div class="st-dot ok" id="dot-lmms"></div> LMMS</div>
+  <div class="st-item"><div class="st-dot" id="dot-gimp"></div> GIMP</div>
+  <div class="st-item" style="margin-left:8px"><div class="st-dot ok"></div> Studio :7000</div>
+  <div class="st-item"><div class="st-dot" id="dot-sc"></div> SC</div>
+  <div class="st-item"><div class="st-dot" id="dot-numark"></div> Numark</div>
+  <div class="st-item">
+    <div class="midi-bar">
+      <div id="midi-activity"></div>
+      <span id="midi-label">MIDI</span>
+    </div>
+  </div>
+  <div id="st-right">Bereit — Headless Mode</div>
+</footer>
+
+</div><!-- #app -->
+
+<!-- Log Modal -->
+<div id="log-modal" onclick="if(event.target===this)closeLog()">
+  <div class="log-box">
+    <div class="log-box-head">
+      <span id="log-modal-title">Job Log</span>
+      <span class="log-close" onclick="closeLog()">✕</span>
+    </div>
+    <div class="log-content" id="log-modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────
+const HOST = window.location.hostname;
+const API  = `http://${HOST}:7000`;
+const VNC  = `http://${HOST}:6080/vnc_lite.html`;
+
+let activeTool = 'blender';
+let activeView = 'model';
+let activeCtxTab = 'project';
+let activeTerm = 'global';
+let currentProject = 'k-learning';
+let termSessions = {};
+let terms = {};
+let jobPollTimer = null;
+
+// ── xterm.js Terminal ─────────────────────────────────
+function initTerminal(sessionId) {
+  if (terms[sessionId]) return;
+  const el = document.getElementById('term-container');
+  el.innerHTML = '';
+
+  const term = new Terminal({
+    theme: {
+      background:'#050508', foreground:'#f0eeff', cursor:'#6C47FF',
+      selection:'rgba(108,71,255,0.3)', black:'#0D0D16', green:'#3DD68C',
+      yellow:'#FFB347', blue:'#6C47FF', magenta:'#A855F7', cyan:'#60A5FA', white:'#F0EEFF',
+    },
+    fontFamily:"'JetBrains Mono','Fira Code',monospace",
+    fontSize:12, lineHeight:1.4, cursorBlink:true, scrollback:1000, allowTransparency:true,
+  });
+
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(el);
+
+  setTimeout(() => {
+    fitAddon.fit();
+    const ws = new WebSocket(`ws://${HOST}:7000/ws/terminal/${sessionId}`);
+    ws.onopen = () => term.write('\r\n\x1b[32m● K-Creative Terminal\x1b[0m · ' + sessionId + '\r\n\r\n');
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'output') term.write(atob(msg.data));
+    };
+    ws.onclose = () => term.write('\r\n\x1b[31m● Verbindung getrennt\x1b[0m\r\n');
+    term.onData(data => {
+      if (ws.readyState === WebSocket.OPEN)
+        ws.send(JSON.stringify({ type:'input', data:btoa(data) }));
+    });
+    term.onResize(({ cols, rows }) => {
+      if (ws.readyState === WebSocket.OPEN)
+        ws.send(JSON.stringify({ type:'resize', cols, rows }));
+    });
+    termSessions[sessionId] = ws;
+    terms[sessionId] = { term, fitAddon, ws };
+  }, 100);
+
+  window.addEventListener('resize', () => {
+    if (terms[sessionId]) terms[sessionId].fitAddon.fit();
+  });
+}
+
+function switchTerm(sessionId, el) {
+  document.querySelectorAll('.term-tab').forEach(t => t.classList.remove('act'));
+  if (el) el.classList.add('act');
+  activeTerm = sessionId;
+  initTerminal(sessionId);
+}
+
+function sendToTerminal(text) {
+  if (!terms[activeTerm]) initTerminal(activeTerm);
+  setTimeout(() => {
+    const ws = termSessions[activeTerm];
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type:'input', data:btoa(text + '\n') }));
+  }, 200);
+}
+
+// ── Tool Switching ────────────────────────────────────
+function switchTool(tool, btn) {
+  activeTool = tool;
+  document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('act'));
+  if (btn) btn.classList.add('act');
+  document.getElementById('st-right').textContent = toolLabel(tool);
+}
+
+function toolLabel(t) {
+  return { blender:'Blender · Headless bpy', gimp:'GIMP · Headless',
+           inkscape:'Inkscape · SVG CLI', lmms:'LMMS · Audio CLI' }[t] || t;
+}
+
+// ── View Switching ────────────────────────────────────
+function switchView(view, el) {
+  activeView = view;
+  document.querySelectorAll('.vtab').forEach(t => t.classList.remove('act'));
+  if (el) el.classList.add('act');
+  else {
+    const tab = document.querySelector(`.vtab[data-v="${view}"]`);
+    if (tab) tab.classList.add('act');
+  }
+  document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('act'));
+  const pane = document.getElementById('pane-' + view);
+  if (pane) pane.classList.add('act');
+  if (view === 'renders') loadRenderGallery();
+  if (view === 'assets') loadAssetsGrid();
+  if (view === 'design') dsLoadTokens();
+}
+
+// ── Design System ─────────────────────────────────────
+function dsTab(id, el) {
+  document.querySelectorAll('#ds-tabs .ds-ttab').forEach(t => t.classList.remove('act'));
+  if (el) el.classList.add('act');
+  document.querySelectorAll('.comp-section').forEach(s => s.classList.remove('act'));
+  const sec = document.getElementById('ds-' + id);
+  if (sec) sec.classList.add('act');
+  if (id === 'wireframes') dsLoadWireframes();
+}
+
+async function dsLoadTokens() {
+  try {
+    const r = await fetch(`${API}/api/design-system/tokens`);
+    const data = await r.json();
+    dsRenderColors(data?.base?.colors?.color || {});
+    dsRenderSpacing(data?.base?.spacing?.spacing || {});
+    dsRenderTypography(data?.base?.typography?.typography || {});
+    dsRenderRadius(data?.base?.radius?.radius || {});
+  } catch(e) {
+    document.getElementById('ds-color-list').textContent = 'Fehler: ' + e.message;
+  }
+}
+
+function dsRenderColors(colors) {
+  const el = document.getElementById('ds-color-list');
+  if (!Object.keys(colors).length) { el.textContent = 'Keine Farb-Tokens'; return; }
+  el.innerHTML = '';
+  for (const [group, shades] of Object.entries(colors)) {
+    const groupDiv = document.createElement('div');
+    groupDiv.style.cssText = 'margin-bottom:6px';
+    const label = document.createElement('div');
+    label.style.cssText = 'font-size:9px;color:var(--t3);margin-bottom:3px;font-weight:700;text-transform:uppercase';
+    label.textContent = group;
+    groupDiv.appendChild(label);
+    if (typeof shades === 'object' && shades.$value) {
+      groupDiv.appendChild(dsColorRow(`--${group}`, shades.$value, shades.$description));
+    } else {
+      for (const [shade, token] of Object.entries(shades)) {
+        if (token.$value) groupDiv.appendChild(dsColorRow(`${group}.${shade}`, token.$value, token.$description));
+      }
+    }
+    el.appendChild(groupDiv);
+  }
+}
+
+function dsColorRow(name, value, desc) {
+  const row = document.createElement('div');
+  row.className = 'token-row';
+  const contrast = dsContrastRatio(value, '#09090F');
+  const wcagClass = contrast >= 4.5 ? 'wcag-aa' : contrast >= 3 ? 'wcag-aa' : 'wcag-fail';
+  const wcagLabel = contrast >= 4.5 ? 'AA' : contrast >= 3 ? 'AA lg' : 'Fail';
+  row.innerHTML = `
+    <div class="token-swatch" style="background:${value}"></div>
+    <div class="token-name" title="${desc||''}">${name}</div>
+    <div class="token-value">${value}</div>
+    <span class="token-wcag ${wcagClass}">${wcagLabel} ${contrast.toFixed(1)}</span>
+  `;
+  return row;
+}
+
+function dsContrastRatio(hex, bg) {
+  const lum = h => {
+    const c = parseInt(h.slice(1),16);
+    const r = (c>>16&255)/255, g = (c>>8&255)/255, b = (c&255)/255;
+    return [r,g,b].map(v => v<=.03928 ? v/12.92 : Math.pow((v+.055)/1.055,2.4))
+                  .reduce((a,v,i) => a + v * [.2126,.7152,.0722][i], 0);
+  };
+  try {
+    const l1 = lum(hex.startsWith('#') ? hex : '#'+hex);
+    const l2 = lum(bg);
+    return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);
+  } catch { return 1; }
+}
+
+function dsRenderSpacing(spacing) {
+  const el = document.getElementById('ds-spacing-list');
+  el.innerHTML = '';
+  const max = 128;
+  for (const [name, token] of Object.entries(spacing)) {
+    if (!token.$value) continue;
+    const px = parseInt(token.$value);
+    const row = document.createElement('div');
+    row.className = 'spacing-row';
+    row.innerHTML = `
+      <div class="spacing-label">${name}</div>
+      <div class="spacing-bar" style="width:${Math.round(px/max*180)}px"></div>
+      <div class="spacing-val">${token.$value}</div>
+      ${token.$description ? `<div style="font-size:9px;color:var(--t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${token.$description}</div>` : ''}
+    `;
+    el.appendChild(row);
+  }
+}
+
+function dsRenderTypography(typo) {
+  const el = document.getElementById('ds-type-list');
+  el.innerHTML = '';
+  const sizes = typo?.size || {};
+  for (const [name, token] of Object.entries(sizes)) {
+    if (!token.$value) continue;
+    const px = parseInt(token.$value);
+    const row = document.createElement('div');
+    row.className = 'type-row';
+    row.innerHTML = `
+      <div class="type-sample" style="font-size:${Math.min(px,25)}px">Hg ${name}</div>
+      <div class="type-meta">${token.$value}${token.$description ? ' · '+token.$description : ''}</div>
+    `;
+    el.appendChild(row);
+  }
+}
+
+function dsRenderRadius(radius) {
+  const el = document.getElementById('ds-radius-list');
+  el.innerHTML = '';
+  for (const [name, token] of Object.entries(radius)) {
+    if (!token.$value) continue;
+    const div = document.createElement('div');
+    div.style.cssText = `width:32px;height:32px;border:1px solid var(--border2);
+      border-radius:${token.$value};background:var(--al);
+      display:flex;align-items:center;justify-content:center`;
+    div.title = `${name}: ${token.$value}`;
+    div.innerHTML = `<span style="font-size:8px;color:var(--t3)">${name}</span>`;
+    el.appendChild(div);
+  }
+}
+
+async function dsLoadWireframes() {
+  const listEl = document.getElementById('ds-wireframe-list');
+  try {
+    const r = await fetch(`${API}/api/design-system/wireframes`);
+    const files = await r.json();
+    listEl.innerHTML = '';
+    if (!files.length) { listEl.innerHTML = '<div style="color:var(--t3);font-size:10px">Keine Wireframes</div>'; return; }
+    files.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'wf-item';
+      item.innerHTML = `⊞ ${f.title} <span style="font-size:9px;color:var(--t3);margin-left:auto">${f.id}</span>`;
+      item.onclick = () => dsLoadWireframe(f.id, item);
+      listEl.appendChild(item);
+    });
+  } catch(e) { listEl.innerHTML = `<div style="color:#FF6B6B;font-size:10px">Fehler: ${e.message}</div>`; }
+}
+
+async function dsLoadWireframe(id, el) {
+  document.querySelectorAll('.wf-item').forEach(i => i.classList.remove('act'));
+  if (el) el.classList.add('act');
+  const prev = document.getElementById('ds-wireframe-preview');
+  prev.textContent = 'Lade…';
+  try {
+    const r = await fetch(`${API}/api/design-system/wireframes/${id}`);
+    const data = await r.json();
+    prev.textContent = JSON.stringify(data, null, 2);
+  } catch(e) { prev.textContent = 'Fehler: ' + e.message; }
+}
+
+async function dsBuild() {
+  const status = document.getElementById('ds-build-status');
+  const out = document.getElementById('ds-build-output');
+  status.className = 'ds-build-status running';
+  status.textContent = '⚙ Build läuft…';
+  try {
+    const r = await fetch(`${API}/api/design-system/build`, { method:'POST' });
+    const data = await r.json();
+    if (data.ok) {
+      status.className = 'ds-build-status done';
+      status.textContent = '✓ Build erfolgreich — Artefakte aktualisiert';
+      out.textContent = data.files.join('\n');
+    } else {
+      throw new Error('Build fehlgeschlagen');
+    }
+  } catch(e) {
+    status.className = 'ds-build-status error';
+    status.textContent = '✕ Fehler: ' + e.message;
+  }
+}
+
+// ── 3D Model Viewer ───────────────────────────────────
+function loadModel(path) {
+  const mv = document.getElementById('mv');
+  const empty = document.getElementById('mv-empty');
+  const url = `${API}/api/render-file?path=${encodeURIComponent(path)}`;
+  mv.src = url;
+  mv.style.display = 'block';
+  empty.style.display = 'none';
+  switchView('model', null);
+  document.getElementById('st-right').textContent = '3D: ' + path.split('/').pop();
+}
+
+// ── VNC Debug ─────────────────────────────────────────
+async function connectVnc() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Prüfe…';
+  try {
+    const c = await fetch(`${API}/api/check`).then(r => r.json());
+    if (!c.blender_vnc) {
+      alert('Port 6080 nicht offen — starte zuerst start-blender-studio.sh');
+      btn.disabled = false; btn.textContent = 'Verbinden'; return;
+    }
+    if (!c.x11vnc) {
+      alert('x11vnc läuft nicht — starte start-blender-studio.sh');
+      btn.disabled = false; btn.textContent = 'Verbinden'; return;
+    }
+  } catch(e) {}
+  document.getElementById('vnc-frame').src = VNC;
+  btn.disabled = false; btn.textContent = 'Verbinden';
+}
+
+// ── Headless Execution ────────────────────────────────
+async function runBlenderTemplate() {
+  const resp = await fetch(`${API}/api/exec/blender`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      script: await fetchTemplateScript(),
+      render: false,
+    })
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+  showCtxTab('exec', null);
+}
+
+async function fetchTemplateScript() {
+  try {
+    const r = await fetch(`${API}/api/file?path=/home/raphael/K-Creative-Cloud/studio/headless/blender_template.py`);
+    const j = await r.json();
+    return j.content || '';
+  } catch(e) { return '# Could not load template'; }
+}
+
+async function submitQuickScript() {
+  const script = document.getElementById('quick-script').value.trim();
+  if (!script) return;
+  const resp = await fetch(`${API}/api/exec/blender`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ script, render: false })
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+  showCtxTab('exec', null);
+  document.getElementById('st-right').textContent = `Job ${resp.job_id} gestartet`;
+}
+
+async function runInkscapeExport() {
+  const input = prompt('SVG-Pfad:', '/home/raphael/K-Creative-Cloud/designer/assets/logo/');
+  if (!input) return;
+  const resp = await fetch(`${API}/api/exec/inkscape`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input, export_type: 'png' })
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+}
+
+async function runBlenderScript() {
+  const script = prompt('Blender Python Script:',
+    'import bpy\nbpy.ops.mesh.primitive_cube_add()\nprint("Done")');
+  if (!script) return;
+  const resp = await fetch(`${API}/api/exec/blender`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ script, render: false })
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+  showCtxTab('exec', null);
+}
+
+// ── Job Tracking ──────────────────────────────────────
+function showJobPill(jobId) {
+  const overlay = document.getElementById('job-overlay');
+  const pill = document.createElement('div');
+  pill.className = 'job-pill';
+  pill.id = `pill-${jobId}`;
+  pill.innerHTML = `
+    <div class="jp-dot running"></div>
+    <span class="jp-label">Job ${jobId} läuft…</span>
+    <button class="jp-log-btn" onclick="showLog('${jobId}')">Log</button>`;
+  overlay.prepend(pill);
+}
+
+function updateJobPill(jobId, job) {
+  const pill = document.getElementById(`pill-${jobId}`);
+  if (!pill) return;
+  const dot = pill.querySelector('.jp-dot');
+  const label = pill.querySelector('.jp-label');
+  dot.className = `jp-dot ${job.status}`;
+  label.textContent = `Job ${jobId}: ${job.status}`;
+  if (job.status === 'done' || job.status === 'error' || job.status === 'timeout') {
+    setTimeout(() => pill.remove(), 8000);
+    if (job.status === 'done') {
+      loadRenderGallery();
+      checkForNewGlb(jobId, job.output);
+    }
+  }
+}
+
+function startJobPoll(jobId) {
+  const timer = setInterval(async () => {
+    try {
+      const job = await fetch(`${API}/api/jobs/${jobId}`).then(r => r.json());
+      updateJobPill(jobId, job);
+      updateJobsList();
+      if (['done','error','timeout'].includes(job.status)) clearInterval(timer);
+    } catch(e) { clearInterval(timer); }
+  }, 1500);
+}
+
+async function updateJobsList() {
+  try {
+    const { jobs } = await fetch(`${API}/api/jobs`).then(r => r.json());
+    const list = document.getElementById('jobs-list');
+    const entries = Object.entries(jobs).reverse().slice(0, 8);
+    if (!entries.length) {
+      list.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:8px 0;text-align:center">Keine Jobs</div>';
+      return;
+    }
+    list.innerHTML = entries.map(([id, j]) => `
+      <div class="job-row" onclick="showLog('${id}')">
+        <div class="jr-dot ${j.status}"></div>
+        <div class="jr-meta">
+          <div class="jr-status">${j.status}</div>
+          <div class="jr-id">#${id}</div>
+        </div>
+        <span style="font-size:10px;color:var(--t3)">📋</span>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function checkForNewGlb(jobId, outputDir) {
+  try {
+    const r = await fetch(`${API}/api/renders?dir=${encodeURIComponent(outputDir)}`).then(r=>r.json());
+    const glb = r.files.find(f => f.ext === '.glb');
+    if (glb) loadModel(glb.path);
+  } catch(e) {}
+}
+
+// ── Log Modal ─────────────────────────────────────────
+async function showLog(jobId) {
+  try {
+    const job = await fetch(`${API}/api/jobs/${jobId}`).then(r => r.json());
+    document.getElementById('log-modal-title').textContent = `Job ${jobId} — ${job.status}`;
+    document.getElementById('log-modal-content').textContent = job.log || '(kein Log)';
+    document.getElementById('log-modal').classList.add('show');
+  } catch(e) {}
+}
+
+function closeLog() {
+  document.getElementById('log-modal').classList.remove('show');
+}
+
+// ── Render Gallery ────────────────────────────────────
+async function loadRenderGallery() {
+  try {
+    const r = await fetch(`${API}/api/renders`).then(r => r.json());
+    const gallery = document.getElementById('render-gallery');
+    const list = document.getElementById('render-list');
+
+    if (!r.files.length) {
+      gallery.innerHTML = '<div style="color:var(--t3);font-size:11px;grid-column:1/-1;padding:20px 0;text-align:center">Noch keine Renders.</div>';
+      if (list) list.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:8px 0;text-align:center">Keine Renders</div>';
+      return;
+    }
+
+    gallery.innerHTML = r.files.map(f => {
+      const isImg = ['.png','.jpg','.webp','.svg'].includes(f.ext);
+      const is3d  = ['.glb','.gltf'].includes(f.ext);
+      const thumb = isImg ? `<img src="${API}/api/render-file?path=${encodeURIComponent(f.path)}" loading="lazy">`
+                          : `<div style="height:80px;display:flex;align-items:center;justify-content:center;font-size:28px">${is3d?'⬡':'📄'}</div>`;
+      return `<div class="render-card" onclick="${is3d ? `loadModel('${f.path}')` : `openFile('${f.path}')`}">
+        ${thumb}
+        <div class="rc-name" title="${f.name}">${f.name}</div>
+        ${is3d ? '<div class="rc-badge">GLB</div>' : ''}
+      </div>`;
+    }).join('');
+
+    if (list) {
+      list.innerHTML = r.files.slice(0, 6).map(f => {
+        const is3d = ['.glb','.gltf'].includes(f.ext);
+        const isImg = ['.png','.jpg','.webp','.svg'].includes(f.ext);
+        const thumb = isImg
+          ? `<img src="${API}/api/render-file?path=${encodeURIComponent(f.path)}" style="width:100%;height:100%;object-fit:cover">`
+          : (is3d ? '⬡' : '📄');
+        return `<div class="ver-item" onclick="${is3d ? `loadModel('${f.path}')` : `openFile('${f.path}')`}">
+          <div class="ver-thumb">${thumb}</div>
+          <div class="ver-meta">
+            <div class="ver-name">${f.name}</div>
+            <div class="ver-date">${new Date(f.modified*1000).toLocaleDateString('de')}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e) {}
+}
+
+// ── Screenshot ────────────────────────────────────────
+async function takeScreenshot() {
+  document.getElementById('st-right').textContent = 'Screenshot…';
+  try {
+    const r = await fetch(`${API}/api/screenshot`).then(r => r.json());
+    if (r.ok) {
+      switchView('preview', null);
+      const img = document.getElementById('preview-img');
+      img.src = 'data:image/png;base64,' + r.data;
+      img.style.display = 'block';
+      document.getElementById('no-preview').style.display = 'none';
+      document.getElementById('st-right').textContent = 'Screenshot ✓';
+    }
+  } catch(e) {
+    document.getElementById('st-right').textContent = 'Screenshot: Server nicht erreichbar';
+  }
+}
+
+// ── File Browser ──────────────────────────────────────
+async function loadSidebar(path) {
+  try {
+    const r = await fetch(`${API}/api/files?path=${encodeURIComponent(path)}`).then(r=>r.json());
+    const el = document.getElementById('sb-files');
+    el.innerHTML = r.files.map(f => `
+      <div class="file-item" onclick="openFile('${f.path}')">
+        <span style="font-size:11px">${fileIcon(f.ext)}</span>
+        <span style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function loadAssetsGrid() {
+  try {
+    const r = await fetch(`${API}/api/files?path=/home/raphael/K-Creative-Cloud/designer/assets`).then(r=>r.json());
+    const grid = document.getElementById('assets-grid');
+    grid.innerHTML = r.files.map(f => `
+      <div onclick="openFile('${f.path}')"
+        style="background:var(--s2);border:1px solid var(--border);border-radius:8px;
+               padding:10px;text-align:center;cursor:pointer;transition:.15s"
+        onmouseover="this.style.borderColor='var(--ab)'"
+        onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:22px;margin-bottom:4px">${f.type==='dir'?'📁':fileIcon(f.ext)}</div>
+        <div style="font-size:10px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+function fileIcon(ext) {
+  const m = {'.svg':'✏','.png':'🖼','.jpg':'🖼','.jpeg':'🖼',
+             '.glb':'⬡','.gltf':'⬡','.wav':'🔊','.mp3':'🎵',
+             '.mp4':'🎬','.md':'📝','.json':'{}','.html':'🌐','.py':'🐍'};
+  return m[ext] || '📄';
+}
+
+async function openFile(path) {
+  const ext = '.' + path.split('.').pop().toLowerCase();
+  if (['.glb','.gltf'].includes(ext)) {
+    loadModel(path);
+  } else if (['.png','.jpg','.jpeg','.gif','.webp','.svg'].includes(ext)) {
+    switchView('preview', null);
+    const img = document.getElementById('preview-img');
+    img.src = `${API}/api/file?path=${encodeURIComponent(path)}`;
+    img.style.display = 'block';
+    document.getElementById('no-preview').style.display = 'none';
+  }
+}
+
+// ── Project Loading ───────────────────────────────────
+async function loadProject(id, el) {
+  currentProject = id;
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('act'));
+  if (el) el.classList.add('act');
+  document.getElementById('proj-label').textContent = '📁 ' + id;
+  const paths = {
+    'k-learning': '/home/raphael/K-Learning/branding',
+    'logo': '/home/raphael/K-Creative-Cloud/designer/assets/logo',
+    'icons': '/home/raphael/K-Creative-Cloud/designer/assets/icons',
+    'sounds': '/home/raphael/K-Creative-Cloud/designer/assets/sounds',
+    'motion': '/home/raphael/K-Creative-Cloud/designer/assets/motion',
+  };
+  loadSidebar(paths[id] || '/home/raphael/K-Creative-Cloud/designer/assets');
+  loadContext(id);
+}
+
+async function loadContext(project) {
+  try {
+    const r = await fetch(`${API}/api/context?project=${project}`).then(r=>r.json());
+    if (r.tokens) {
+      const c = r.tokens.colors;
+      if (c) {
+        const swatches = Object.entries({
+          'K-Violet': c.accent, 'Purple': c.accentSoft,
+          'Success': c.success, 'BG Dark': c.dark?.bg,
+        }).filter(([,v])=>v).map(([n,v])=>
+          `<div class="ctx-swatch">
+            <div class="dot" style="background:${v}"></div>
+            <span>${n}</span><span class="hex">${v}</span>
+          </div>`).join('');
+        document.getElementById('ctx-colors').innerHTML = swatches;
+      }
+    }
+  } catch(e) {}
+}
+
+// ── Context Tab Switching ─────────────────────────────
+function showCtxTab(tab, el) {
+  activeCtxTab = tab;
+  document.querySelectorAll('.ctx-tab').forEach(t=>t.classList.remove('act'));
+  if (el) el.classList.add('act');
+  else {
+    const tabs = ['project','exec','versions','brief','dj'];
+    const idx = tabs.indexOf(tab);
+    document.querySelectorAll('.ctx-tab')[idx]?.classList.add('act');
+  }
+  document.getElementById('ctx-project').style.display  = tab==='project'  ?'block':'none';
+  document.getElementById('ctx-exec').style.display     = tab==='exec'     ?'block':'none';
+  document.getElementById('ctx-versions').style.display = tab==='versions' ?'block':'none';
+  document.getElementById('ctx-brief').style.display    = tab==='brief'    ?'block':'none';
+  document.getElementById('ctx-dj').style.display       = tab==='dj'       ?'block':'none';
+  if (tab === 'versions') loadRenderGallery();
+  if (tab === 'exec') updateJobsList();
+  if (tab === 'dj') pollDjStatus();
+}
+
+// ── Brief → Terminal ──────────────────────────────────
+function sendBriefToContext() {
+  const brief = document.getElementById('brief-text').value;
+  if (!brief) return;
+  sendToTerminal(`# Projekt-Brief geladen:\n${brief}`);
+  document.getElementById('st-right').textContent = 'Brief ins Terminal geladen ✓';
+}
+
+// ── Prompt ────────────────────────────────────────────
+function sendPrompt() {
+  const input = document.getElementById('prompt-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  autoResize(input);
+  sendToTerminal(text);
+  document.getElementById('st-right').textContent = '→ ' + text.substring(0,40);
+}
+
+function quickCmd(text) {
+  document.getElementById('prompt-input').value = text;
+  sendPrompt();
+}
+
+function handleKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendPrompt(); }
+}
+
+function autoResize(el) {
+  el.style.height='auto';
+  el.style.height = Math.min(el.scrollHeight,100)+'px';
+}
+
+function setMode(mode) {
+  const labels = { design:'Design Mode', auto:'Autonom Mode', review:'Review Mode' };
+  document.getElementById('mode-badge').textContent = labels[mode];
+  document.querySelectorAll('.hd-btn').forEach(b=>b.classList.remove('act'));
+  event.target.classList.add('act');
+}
+
+function refreshView() {
+  if (activeView === 'renders') loadRenderGallery();
+  else if (activeView === 'model') loadRenderGallery();
+  else takeScreenshot();
+}
+
+// ── Terminal Resize ───────────────────────────────────
+let termResizing=false, termStartY=0, termStartH=0;
+function startTermResize(e) {
+  termResizing=true; termStartY=e.clientY;
+  termStartH=document.getElementById('term-area').offsetHeight;
+  document.addEventListener('mousemove',doTermResize);
+  document.addEventListener('mouseup',stopTermResize);
+}
+function doTermResize(e) {
+  if(!termResizing) return;
+  const delta = termStartY - e.clientY;
+  const newH = Math.max(80, Math.min(500, termStartH+delta));
+  document.getElementById('term-area').style.height = newH+'px';
+  if(terms[activeTerm]) terms[activeTerm].fitAddon.fit();
+}
+function stopTermResize() {
+  termResizing=false;
+  document.removeEventListener('mousemove',doTermResize);
+  document.removeEventListener('mouseup',stopTermResize);
+}
+
+// ── Status Bar ────────────────────────────────────────
+function setDot(id, state) {
+  const dot = document.getElementById(id);
+  if (!dot) return;
+  dot.classList.remove('ok','warn','err');
+  if (state) dot.classList.add(state);
+}
+
+function updateStatusDots(c) {
+  setDot('dot-blender', c.blender_mcp ? 'ok' : '');
+  setDot('dot-gimp', c.gimp ? 'ok' : '');
+}
+
+async function pollStatus() {
+  try {
+    const c = await fetch(`${API}/api/check`).then(r => r.json());
+    updateStatusDots(c);
+  } catch(e) {}
+}
+
+// ── DJ Engine ─────────────────────────────────────────
+let lcActiveSlot = 0;
+let midiWs = null;
+let djState = {
+  decks: { A: { bpm: null, track: null, pattern: null, steps: [] },
+           B: { bpm: null, track: null, pattern: null, steps: [] },
+           C: { bpm: null, track: null, pattern: null, steps: [] },
+           D: { bpm: null, track: null, pattern: null, steps: [] } },
+  sc: false, numark: false, library: 0,
+};
+let _activePattern = 'four_to_floor';
+let _midiFlashTimer = null;
+
+const PATTERNS = {
+  four_to_floor:  { kick:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] },
+  breakbeat:      { kick:[1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0], snare:[0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0], hihat:[1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1] },
+  house:          { kick:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], snare:[0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1], hihat:[0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1] },
+  minimal_techno: { kick:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], hihat:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0] },
+  trap:           { kick:[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0], snare:[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], hihat:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1] },
+  dnb:            { kick:[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0], snare:[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], hihat:[1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,0] },
+};
+
+function renderMiniGrid(deckId, patternName) {
+  const grid = document.getElementById('grid-' + deckId);
+  if (!grid) return;
+  const pat = PATTERNS[patternName];
+  if (!pat) { grid.innerHTML = ''; return; }
+  // Merge all instrument steps with OR
+  const merged = Array(16).fill(0);
+  Object.values(pat).forEach(steps => steps.forEach((v,i) => { merged[i] |= v; }));
+  grid.innerHTML = merged.map((on, i) =>
+    `<div class="deck-step${on ? ' on' : ''}"></div>`
+  ).join('');
+}
+
+function updateDeckUI(deckId, { bpm, track, pattern } = {}) {
+  if (bpm != null) document.getElementById('bpm-' + deckId).innerHTML =
+    `${Math.round(bpm)}<span>BPM</span>`;
+  if (track != null) document.getElementById('track-' + deckId).textContent = track;
+  if (pattern != null) {
+    document.getElementById('pattern-' + deckId).textContent = pattern;
+    renderMiniGrid(deckId, pattern);
+  }
+}
+
+async function pollDjStatus() {
+  try {
+    const s = await fetch(`${API}/api/dj/status`).then(r => r.json());
+    djState.sc      = s.sc;
+    djState.numark  = s.numark;
+    djState.library = s.library;
+    // Status bar dots
+    setDot('dot-sc',     s.sc     ? 'ok' : '');
+    setDot('dot-numark', s.numark ? 'ok' : '');
+    // SC terminal dot
+    const sctd = document.getElementById('sc-term-dot');
+    if (sctd) sctd.className = 'term-dot' + (s.sc ? ' live' : '');
+    // DJ context card
+    document.getElementById('dj-sc-line').textContent    = s.sc     ? '● SC verbunden ('+s.sc_addr+')' : '◎ SC nicht verbunden';
+    document.getElementById('dj-numark-line').textContent = s.numark ? '● Numark erkannt' : '◎ Numark nicht erkannt';
+    document.getElementById('dj-lib-line').textContent   = `◎ Library: ${s.library} Tracks`;
+  } catch(e) {}
+}
+
+function selectLcSlot(slot, btn) {
+  lcActiveSlot = slot;
+  document.querySelectorAll('.lc-slot-btn').forEach(b => b.classList.remove('act'));
+  if (btn) btn.classList.add('act');
+}
+
+function djSelectPattern(name, chip) {
+  _activePattern = name;
+  document.querySelectorAll('.pchip').forEach(c => c.classList.remove('act'));
+  if (chip) chip.classList.add('act');
+  // Update code editor with the selected pattern name
+  const ed = document.getElementById('lc-editor');
+  if (ed && !ed.value.trim().startsWith('Pbind') && !ed.value.trim().startsWith('//')) {
+    ed.value = name;
+  }
+}
+
+async function djSendCode() {
+  const code = document.getElementById('lc-editor').value.trim();
+  const bpm  = parseFloat(document.getElementById('lc-bpm').value) || 120;
+  if (!code) return;
+
+  document.getElementById('lc-status').textContent = 'Wird gesendet…';
+
+  // Decide: named pattern or raw SC code
+  const isNamed = Object.keys(PATTERNS).includes(code);
+  const endpoint = '/api/dj/sc/pattern';
+  const resp = await fetch(`${API}${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot: lcActiveSlot, code, bpm }),
+  }).then(r => r.json());
+
+  document.getElementById('lc-status').textContent = `Job ${resp.job_id} → Slot ${lcActiveSlot}`;
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+
+  // Update deck UI
+  const deckId = ['A','B','C','D'][lcActiveSlot];
+  updateDeckUI(deckId, { pattern: isNamed ? code : 'custom', bpm });
+  document.getElementById('dot-deck-' + deckId).classList.add('playing');
+}
+
+async function djStopSlot() {
+  const slot = lcActiveSlot;
+  const deckId = ['A','B','C','D'][slot];
+  await fetch(`${API}/api/dj/sc/pattern`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot, code: `~kSlots[${slot}].do({|p|p.stop});~kSlots[${slot}]=nil;` }),
+  });
+  document.getElementById('dot-deck-' + deckId).classList.remove('playing');
+  document.getElementById('pattern-' + deckId).textContent = '—';
+  document.getElementById('lc-status').textContent = `Slot ${slot} gestoppt`;
+}
+
+async function djInitSC() {
+  document.getElementById('lc-status').textContent = 'SC wird initialisiert…';
+  const resp = await fetch(`${API}/api/dj/sc/pattern`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot: 0, code: 'Server.default.boot;', bpm: 120 }),
+  }).then(r => r.json());
+  // Also call the init command
+  await fetch(`${API}/api/dj/sc/sound`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot: 0, synthdef: 'kick' }),
+  });
+  document.getElementById('lc-status').textContent = 'SC Init gesendet ✓';
+  setTimeout(pollDjStatus, 2000);
+}
+
+async function djReloadSynthDefs() {
+  document.getElementById('lc-status').textContent = 'SynthDefs werden neu geladen…';
+  const resp = await fetch(`${API}/api/sync/pipeline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target: 'sc_loops' }),
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+  document.getElementById('lc-status').textContent = 'SynthDef-Reload läuft…';
+}
+
+async function djSyncPipeline(target = 'all') {
+  document.getElementById('lc-status').textContent = `Hot-Reload: ${target}…`;
+  const resp = await fetch(`${API}/api/sync/pipeline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target }),
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+  document.getElementById('lc-status').textContent = `Hot-Reload (${target}) Job ${resp.job_id}`;
+}
+
+async function djScanLibrary() {
+  const dir = prompt('Music-Verzeichnis scannen:', '/home/raphael/Music');
+  if (!dir) return;
+  const resp = await fetch(`${API}/api/dj/library/scan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dir }),
+  }).then(r => r.json());
+  showJobPill(resp.job_id);
+  startJobPoll(resp.job_id);
+  document.getElementById('lc-status').textContent = `Library-Scan läuft (Job ${resp.job_id})`;
+}
+
+async function djSwapSound(synthdef) {
+  const resp = await fetch(`${API}/api/dj/sc/sound`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot: lcActiveSlot, synthdef }),
+  }).then(r => r.json());
+  document.getElementById('lc-status').textContent = `Sound Swap → ${synthdef} (Slot ${lcActiveSlot})`;
+}
+
+async function djFxKnob(slot, param, value) {
+  // Debounce: send via MIDI WS if connected, else REST
+  if (midiWs && midiWs.readyState === WebSocket.OPEN) {
+    midiWs.send(JSON.stringify({ type: 'fx', slot, param, value }));
+  } else {
+    await fetch(`${API}/api/dj/sc/fx`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot, param, value }),
+    });
+  }
+}
+
+function djPatternQuick(deckId) {
+  const slot = ['A','B','C','D'].indexOf(deckId);
+  lcActiveSlot = slot;
+  document.querySelectorAll('.lc-slot-btn').forEach((b,i) =>
+    b.classList.toggle('act', i === slot));
+  document.getElementById('lc-editor').value = _activePattern;
+  djSendCode();
+}
+
+function djSoundQuick(deckId) {
+  const slot = ['A','B','C','D'].indexOf(deckId);
+  lcActiveSlot = slot;
+  showCtxTab('dj', null);
+}
+
+function handleLcKey(e) {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    djSendCode();
+  }
+  // Tab → 2 spaces
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const el = e.target;
+    const s = el.selectionStart, end = el.selectionEnd;
+    el.value = el.value.substring(0, s) + '  ' + el.value.substring(end);
+    el.selectionStart = el.selectionEnd = s + 2;
+  }
+}
+
+function initMidiWs() {
+  midiWs = new WebSocket(`ws://${HOST}:7000/ws/midi`);
+  midiWs.onopen  = () => {
+    setDot('dot-numark', 'ok');
+    document.getElementById('midi-label').textContent = 'MIDI';
+  };
+  midiWs.onclose = () => {
+    setDot('dot-numark', '');
+    setTimeout(initMidiWs, 5000);  // reconnect
+  };
+  midiWs.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      // Flash MIDI activity indicator
+      const act = document.getElementById('midi-activity');
+      if (act) {
+        act.classList.add('flash');
+        clearTimeout(_midiFlashTimer);
+        _midiFlashTimer = setTimeout(() => act.classList.remove('flash'), 80);
+      }
+      if (msg.type === 'connected') {
+        document.getElementById('midi-label').textContent = msg.device?.split(' ')[0] || 'MIDI';
+        setDot('dot-numark', 'ok');
+      }
+      // Mirror Numark knobs to SC FX
+      if (msg.type === 'midi' && msg.ctrl) {
+        // eq/filter knobs → SC FX on the matching deck slot
+        const ctrl = msg.ctrl;
+        if (ctrl.includes('filter')) {
+          const slot = ctrl.startsWith('deck_a') || ctrl.startsWith('deck_b') ? 0 : 1;
+          djFxKnob(slot, 'filter', msg.norm);
+        }
+      }
+    } catch(err) {}
+  };
+}
+
+// Render mini grids for initial patterns
+['A','B','C','D'].forEach((d, i) => {
+  renderMiniGrid(d, i < 2 ? 'four_to_floor' : 'minimal_techno');
+});
+
+// ── Init ──────────────────────────────────────────────
+initTerminal('global');
+loadProject('k-learning', document.querySelector('.sb-item.act'));
+loadSidebar('/home/raphael/K-Creative-Cloud/designer/assets');
+loadRenderGallery();
+pollStatus();
+pollDjStatus();
+initMidiWs();
+setInterval(pollStatus, 8000);
+setInterval(pollDjStatus, 10000);
+</script>
+</body>
+</html>

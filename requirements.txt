@@ -1,0 +1,23 @@
+# K-Creative Studio — Python dependencies
+# Install: pip install -r requirements.txt
+# or via install.sh (uses venv automatically)
+
+# ── Studio server ──────────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+aiofiles>=23.2.1
+
+# ── DJ Engine / Audio ─────────────────────────────────
+python-osc>=1.8.3          # SuperCollider OSC bridge
+python-rtmidi>=1.5.8       # Numark Mixtrack Quad MIDI
+mutagen>=1.47.0            # Audio metadata (ID3, FLAC, OGG tags)
+
+# ── Optional: BPM / Key detection ─────────────────────
+# aubio is best installed via apt: sudo apt install aubio
+# If you want the Python bindings instead:
+# aubio>=0.4.9
+
+# ── Video / Image processing (workers) ────────────────
+# ffmpeg is installed via apt (see install.sh)
+# Pillow only needed if using Python-based image ops:
+# Pillow>=10.3.0
