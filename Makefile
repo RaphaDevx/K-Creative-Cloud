@@ -8,7 +8,7 @@ STUDIO_DIR := studio
 PORT       := 7000
 
 .PHONY: help install venv deps start stop dj-init sc-init \
-        scan sync push clean logs status
+        scan sync push release tag clean logs status
 
 help:
 	@echo ""
@@ -118,15 +118,32 @@ sync:
 	  -H 'Content-Type: application/json' \
 	  -d '{"target":"all"}' | python3 -m json.tool
 
-# ── Git ────────────────────────────────────────────────────────────────────────
+# ── Git & Release ─────────────────────────────────────────────────────────────
 
 push:
 	@git add -A
 	@git status --short
 	@git diff --cached --stat
 	@read -p "Commit message: " msg && git commit -m "$$msg"
-	@git push origin main
+	@GIT_SSH_COMMAND="ssh -i ~/.ssh/id_github_lumina" git push origin main
 	@echo "Pushed to GitHub ✓"
+
+# make tag v=0.2.0  →  creates v0.2.0 tag and triggers CI build+release
+tag:
+	@if [ -z "$(v)" ]; then echo "Usage: make tag v=1.2.3"; exit 1; fi
+	@echo "Tagging v$(v)..."
+	@npm version $(v) --prefix desktop --no-git-tag-version
+	@git add desktop/package.json desktop/package-lock.json
+	@git commit -m "chore: bump version to v$(v)"
+	@git tag -a "v$(v)" -m "Release v$(v)"
+	@GIT_SSH_COMMAND="ssh -i ~/.ssh/id_github_lumina" git push origin main
+	@GIT_SSH_COMMAND="ssh -i ~/.ssh/id_github_lumina" git push origin "v$(v)"
+	@echo "Tag v$(v) pushed → GitHub Actions will build & release automatically ✓"
+
+# Local Electron build (no signing)
+release:
+	@cd desktop && npm ci && npx electron-builder --linux AppImage deb --publish never
+	@echo "Build artifacts: desktop/release/"
 
 # ── Cleanup ────────────────────────────────────────────────────────────────────
 

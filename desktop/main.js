@@ -1,54 +1,169 @@
 /**
- * K-Creative Studio — Electron Desktop App (Kiosk / Split-Screen Mode)
- * Left panel:  DJ + Shader interface  (/live)
- * Right panel: Claude Code terminal   (PTY via xterm.js)
+ * K-Creative Studio — Electron Main Process
  *
- * Chokidar watches live_engine/ for plugin/shader/SC changes
- * and sends IPC hot-reload events to the renderer without restarting audio.
+ * Features:
+ *   - Starts FastAPI Python backend (studio/server.py)
+ *   - Opens /live split-screen interface (DJ + Claude terminal)
+ *   - chokidar watches live_engine/ → hot-reload IPC to renderer
+ *   - electron-updater: silent background updates via GitHub Releases
+ *   - Sentry crash reporting (set K_SENTRY_DSN env var to enable)
+ *   - Feature flags: fetched from GitHub raw on startup, cached in-memory
+ *
+ * Launch flags:
+ *   --kiosk   fullscreen kiosk mode (no window chrome)
+ *   --dev     open DevTools on start
  */
 const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
-const fs = require('fs');
+const fs   = require('fs');
 
 let mainWindow;
 let backendProcess;
 let watcher;
 
 const REPO_DIR    = path.join(__dirname, '..');
-const STUDIO_DIR  = path.join(REPO_DIR, 'studio');
-const ENGINE_DIR  = path.join(REPO_DIR, 'live_engine');
+const STUDIO_DIR  = path.join(__dirname, '..', 'studio');
+const ENGINE_DIR  = path.join(__dirname, '..', 'live_engine');
 const BACKEND_URL = 'http://localhost:7000';
 const LIVE_URL    = `${BACKEND_URL}/live`;
 
-// ── Backend lifecycle ────────────────────────────────────────────────────────
+const IS_KIOSK = process.argv.includes('--kiosk');
+const IS_DEV   = process.argv.includes('--dev');
+
+// ── Logging ───────────────────────────────────────────────────────────────────
+const log = require('electron-log');
+log.transports.file.level  = 'info';
+log.transports.console.level = IS_DEV ? 'debug' : 'warn';
+log.info('[K-Creative] Starting…');
+
+// ── Sentry (optional — set K_SENTRY_DSN in environment) ──────────────────────
+try {
+  const Sentry = require('@sentry/electron/main');
+  const dsn = process.env.K_SENTRY_DSN;
+  if (dsn) {
+    Sentry.init({
+      dsn,
+      release: `k-creative-studio@${app.getVersion()}`,
+      environment: app.isPackaged ? 'production' : 'development',
+    });
+    log.info('[Sentry] Crash reporting enabled');
+  }
+} catch (e) {
+  log.warn('[Sentry] Not available:', e.message);
+}
+
+// ── Feature flags ─────────────────────────────────────────────────────────────
+const FLAGS_URL =
+  'https://raw.githubusercontent.com/RaphaDevx/K-Creative-Cloud/main/feature_flags.json';
+const FLAGS_LOCAL = app.isPackaged
+  ? path.join(process.resourcesPath, 'feature_flags.json')
+  : path.join(REPO_DIR, 'feature_flags.json');
+
+let _featureFlags = {};
+
+function loadLocalFlags() {
+  try {
+    _featureFlags = JSON.parse(fs.readFileSync(FLAGS_LOCAL, 'utf8'));
+    log.info('[flags] Loaded local feature_flags.json');
+  } catch (e) {
+    log.warn('[flags] Could not read local flags:', e.message);
+  }
+}
+
+async function fetchRemoteFlags() {
+  return new Promise((resolve) => {
+    const url = new URL(FLAGS_URL);
+    http.get({ hostname: url.hostname, path: url.pathname, headers: { 'User-Agent': 'K-Creative' } },
+      (res) => {
+        let data = '';
+        res.on('data', d => data += d);
+        res.on('end', () => {
+          try {
+            const remote = JSON.parse(data);
+            _featureFlags = { ..._featureFlags, ...remote };
+            log.info('[flags] Remote flags merged — rollout:', remote._rollout_pct ?? '?', '%');
+          } catch (_) {}
+          resolve();
+        });
+      }
+    ).on('error', (e) => {
+      log.warn('[flags] Remote fetch failed (offline?):', e.message);
+      resolve();
+    });
+  });
+}
+
+ipcMain.handle('get-feature-flags', () => _featureFlags);
+ipcMain.handle('get-version',       () => app.getVersion());
+
+// ── Auto-updater ──────────────────────────────────────────────────────────────
+function initAutoUpdater() {
+  if (!app.isPackaged) {
+    log.info('[updater] Skipped — not packaged');
+    return;
+  }
+
+  let { autoUpdater } = require('electron-updater');
+  autoUpdater.logger = log;
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  // Use beta channel if flag is set
+  if (_featureFlags?.update_channel === 'beta') {
+    autoUpdater.allowPrerelease = true;
+  }
+
+  autoUpdater.on('update-available', (info) => {
+    log.info('[updater] Update available:', info.version);
+    mainWindow?.webContents.send('update-available', info);
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('[updater] Downloaded:', info.version);
+    mainWindow?.webContents.send('update-downloaded', info);
+  });
+
+  autoUpdater.on('error', (err) => {
+    log.error('[updater]', err.message);
+  });
+
+  ipcMain.on('install-update', () => autoUpdater.quitAndInstall());
+
+  // Check 30s after startup, then every 4 hours
+  setTimeout(() => autoUpdater.checkForUpdatesAndNotify(), 30_000);
+  setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 4 * 60 * 60 * 1000);
+}
+
+// ── Backend lifecycle ─────────────────────────────────────────────────────────
 function startBackend() {
   return new Promise((resolve) => {
     http.get(`${BACKEND_URL}/api/check`, () => {
-      console.log('[K-Creative] Backend already running');
+      log.info('[backend] Already running');
       resolve();
     }).on('error', () => {
-      console.log('[K-Creative] Starting Python backend…');
+      log.info('[backend] Starting Python backend…');
       backendProcess = spawn('python3', ['server.py'], {
         cwd: STUDIO_DIR,
         stdio: ['ignore', 'pipe', 'pipe'],
         detached: false,
       });
 
-      backendProcess.stdout.on('data', d => console.log('[backend]', d.toString().trim()));
-      backendProcess.stderr.on('data', d => console.error('[backend]', d.toString().trim()));
+      backendProcess.stdout.on('data', d => log.info('[backend]', d.toString().trim()));
+      backendProcess.stderr.on('data', d => log.warn('[backend]', d.toString().trim()));
+      backendProcess.on('exit', (code) => log.warn('[backend] Exited with code', code));
 
       let attempts = 0;
       const poll = setInterval(() => {
         http.get(`${BACKEND_URL}/api/check`, () => {
           clearInterval(poll);
-          console.log('[K-Creative] Backend ready');
+          log.info('[backend] Ready');
           resolve();
         }).on('error', () => {
-          if (++attempts > 30) {
+          if (++attempts > 40) {
             clearInterval(poll);
-            console.error('[K-Creative] Backend failed to start');
+            log.error('[backend] Failed to start after 20s');
             resolve();
           }
         });
@@ -64,51 +179,42 @@ function stopBackend() {
   }
 }
 
-// ── Chokidar hot-reload watcher ──────────────────────────────────────────────
+// ── Chokidar hot-reload watcher ───────────────────────────────────────────────
 function startWatcher() {
   let chokidar;
-  try {
-    chokidar = require('chokidar');
-  } catch (e) {
-    console.warn('[K-Creative] chokidar not installed — hot-reload disabled');
-    return;
-  }
+  try { chokidar = require('chokidar'); }
+  catch (e) { log.warn('[watcher] chokidar not available — hot-reload disabled'); return; }
 
-  const WATCH_PATHS = [
+  const WATCH = [
     path.join(ENGINE_DIR, 'plugins'),
     path.join(ENGINE_DIR, 'shaders'),
     path.join(STUDIO_DIR, 'live.html'),
   ];
 
-  watcher = chokidar.watch(WATCH_PATHS, {
+  watcher = chokidar.watch(WATCH, {
     ignoreInitial: true,
-    ignored: /(^|[/\\])\../,   // dot-files
+    ignored: /(^|[/\\])\../,
     awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 50 },
   });
 
   const notify = (event, filePath) => {
-    const ext  = path.extname(filePath).slice(1);   // py, glsl, html, scd…
+    const ext  = path.extname(filePath).slice(1);
     const name = path.basename(filePath);
-    console.log(`[hot-reload] ${event}: ${name}`);
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('hot-reload', { event, file: name, ext });
-    }
+    log.debug(`[hot-reload] ${event}: ${name}`);
+    mainWindow?.webContents.send('hot-reload', { event, file: name, ext });
   };
 
   watcher.on('change', fp => notify('change', fp));
   watcher.on('add',    fp => notify('add',    fp));
-  console.log('[K-Creative] Watching live_engine/ for hot-reload');
+  log.info('[watcher] Watching live_engine/ for hot-reload');
 }
 
 function stopWatcher() {
   if (watcher) { watcher.close(); watcher = null; }
 }
 
-// ── Window ───────────────────────────────────────────────────────────────────
+// ── Window ────────────────────────────────────────────────────────────────────
 function createWindow() {
-  const isKiosk  = process.argv.includes('--kiosk');
-  const isDev    = process.argv.includes('--dev');
-
   mainWindow = new BrowserWindow({
     width:  1920,
     height: 1080,
@@ -116,13 +222,13 @@ function createWindow() {
     minHeight: 720,
     title: 'K-Creative Live',
     backgroundColor: '#07060f',
-    kiosk: isKiosk,
-    fullscreen: isKiosk,
-    frame: !isKiosk,
+    kiosk:      IS_KIOSK,
+    fullscreen: IS_KIOSK,
+    frame:     !IS_KIOSK,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: false,          // allow localhost API + WebSocket
+      webSecurity: false,
       preload: path.join(__dirname, 'preload.js'),
     },
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
@@ -131,7 +237,6 @@ function createWindow() {
 
   mainWindow.loadURL(LIVE_URL);
 
-  // Open external links in system browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (!url.startsWith('http://localhost')) {
       shell.openExternal(url);
@@ -140,28 +245,12 @@ function createWindow() {
     return { action: 'allow' };
   });
 
-  if (isDev) mainWindow.webContents.openDevTools({ mode: 'detach' });
+  if (IS_DEV) mainWindow.webContents.openDevTools({ mode: 'detach' });
 
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
-// ── Preload: expose hot-reload IPC to renderer ───────────────────────────────
-// Written at startup so the file is always in sync with main.js
-const PRELOAD_SRC = `
-const { contextBridge, ipcRenderer } = require('electron');
-contextBridge.exposeInMainWorld('electronBridge', {
-  onHotReload: (cb) => ipcRenderer.on('hot-reload', (_e, data) => cb(data)),
-});
-`;
-
-function writePreload() {
-  const dest = path.join(__dirname, 'preload.js');
-  // Only write if content differs (avoids chokidar re-triggering)
-  const current = fs.existsSync(dest) ? fs.readFileSync(dest, 'utf8') : '';
-  if (current !== PRELOAD_SRC) fs.writeFileSync(dest, PRELOAD_SRC, 'utf8');
-}
-
-// ── App menu ─────────────────────────────────────────────────────────────────
+// ── App menu ──────────────────────────────────────────────────────────────────
 function buildMenu() {
   const template = [
     {
@@ -175,20 +264,20 @@ function buildMenu() {
     {
       label: 'Ansicht',
       submenu: [
-        { label: 'Neu laden', accelerator: 'CmdOrCtrl+R', click: () => mainWindow?.webContents.reload() },
-        { label: 'Vollbild',  accelerator: 'F11',          role: 'togglefullscreen' },
+        { label: 'Neu laden',  accelerator: 'CmdOrCtrl+R', click: () => mainWindow?.webContents.reload() },
+        { label: 'Vollbild',   accelerator: 'F11',          role: 'togglefullscreen' },
         { type: 'separator' },
-        { label: 'DevTools',  accelerator: 'CmdOrCtrl+Alt+I', click: () => mainWindow?.webContents.toggleDevTools() },
+        { label: 'DevTools',   accelerator: 'CmdOrCtrl+Alt+I', click: () => mainWindow?.webContents.toggleDevTools() },
       ],
     },
     {
       label: 'Studio',
       submenu: [
-        { label: 'Live Interface',    click: () => mainWindow?.loadURL(LIVE_URL) },
-        { label: 'Studio (Classic)',  click: () => mainWindow?.loadURL(BACKEND_URL) },
+        { label: 'Live Interface',   click: () => mainWindow?.loadURL(LIVE_URL) },
+        { label: 'Studio (Classic)', click: () => mainWindow?.loadURL(BACKEND_URL) },
         { type: 'separator' },
         { label: 'Im Browser öffnen', click: () => shell.openExternal(LIVE_URL) },
-        { label: 'Backend-Log',       click: () => shell.openPath('/tmp/studio.log').catch(() => {}) },
+        { label: 'Log öffnen',        click: () => shell.openPath(log.transports.file.getFile().path) },
       ],
     },
   ];
@@ -201,11 +290,18 @@ app.commandLine.appendSwitch('enable-unsafe-swiftshader');
 app.commandLine.appendSwitch('disable-gpu-sandbox');
 
 app.whenReady().then(async () => {
-  writePreload();
+  loadLocalFlags();
+
   buildMenu();
   await startBackend();
   createWindow();
   startWatcher();
+  initAutoUpdater();
+
+  // Fetch remote flags in background (don't block startup)
+  fetchRemoteFlags().then(() => {
+    mainWindow?.webContents.send('hot-reload', { event: 'flags-updated', file: 'feature_flags.json', ext: 'json' });
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

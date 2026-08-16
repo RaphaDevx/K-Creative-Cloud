@@ -1,0 +1,203 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+  pull_request:
+    branches: [main]
+
+# Only one workflow per branch at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Syntax & unit checks ────────────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: pip install fastapi uvicorn aiofiles python-osc python-multipart
+
+      - name: Python syntax check
+        run: |
+          python -m py_compile studio/server.py
+          python -m py_compile studio/workers/dj_engine.py
+          python -m py_compile studio/workers/sc_bridge.py
+          python -m py_compile live_engine/engine.py
+          python -m py_compile live_engine/plugins/sidechain.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install desktop deps
+        run: npm ci
+        working-directory: desktop
+
+      - name: JS syntax check
+        run: node --check main.js preload.js
+        working-directory: desktop
+
+  # ── 2. Multi-OS builds ─────────────────────────────────────────────────────
+  build:
+    name: Build (${{ matrix.name }})
+    needs: test
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            runner: ubuntu-latest
+            platform: linux
+            args: --linux AppImage deb
+
+          - name: macOS
+            runner: macos-latest
+            platform: mac
+            args: --mac dmg
+
+          - name: Windows
+            runner: windows-latest
+            platform: win
+            args: --win nsis
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+        working-directory: desktop
+
+      # macOS: import signing certificate from secret
+      - name: Import macOS certificate
+        if: matrix.platform == 'mac' && github.event_name != 'pull_request'
+        env:
+          MAC_CERTS: ${{ secrets.MAC_CERTS }}
+          MAC_CERTS_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+        run: |
+          KEYCHAIN=build.keychain
+          security create-keychain -p "" $KEYCHAIN
+          security set-keychain-settings -lut 21600 $KEYCHAIN
+          security unlock-keychain -p "" $KEYCHAIN
+          echo "$MAC_CERTS" | base64 --decode > certificate.p12
+          security import certificate.p12 -k $KEYCHAIN -P "$MAC_CERTS_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/productsign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" $KEYCHAIN
+          security list-keychains -d user -s $KEYCHAIN login.keychain
+          rm certificate.p12
+
+      - name: Build Electron app
+        run: npx electron-builder ${{ matrix.args }} --publish never
+        working-directory: desktop
+        env:
+          # macOS notarization
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Windows signing (optional — set when EV cert is available)
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            desktop/release/**/*.AppImage
+            desktop/release/**/*.deb
+            desktop/release/**/*.dmg
+            desktop/release/**/*.exe
+            desktop/release/**/*.yml
+          if-no-files-found: warn
+          retention-days: 7
+
+  # ── 3. GitHub Release (tags only) ─────────────────────────────────────────
+  release:
+    name: Publish Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Extract version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "K-Creative Studio ${{ github.ref_name }}"
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          generate_release_notes: true
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Bump version in package.json on release
+      - name: Update feature_flags.json release marker
+        run: |
+          jq '._latest_release = "${{ github.ref_name }}" | ._updated = "'$(date -u +%Y-%m-%d)'"' \
+            feature_flags.json > feature_flags.tmp && mv feature_flags.tmp feature_flags.json
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feature_flags.json
+          git commit -m "chore: mark release ${{ github.ref_name }} in feature_flags.json [skip ci]" || true
+          git push origin HEAD:main || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── 4. Staged rollout: 5% → 100% gate ─────────────────────────────────────
+  # On a real staged rollout system you'd update a rollout.json on Cloudflare R2.
+  # Here we write rollout_state.json to the repo and the app checks it at startup.
+  rollout:
+    name: Staged Rollout Gate
+    needs: release
+    runs-on: ubuntu-latest
+    environment: production          # requires manual approval in GitHub UI
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set rollout to 100%
+        run: |
+          jq '._rollout_pct = 100' feature_flags.json > tmp && mv tmp feature_flags.json
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feature_flags.json
+          git commit -m "chore: rollout ${{ github.ref_name }} → 100% [skip ci]" || true
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

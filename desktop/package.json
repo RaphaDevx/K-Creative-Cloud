@@ -4,27 +4,60 @@
   "description": "K-Creative Studio — Open-Source Creative Cloud",
   "main": "main.js",
   "scripts": {
-    "dev": "electron . --no-sandbox",
-    "build": "electron-builder --linux",
-    "build:deb": "electron-builder --linux deb",
-    "build:appimage": "electron-builder --linux AppImage"
+    "dev":          "electron . --no-sandbox",
+    "dev:kiosk":    "electron . --no-sandbox --kiosk",
+    "dev:debug":    "electron . --no-sandbox --dev",
+    "build":        "electron-builder --linux AppImage deb",
+    "build:mac":    "electron-builder --mac dmg",
+    "build:win":    "electron-builder --win nsis",
+    "build:all":    "electron-builder --linux AppImage deb --mac dmg --win nsis",
+    "release":      "electron-builder --publish always"
   },
   "build": {
     "appId": "cloud.k-creative.studio",
     "productName": "K-Creative Studio",
+    "copyright": "Copyright © 2025 RaphaDevx",
     "directories": {
       "output": "release"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "RaphaDevx",
+        "repo": "K-Creative-Cloud"
+      }
+    ],
     "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "category": "Graphics",
-      "icon": "src-tauri/icons/128x128.png"
+      "target": ["AppImage", "deb"],
+      "category": "AudioVideo",
+      "icon": "src-tauri/icons/512x512.png",
+      "maintainer": "RaphaDevx"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
+      "icon": "src-tauri/icons/512x512.png",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "notarize": {
+        "teamId": "${APPLE_TEAM_ID}"
+      }
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "src-tauri/icons/512x512.png",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     },
     "files": [
       "main.js",
-      "dist/**",
+      "preload.js",
       "!node_modules/.cache"
     ],
     "extraFiles": [
@@ -34,13 +67,27 @@
         "filter": [
           "**/*",
           "!node_modules/**",
-          "!**/__pycache__/**"
+          "!**/__pycache__/**",
+          "!*.db",
+          "!*.log"
         ]
+      },
+      {
+        "from": "../live_engine",
+        "to": "live_engine"
+      },
+      {
+        "from": "../feature_flags.json",
+        "to": "feature_flags.json"
       }
-    ]
+    ],
+    "afterSign": "scripts/notarize.js"
   },
   "dependencies": {
-    "chokidar": "^3.6.0"
+    "chokidar": "^3.6.0",
+    "electron-log": "^5.2.1",
+    "electron-updater": "^6.3.9",
+    "@sentry/electron": "^5.6.0"
   },
   "devDependencies": {
     "electron": "^33.4.11",
