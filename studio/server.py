@@ -89,6 +89,11 @@ async def serve_index():
     async with aiofiles.open(ROOT / "index.html", "r") as f:
         return await f.read()
 
+@app.get("/live", response_class=HTMLResponse)
+async def serve_live():
+    async with aiofiles.open(ROOT / "live.html", "r") as f:
+        return await f.read()
+
 @app.get("/static/{path:path}")
 @app.head("/static/{path:path}")
 async def serve_static(path: str):

@@ -1,0 +1,49 @@
+{
+  "name": "k-creative-desktop",
+  "version": "0.1.0",
+  "description": "K-Creative Studio — Open-Source Creative Cloud",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron . --no-sandbox",
+    "build": "electron-builder --linux",
+    "build:deb": "electron-builder --linux deb",
+    "build:appimage": "electron-builder --linux AppImage"
+  },
+  "build": {
+    "appId": "cloud.k-creative.studio",
+    "productName": "K-Creative Studio",
+    "directories": {
+      "output": "release"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Graphics",
+      "icon": "src-tauri/icons/128x128.png"
+    },
+    "files": [
+      "main.js",
+      "dist/**",
+      "!node_modules/.cache"
+    ],
+    "extraFiles": [
+      {
+        "from": "../studio",
+        "to": "studio",
+        "filter": [
+          "**/*",
+          "!node_modules/**",
+          "!**/__pycache__/**"
+        ]
+      }
+    ]
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^26.15.3"
+  }
+}

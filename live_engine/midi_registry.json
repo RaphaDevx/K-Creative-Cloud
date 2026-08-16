@@ -1,0 +1,94 @@
+{
+  "_comment": "Numark Mixtrack Quad — vollständige MIDI-Belegung. Alle CC-Werte: 0–127. Normiert: 0.0–1.0.",
+  "_device": "Numark Mixtrack Quad (USB Audio Interface, 4 Decks)",
+  "_osc_namespace": "/k/ctrl",
+
+  "decks": {
+    "A": {
+      "_channel": 0,
+      "volume":    { "status": 176, "cc": 2,   "type": "cc",   "osc": "/k/deck/a/volume",  "range": [0, 1.0] },
+      "pitch":     { "status": 176, "cc": 8,   "type": "cc",   "osc": "/k/deck/a/pitch",   "range": [-0.08, 0.08] },
+      "eq_high":   { "status": 176, "cc": 22,  "type": "cc",   "osc": "/k/deck/a/eq_high", "range": [-20, 6] },
+      "eq_mid":    { "status": 176, "cc": 23,  "type": "cc",   "osc": "/k/deck/a/eq_mid",  "range": [-20, 6] },
+      "eq_low":    { "status": 176, "cc": 24,  "type": "cc",   "osc": "/k/deck/a/eq_low",  "range": [-20, 6] },
+      "filter":    { "status": 176, "cc": 26,  "type": "cc",   "osc": "/k/deck/a/filter",  "sc_param": "cutoff", "range": [200, 18000] },
+      "play":      { "status": 144, "note": 11, "type": "note", "osc": "/k/deck/a/play" },
+      "cue":       { "status": 144, "note": 12, "type": "note", "osc": "/k/deck/a/cue" },
+      "sync":      { "status": 144, "note": 6,  "type": "note", "osc": "/k/deck/a/sync" },
+      "headphone": { "status": 144, "note": 7,  "type": "note", "osc": "/k/deck/a/hp" },
+      "load":      { "status": 144, "note": 24, "type": "note", "osc": "/k/deck/a/load" },
+      "pad1":      { "status": 144, "note": 96, "type": "note", "osc": "/k/pad/a/1", "sc_slot": 0 },
+      "pad2":      { "status": 144, "note": 97, "type": "note", "osc": "/k/pad/a/2", "sc_slot": 0 },
+      "pad3":      { "status": 144, "note": 98, "type": "note", "osc": "/k/pad/a/3", "sc_slot": 0 },
+      "pad4":      { "status": 144, "note": 99, "type": "note", "osc": "/k/pad/a/4", "sc_slot": 0 },
+      "pad5":      { "status": 144, "note": 100,"type": "note", "osc": "/k/pad/a/5" },
+      "pad6":      { "status": 144, "note": 101,"type": "note", "osc": "/k/pad/a/6" },
+      "pad7":      { "status": 144, "note": 102,"type": "note", "osc": "/k/pad/a/7" },
+      "pad8":      { "status": 144, "note": 103,"type": "note", "osc": "/k/pad/a/8" }
+    },
+    "B": {
+      "_channel": 1,
+      "volume":    { "status": 177, "cc": 2,   "type": "cc",   "osc": "/k/deck/b/volume",  "range": [0, 1.0] },
+      "pitch":     { "status": 177, "cc": 8,   "type": "cc",   "osc": "/k/deck/b/pitch",   "range": [-0.08, 0.08] },
+      "eq_high":   { "status": 177, "cc": 22,  "type": "cc",   "osc": "/k/deck/b/eq_high", "range": [-20, 6] },
+      "eq_mid":    { "status": 177, "cc": 23,  "type": "cc",   "osc": "/k/deck/b/eq_mid",  "range": [-20, 6] },
+      "eq_low":    { "status": 177, "cc": 24,  "type": "cc",   "osc": "/k/deck/b/eq_low",  "range": [-20, 6] },
+      "filter":    { "status": 177, "cc": 26,  "type": "cc",   "osc": "/k/deck/b/filter",  "sc_param": "cutoff", "range": [200, 18000] },
+      "play":      { "status": 145, "note": 11, "type": "note", "osc": "/k/deck/b/play" },
+      "cue":       { "status": 145, "note": 12, "type": "note", "osc": "/k/deck/b/cue" },
+      "sync":      { "status": 145, "note": 6,  "type": "note", "osc": "/k/deck/b/sync" },
+      "pad1":      { "status": 145, "note": 96, "type": "note", "osc": "/k/pad/b/1", "sc_slot": 1 },
+      "pad2":      { "status": 145, "note": 97, "type": "note", "osc": "/k/pad/b/2", "sc_slot": 1 },
+      "pad3":      { "status": 145, "note": 98, "type": "note", "osc": "/k/pad/b/3", "sc_slot": 1 },
+      "pad4":      { "status": 145, "note": 99, "type": "note", "osc": "/k/pad/b/4", "sc_slot": 1 },
+      "pad5":      { "status": 145, "note": 100,"type": "note", "osc": "/k/pad/b/5" },
+      "pad6":      { "status": 145, "note": 101,"type": "note", "osc": "/k/pad/b/6" },
+      "pad7":      { "status": 145, "note": 102,"type": "note", "osc": "/k/pad/b/7" },
+      "pad8":      { "status": 145, "note": 103,"type": "note", "osc": "/k/pad/b/8" }
+    },
+    "C": {
+      "_channel": 2,
+      "volume":    { "status": 178, "cc": 2,  "type": "cc", "osc": "/k/deck/c/volume" },
+      "filter":    { "status": 178, "cc": 26, "type": "cc", "osc": "/k/deck/c/filter", "sc_param": "cutoff" },
+      "play":      { "status": 146, "note": 11,"type": "note","osc": "/k/deck/c/play" },
+      "cue":       { "status": 146, "note": 12,"type": "note","osc": "/k/deck/c/cue" },
+      "pad1":      { "status": 146, "note": 96,"type": "note","osc": "/k/pad/c/1", "sc_slot": 2 }
+    },
+    "D": {
+      "_channel": 3,
+      "volume":    { "status": 179, "cc": 2,  "type": "cc", "osc": "/k/deck/d/volume" },
+      "filter":    { "status": 179, "cc": 26, "type": "cc", "osc": "/k/deck/d/filter", "sc_param": "cutoff" },
+      "play":      { "status": 147, "note": 11,"type": "note","osc": "/k/deck/d/play" },
+      "cue":       { "status": 147, "note": 12,"type": "note","osc": "/k/deck/d/cue" },
+      "pad1":      { "status": 147, "note": 96,"type": "note","osc": "/k/pad/d/1", "sc_slot": 3 }
+    }
+  },
+
+  "master": {
+    "crossfader": { "status": 176, "cc": 31, "type": "cc", "osc": "/k/master/xfader", "range": [0, 1.0] },
+    "volume":     { "status": 176, "cc": 1,  "type": "cc", "osc": "/k/master/volume", "range": [0, 1.0] },
+    "browse_knob":{ "status": 176, "cc": 34, "type": "cc", "osc": "/k/master/browse" },
+    "load_a":     { "status": 144, "note": 24,"type": "note","osc": "/k/master/load_a" },
+    "load_b":     { "status": 144, "note": 25,"type": "note","osc": "/k/master/load_b" }
+  },
+
+  "sc_aliases": {
+    "_comment": "Kurzname → SC Parameter-Mapping für Plugin-Autoren",
+    "knob_1":      "decks.A.filter",
+    "knob_2":      "decks.B.filter",
+    "knob_3":      "decks.C.filter",
+    "knob_4":      "decks.D.filter",
+    "fader_a":     "decks.A.volume",
+    "fader_b":     "decks.B.volume",
+    "fader_master":"master.volume",
+    "xfader":      "master.crossfader",
+    "pad_a1":      "decks.A.pad1",
+    "pad_a2":      "decks.A.pad2",
+    "pad_a3":      "decks.A.pad3",
+    "pad_a4":      "decks.A.pad4",
+    "pad_b1":      "decks.B.pad1",
+    "pad_b2":      "decks.B.pad2",
+    "pad_b3":      "decks.B.pad3",
+    "pad_b4":      "decks.B.pad4"
+  }
+}

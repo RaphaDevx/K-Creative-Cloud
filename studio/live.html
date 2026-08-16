@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K-Creative Live Studio</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+<style>
+/* ── Reset & Variables ─────────────────────────────────── */
+:root {
+  --bg:      #07060d;
+  --panel:   rgba(10, 8, 22, 0.82);
+  --panel2:  rgba(15, 12, 32, 0.9);
+  --border:  rgba(108,71,255,0.18);
+  --border2: rgba(108,71,255,0.4);
+  --accent:  #6C47FF;
+  --acc2:    #a855f7;
+  --acc3:    #60A5FA;
+  --green:   #00ff88;
+  --red:     #ff3366;
+  --yellow:  #fbbf24;
+  --txt:     #e8e0ff;
+  --t2:      rgba(232,224,255,0.55);
+  --t3:      rgba(232,224,255,0.28);
+  --glow:    0 0 18px rgba(108,71,255,0.35);
+  --hdr:     38px;
+  --ftr:     24px;
+  --term-w:  36%;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;overflow:hidden;
+  background:var(--bg);color:var(--txt);
+  font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;
+  font-size:12px;-webkit-font-smoothing:antialiased;
+  user-select:none;
+}
+
+/* ── Layout ────────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* Header */
+#header{
+  height:var(--hdr);background:rgba(7,6,13,0.95);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;gap:12px;
+  z-index:50;flex-shrink:0;backdrop-filter:blur(12px);
+}
+.h-logo{
+  font-weight:900;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  background:linear-gradient(135deg,#6C47FF,#a855f7,#60A5FA);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.h-sep{width:1px;height:16px;background:var(--border);margin:0 2px}
+.h-pill{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--border);color:var(--t2);letter-spacing:.04em;
+  display:flex;align-items:center;gap:5px;
+}
+.h-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--t3)}
+.h-pill .dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.h-pill .dot.warn{background:var(--yellow)}
+#h-bpm{font-size:20px;font-weight:900;color:var(--accent);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#h-key{font-size:12px;color:var(--acc2);font-weight:700}
+.h-mode-btn{
+  height:24px;padding:0 10px;border-radius:5px;
+  border:1px solid var(--border);background:transparent;color:var(--t3);
+  font-size:10.5px;cursor:pointer;transition:all .15s;letter-spacing:.03em;
+}
+.h-mode-btn:hover{border-color:var(--border2);color:var(--txt);background:rgba(108,71,255,.1)}
+.h-mode-btn.act{background:rgba(108,71,255,.2);border-color:var(--border2);color:var(--acc2)}
+#h-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hot-badge{
+  font-size:9px;font-weight:800;letter-spacing:.12em;padding:2px 7px;
+  border-radius:99px;border:1px solid rgba(0,255,136,.3);
+  color:var(--green);background:rgba(0,255,136,.06);
+  display:none;
+}
+.hot-badge.visible{display:flex;align-items:center;gap:4px}
+
+/* Main split */
+#main{display:flex;flex:1;overflow:hidden;position:relative}
+
+/* ── DJ Panel (Left) ────────────────────────────────────── */
+#dj-panel{
+  flex:1;min-width:0;position:relative;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* Shader canvas — full background */
+#shader-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  z-index:0;opacity:0.9;
+}
+
+/* Content above shader */
+#dj-content{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;height:100%;
+  padding:10px;gap:8px;overflow:hidden;
+}
+
+/* ── Deck Row ─────────────────────────────────────────── */
+#deck-row{display:flex;gap:8px;flex-shrink:0}
+
+.deck{
+  flex:1;background:var(--panel);
+  border:1px solid var(--border);border-radius:12px;
+  padding:10px 12px;backdrop-filter:blur(16px);
+  display:flex;flex-direction:column;gap:6px;
+  transition:border-color .2s;
+}
+.deck.playing{border-color:var(--acc2);box-shadow:var(--glow)}
+
+.deck-header{display:flex;align-items:center;gap:7px}
+.deck-label{
+  font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--t3);
+}
+.deck-play-dot{width:7px;height:7px;border-radius:50%;background:var(--t3);transition:all .2s}
+.deck-play-dot.playing{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 0.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.deck-bpm{
+  font-size:32px;font-weight:900;color:var(--txt);
+  line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+}
+.deck-bpm span{font-size:10px;color:var(--t3);font-weight:400;margin-left:2px}
+
+.deck-track{
+  font-size:10px;color:var(--t2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.deck-key{font-size:10px;color:var(--acc2);font-weight:700}
+
+.deck-transport{display:flex;gap:5px;margin-top:2px}
+.t-btn{
+  flex:1;height:26px;border-radius:7px;border:1px solid var(--border);
+  background:rgba(108,71,255,.08);color:var(--t2);
+  font-size:11px;cursor:pointer;transition:all .15s;
+}
+.t-btn:hover{border-color:var(--border2);background:rgba(108,71,255,.2);color:var(--txt)}
+.t-btn.play-btn:hover{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.1)}
+.t-btn.play-btn.active{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.12)}
+.t-btn.cue-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+.deck-mini-eq{display:flex;gap:2px;margin-top:4px}
+.mini-eq-band{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.mini-eq-label{font-size:8px;color:var(--t3);letter-spacing:.04em}
+.mini-eq-bar-wrap{width:100%;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.mini-eq-bar{height:100%;background:var(--accent);border-radius:2px;width:75%;transition:width .1s}
+
+.deck-pattern-label{
+  font-size:9px;color:var(--accent);font-style:italic;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* Step grid in deck */
+.deck-step-grid{
+  display:grid;grid-template-columns:repeat(16,1fr);gap:1.5px;
+  height:7px;
+}
+.step-cell{border-radius:1px;background:var(--border);transition:background .08s}
+.step-cell.on{background:var(--accent);box-shadow:0 0 3px rgba(108,71,255,.6)}
+.step-cell.cur{background:var(--green)}
+
+/* ── Master / Crossfader ─────────────────────────────── */
+#master-row{
+  display:flex;align-items:center;gap:10px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:8px 12px;flex-shrink:0;
+  backdrop-filter:blur(16px);
+}
+.master-label{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+#xfader-wrap{flex:1;display:flex;flex-direction:column;gap:3px}
+#xfader-track{
+  position:relative;height:4px;background:linear-gradient(90deg,var(--accent),#1a1a2e,var(--acc2));
+  border-radius:2px;cursor:pointer;
+}
+#xfader-knob{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:16px;height:16px;border-radius:50%;
+  background:var(--txt);border:2px solid var(--accent);
+  box-shadow:0 0 8px rgba(108,71,255,.5);cursor:grab;
+  left:50%;transition:box-shadow .1s;
+}
+#xfader-knob:active{cursor:grabbing;box-shadow:0 0 14px rgba(108,71,255,.8)}
+#xfader-labels{display:flex;justify-content:space-between;font-size:8px;color:var(--t3)}
+
+.master-knob-group{display:flex;flex-direction:column;align-items:center;gap:3px}
+.knob{
+  width:36px;height:36px;border-radius:50%;
+  background:conic-gradient(var(--accent) var(--val,180deg), var(--border) var(--val,180deg));
+  border:2px solid var(--border2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:border-color .15s;
+}
+.knob:hover{border-color:var(--accent)}
+.knob::after{
+  content:'';width:4px;height:12px;background:var(--txt);
+  position:absolute;top:4px;border-radius:2px;
+  transform-origin:50% 14px;transform:rotate(var(--rot,0deg));
+}
+.knob-label{font-size:8px;color:var(--t3);letter-spacing:.06em;text-align:center}
+
+/* ── SC Slots ────────────────────────────────────────── */
+#sc-slots-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex-shrink:0;
+}
+.sc-slot{
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:9px;padding:7px 9px;cursor:pointer;transition:all .15s;
+}
+.sc-slot:hover{border-color:var(--border2)}
+.sc-slot.active{border-color:var(--accent);box-shadow:0 0 10px rgba(108,71,255,.25)}
+.sc-slot-header{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.sc-slot-num{
+  font-size:8px;font-weight:800;color:var(--t3);letter-spacing:.1em;
+  background:var(--border);padding:1px 5px;border-radius:3px;
+}
+.sc-slot-name{font-size:9.5px;color:var(--t2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-slot-dot{width:5px;height:5px;border-radius:50%;background:var(--t3)}
+.sc-slot-dot.on{background:var(--green);box-shadow:0 0 5px var(--green);animation:pulse .8s infinite}
+.sc-slot-grid{display:grid;grid-template-columns:repeat(16,1fr);gap:1px;height:5px}
+.sc-slot-step{border-radius:1px;background:var(--border)}
+.sc-slot-step.on{background:var(--accent)}
+
+/* ── FX Row ──────────────────────────────────────────── */
+#fx-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:9px;padding:7px 12px;flex-shrink:0;
+  backdrop-filter:blur(12px);
+}
+#fx-row .fx-label{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-right:4px}
+.fx-knob-group{display:flex;flex-direction:column;align-items:center;gap:3px}
+.fx-knob{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(108,71,255,.15);border:1.5px solid var(--border);
+  cursor:pointer;position:relative;transition:border-color .15s;
+}
+.fx-knob:hover{border-color:var(--acc2)}
+.fx-knob::after{
+  content:'';width:2px;height:9px;background:var(--acc2);
+  position:absolute;top:3px;left:50%;transform-origin:50% 11px;
+  transform:translateX(-50%) rotate(var(--rot,0deg));border-radius:1px;
+}
+.fx-knob-label{font-size:8px;color:var(--t3);letter-spacing:.05em}
+.fx-sep{width:1px;height:24px;background:var(--border);margin:0 2px}
+
+/* ── Quick Live Code ─────────────────────────────────── */
+#live-code-bar{
+  display:flex;gap:6px;align-items:flex-end;flex:1;min-height:0;
+}
+#lc-textarea{
+  flex:1;height:100%;min-height:48px;max-height:100%;
+  background:rgba(7,6,13,.85);border:1px solid var(--border);
+  border-radius:8px;padding:7px 9px;
+  color:#c4b8ff;font-family:'JetBrains Mono','Fira Code',monospace;
+  font-size:11px;resize:none;outline:none;line-height:1.55;
+  backdrop-filter:blur(8px);transition:border-color .15s;
+}
+#lc-textarea:focus{border-color:var(--border2)}
+.lc-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.lc-act-btn{
+  height:28px;padding:0 10px;border-radius:7px;font-size:10.5px;
+  cursor:pointer;border:1px solid var(--border);
+  background:rgba(108,71,255,.12);color:var(--t2);transition:all .15s;white-space:nowrap;
+}
+.lc-act-btn:hover{border-color:var(--border2);color:var(--txt);background:rgba(108,71,255,.22)}
+.lc-act-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.lc-act-btn.primary:hover{background:#7c5cfc}
+
+/* ── Resize Handle ───────────────────────────────────── */
+#resize-handle{
+  width:5px;background:var(--border);cursor:col-resize;
+  flex-shrink:0;z-index:20;transition:background .15s;
+}
+#resize-handle:hover,#resize-handle.dragging{background:var(--accent)}
+
+/* ── Terminal Panel (Right) ──────────────────────────── */
+#term-panel{
+  width:var(--term-w);min-width:240px;max-width:60%;
+  display:flex;flex-direction:column;
+  background:#040309;border-left:1px solid var(--border);
+  overflow:hidden;flex-shrink:0;
+}
+
+.term-header{
+  height:32px;background:rgba(7,6,13,.95);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0;
+}
+.term-tab{
+  height:22px;padding:0 10px;border-radius:5px;font-size:10.5px;
+  cursor:pointer;border:1px solid transparent;color:var(--t3);
+  transition:all .15s;display:flex;align-items:center;gap:4px;
+}
+.term-tab:hover{color:var(--t2);border-color:var(--border)}
+.term-tab.act{background:rgba(108,71,255,.15);border-color:var(--border2);color:var(--acc2)}
+.term-live-dot{width:5px;height:5px;border-radius:50%;background:var(--t3)}
+.term-live-dot.live{background:var(--green);animation:pulse .8s infinite}
+
+#term-body{flex:1;overflow:hidden;padding:2px}
+#term-quick{
+  padding:6px 8px;border-top:1px solid var(--border);
+  display:flex;flex-wrap:wrap;gap:4px;background:rgba(7,6,13,.9);flex-shrink:0;
+}
+.tq-btn{
+  height:22px;padding:0 8px;border-radius:5px;font-size:9.5px;
+  cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--t3);transition:all .12s;white-space:nowrap;
+}
+.tq-btn:hover{border-color:var(--acc2);color:var(--acc2);background:rgba(108,71,255,.08)}
+
+/* ── Status bar ──────────────────────────────────────── */
+#footer{
+  height:var(--ftr);background:rgba(7,6,13,.95);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 10px;gap:10px;
+  font-size:10px;color:var(--t3);flex-shrink:0;
+}
+.f-item{display:flex;align-items:center;gap:4px}
+.f-dot{width:5px;height:5px;border-radius:50%;background:var(--t3)}
+.f-dot.ok{background:var(--green);box-shadow:0 0 4px rgba(0,255,136,.4)}
+.f-dot.warn{background:var(--yellow)}
+#midi-flash{width:6px;height:6px;border-radius:50%;background:var(--t3);transition:background .05s}
+#midi-flash.active{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+#f-right{margin-left:auto;color:var(--t3)}
+
+/* ── Pattern Picker Modal ──────────────────────────────── */
+#pattern-modal{
+  display:none;position:fixed;inset:0;z-index:100;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+}
+#pattern-modal.show{display:flex}
+.pm-box{
+  background:rgba(12,10,26,.97);border:1px solid var(--border2);
+  border-radius:12px;padding:16px;min-width:300px;
+}
+.pm-title{font-size:12px;font-weight:700;color:var(--txt);margin-bottom:12px}
+.pm-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:7px;border:1px solid var(--border);
+  background:rgba(108,71,255,.08);color:var(--t2);cursor:pointer;
+  margin:0 4px 5px 0;font-size:10.5px;transition:all .15s;
+}
+.pm-chip:hover{border-color:var(--border2);background:rgba(108,71,255,.2);color:var(--txt)}
+.pm-close{float:right;cursor:pointer;color:var(--t3);font-size:14px}
+.pm-close:hover{color:var(--txt)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── HEADER ───────────────────────────────────────────────── -->
+<header id="header">
+  <span class="h-logo">K-Creative Live</span>
+  <div class="h-sep"></div>
+
+  <!-- BPM & Key -->
+  <span id="h-bpm">128</span>
+  <span style="font-size:10px;color:var(--t3)">BPM</span>
+  <span id="h-key" style="margin-left:4px">—</span>
+
+  <div class="h-sep"></div>
+
+  <!-- Mode buttons -->
+  <button class="h-mode-btn act" onclick="setMode('dj',this)">DJ</button>
+  <button class="h-mode-btn" onclick="setMode('live',this)">Live Code</button>
+  <button class="h-mode-btn" onclick="setMode('visual',this)">Visuals</button>
+
+  <div id="h-right">
+    <!-- Hot-reload badge -->
+    <div class="hot-badge" id="hot-badge">
+      <div style="width:5px;height:5px;border-radius:50%;background:var(--green)"></div>
+      HOT RELOAD
+    </div>
+    <!-- Status pills -->
+    <div class="h-pill"><div class="dot" id="dot-sc"></div> SC</div>
+    <div class="h-pill"><div class="dot" id="dot-numark"></div> Numark</div>
+    <div class="h-pill"><div class="dot ok"></div> Studio :7000</div>
+    <button class="h-mode-btn" onclick="toggleTerminal()" title="Terminal ein/aus">⌨</button>
+    <button class="h-mode-btn" onclick="window.location='/'">Studio ↗</button>
+  </div>
+</header>
+
+<!-- ── MAIN SPLIT ────────────────────────────────────────────── -->
+<div id="main">
+
+  <!-- ── LEFT: DJ Performance Panel ──────────────────────────── -->
+  <div id="dj-panel">
+    <canvas id="shader-canvas"></canvas>
+
+    <div id="dj-content">
+
+      <!-- Deck Row -->
+      <div id="deck-row">
+        <!-- Deck A -->
+        <div class="deck" id="deck-a">
+          <div class="deck-header">
+            <div class="deck-play-dot" id="play-dot-a"></div>
+            <span class="deck-label">Deck A · Slot 0</span>
+            <span class="deck-key" id="key-a">—</span>
+          </div>
+          <div class="deck-bpm" id="bpm-a">128<span>BPM</span></div>
+          <div class="deck-track" id="track-a">— kein Track —</div>
+          <div class="deck-pattern-label" id="pattern-a">—</div>
+          <div class="deck-step-grid" id="grid-a"></div>
+          <div class="deck-transport">
+            <button class="t-btn play-btn" id="play-a" onclick="togglePlay('a')">▶ Play</button>
+            <button class="t-btn cue-btn" onclick="cueDeck('a')">◆ Cue</button>
+            <button class="t-btn" onclick="openPatternPicker(0)">♩</button>
+          </div>
+          <div class="deck-mini-eq">
+            <div class="mini-eq-band">
+              <div class="mini-eq-bar-wrap"><div class="mini-eq-bar" id="eq-a-hi" style="width:75%"></div></div>
+              <div class="mini-eq-label">HI</div>
+            </div>
+            <div class="mini-eq-band">
+              <div class="mini-eq-bar-wrap"><div class="mini-eq-bar" id="eq-a-mid" style="width:75%"></div></div>
+              <div class="mini-eq-label">MID</div>
+            </div>
+            <div class="mini-eq-band">
+              <div class="mini-eq-bar-wrap"><div class="mini-eq-bar" id="eq-a-low" style="width:75%"></div></div>
+              <div class="mini-eq-label">LOW</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deck B -->
+        <div class="deck" id="deck-b">
+          <div class="deck-header">
+            <div class="deck-play-dot" id="play-dot-b"></div>
+            <span class="deck-label">Deck B · Slot 1</span>
+            <span class="deck-key" id="key-b">—</span>
+          </div>
+          <div class="deck-bpm" id="bpm-b">—<span>BPM</span></div>
+          <div class="deck-track" id="track-b">— kein Track —</div>
+          <div class="deck-pattern-label" id="pattern-b">—</div>
+          <div class="deck-step-grid" id="grid-b"></div>
+          <div class="deck-transport">
+            <button class="t-btn play-btn" id="play-b" onclick="togglePlay('b')">▶ Play</button>
+            <button class="t-btn cue-btn" onclick="cueDeck('b')">◆ Cue</button>
+            <button class="t-btn" onclick="openPatternPicker(1)">♩</button>
+          </div>
+          <div class="deck-mini-eq">
+            <div class="mini-eq-band">
+              <div class="mini-eq-bar-wrap"><div class="mini-eq-bar" id="eq-b-hi" style="width:75%"></div></div>
+              <div class="mini-eq-label">HI</div>
+            </div>
+            <div class="mini-eq-band">
+              <div class="mini-eq-bar-wrap"><div class="mini-eq-bar" id="eq-b-mid" style="width:75%"></div></div>
+              <div class="mini-eq-label">MID</div>
+            </div>
+            <div class="mini-eq-band">
+              <div class="mini-eq-bar-wrap"><div class="mini-eq-bar" id="eq-b-low" style="width:75%"></div></div>
+              <div class="mini-eq-label">LOW</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Master / Crossfader -->
+      <div id="master-row">
+        <span class="master-label">A</span>
+        <div id="xfader-wrap">
+          <div id="xfader-track" onmousedown="startXfader(event)">
+            <div id="xfader-knob"></div>
+          </div>
+          <div id="xfader-labels"><span>A</span><span>↔</span><span>B</span></div>
+        </div>
+        <span class="master-label">B</span>
+        <div class="h-sep"></div>
+        <div class="master-knob-group">
+          <div class="knob" id="knob-master-vol" title="Master Volume" onmousedown="startKnob(event,'master_vol')" style="--rot:0deg"></div>
+          <div class="knob-label">VOL</div>
+        </div>
+        <div class="master-knob-group">
+          <div class="knob" id="knob-headphone" title="Headphone Level" onmousedown="startKnob(event,'hp')" style="--rot:0deg"></div>
+          <div class="knob-label">HP</div>
+        </div>
+      </div>
+
+      <!-- SC Pattern Slots -->
+      <div id="sc-slots-row">
+        <div class="sc-slot active" id="slot-0" onclick="selectSlot(0)">
+          <div class="sc-slot-header">
+            <span class="sc-slot-num">0 · A</span>
+            <span class="sc-slot-name" id="slot-name-0">—</span>
+            <div class="sc-slot-dot" id="slot-dot-0"></div>
+          </div>
+          <div class="sc-slot-grid" id="slot-grid-0"></div>
+        </div>
+        <div class="sc-slot" id="slot-1" onclick="selectSlot(1)">
+          <div class="sc-slot-header">
+            <span class="sc-slot-num">1 · B</span>
+            <span class="sc-slot-name" id="slot-name-1">—</span>
+            <div class="sc-slot-dot" id="slot-dot-1"></div>
+          </div>
+          <div class="sc-slot-grid" id="slot-grid-1"></div>
+        </div>
+        <div class="sc-slot" id="slot-2" onclick="selectSlot(2)">
+          <div class="sc-slot-header">
+            <span class="sc-slot-num">2 · C</span>
+            <span class="sc-slot-name" id="slot-name-2">—</span>
+            <div class="sc-slot-dot" id="slot-dot-2"></div>
+          </div>
+          <div class="sc-slot-grid" id="slot-grid-2"></div>
+        </div>
+        <div class="sc-slot" id="slot-3" onclick="selectSlot(3)">
+          <div class="sc-slot-header">
+            <span class="sc-slot-num">3 · D</span>
+            <span class="sc-slot-name" id="slot-name-3">—</span>
+            <div class="sc-slot-dot" id="slot-dot-3"></div>
+          </div>
+          <div class="sc-slot-grid" id="slot-grid-3"></div>
+        </div>
+      </div>
+
+      <!-- FX Row: Knobs from Numark + SC params -->
+      <div id="fx-row">
+        <span class="fx-label">FX</span>
+        <div class="fx-knob-group">
+          <div class="fx-knob" id="fx-filter" title="Filter" onmousedown="startFxKnob(event,'filter')" style="--rot:-120deg"></div>
+          <div class="fx-knob-label">FILTER</div>
+        </div>
+        <div class="fx-knob-group">
+          <div class="fx-knob" id="fx-reverb" title="Reverb" onmousedown="startFxKnob(event,'reverb')" style="--rot:-120deg"></div>
+          <div class="fx-knob-label">REVERB</div>
+        </div>
+        <div class="fx-knob-group">
+          <div class="fx-knob" id="fx-delay" title="Delay" onmousedown="startFxKnob(event,'delay')" style="--rot:-120deg"></div>
+          <div class="fx-knob-label">DELAY</div>
+        </div>
+        <div class="fx-knob-group">
+          <div class="fx-knob" id="fx-crush" title="Bit Crush" onmousedown="startFxKnob(event,'crush')" style="--rot:-120deg"></div>
+          <div class="fx-knob-label">CRUSH</div>
+        </div>
+        <div class="fx-sep"></div>
+        <div class="fx-knob-group">
+          <div class="fx-knob" id="fx-pitch" title="Pitch" onmousedown="startFxKnob(event,'pitch')" style="--rot:0deg"></div>
+          <div class="fx-knob-label">PITCH</div>
+        </div>
+        <div class="fx-sep"></div>
+        <!-- BPM tap + sync -->
+        <button class="lc-act-btn" onclick="tapBPM()" style="height:32px;padding:0 10px;font-size:10px;min-width:48px">TAP</button>
+        <div style="display:flex;flex-direction:column;gap:2px;align-items:center">
+          <input type="number" id="bpm-input" value="128" min="60" max="200"
+            style="width:52px;height:22px;background:rgba(108,71,255,.15);border:1px solid var(--border);
+                   border-radius:5px;color:var(--txt);font-size:11px;text-align:center;outline:none;"
+            oninput="setBPM(this.value)">
+          <div style="font-size:8px;color:var(--t3)">BPM</div>
+        </div>
+      </div>
+
+      <!-- Quick Live Code -->
+      <div id="live-code-bar">
+        <textarea id="lc-textarea" spellcheck="false"
+          placeholder="// SC live code — Ctrl+Enter senden&#10;// Patterns: four_to_floor, breakbeat, house, minimal_techno, trap, dnb&#10;four_to_floor"
+          onkeydown="handleLcKey(event)"></textarea>
+        <div class="lc-actions">
+          <button class="lc-act-btn primary" onclick="sendCode()" title="Ctrl+Enter">▶ Send</button>
+          <button class="lc-act-btn" onclick="stopSlot()">■ Stop</button>
+          <button class="lc-act-btn" onclick="initSC()">⚙ Init SC</button>
+          <button class="lc-act-btn" onclick="reloadPlugins()">↺ Plugins</button>
+        </div>
+      </div>
+
+    </div><!-- #dj-content -->
+  </div><!-- #dj-panel -->
+
+  <!-- Resize Handle -->
+  <div id="resize-handle" onmousedown="startResize(event)"></div>
+
+  <!-- ── RIGHT: Terminal Panel ─────────────────────────────── -->
+  <div id="term-panel">
+    <div class="term-header">
+      <div class="term-tab act" data-sess="claude" onclick="switchTerm('claude',this)">
+        <div class="term-live-dot live" id="dot-claude"></div> Claude
+      </div>
+      <div class="term-tab" data-sess="sc" onclick="switchTerm('sc',this)">
+        <div class="term-live-dot" id="dot-sc-term"></div> SC
+      </div>
+      <div class="term-tab" data-sess="global" onclick="switchTerm('global',this)">
+        <div class="term-live-dot"></div> Bash
+      </div>
+    </div>
+    <div id="term-body"></div>
+    <div id="term-quick">
+      <button class="tq-btn" onclick="termCmd('claude')">$ claude</button>
+      <button class="tq-btn" onclick="termCmd('make dj-init')">⚙ Init SC</button>
+      <button class="tq-btn" onclick="termCmd('make scan')">📂 Scan</button>
+      <button class="tq-btn" onclick="termCmd('make sync')">↺ Sync</button>
+      <button class="tq-btn" onclick="termCmd('python3 studio/workers/sc_bridge.py list-patterns')">♩ Patterns</button>
+      <button class="tq-btn" onclick="termCmd('ls live_engine/plugins/')">🔌 Plugins</button>
+    </div>
+  </div>
+
+</div><!-- #main -->
+
+<!-- Footer -->
+<footer id="footer">
+  <div class="f-item"><div class="f-dot" id="f-sc"></div> SuperCollider</div>
+  <div class="f-item"><div class="f-dot" id="f-numark"></div> Numark Mixtrack</div>
+  <div class="f-item"><div class="f-dot ok"></div> Studio :7000</div>
+  <div class="f-item">
+    <div id="midi-flash"></div>
+    <span id="midi-ctrl-label" style="color:var(--t3)">—</span>
+  </div>
+  <div id="f-right" id="f-status">Bereit</div>
+</footer>
+
+</div><!-- #app -->
+
+<!-- Pattern Picker Modal -->
+<div id="pattern-modal" onclick="if(event.target===this)closePatternModal()">
+  <div class="pm-box">
+    <span class="pm-close" onclick="closePatternModal()">✕</span>
+    <div class="pm-title">Pattern wählen — Slot <span id="pm-slot-num">0</span></div>
+    <div id="pm-chips"></div>
+  </div>
+</div>
+
+<script>
+const HOST = window.location.hostname;
+const API  = `http://${HOST}:7000`;
+const WS   = `ws://${HOST}:7000`;
+
+// ── State ────────────────────────────────────────────────────
+let activeSlot   = 0;
+let activeTerm   = 'claude';
+let terms        = {};
+let termSessions = {};
+let midiWs       = null;
+let xfaderVal    = 0.5;
+let bpm          = 128;
+let _beatTime    = 0;
+let _tapTimes    = [];
+let _midiFlashT  = null;
+
+const PATTERNS = {
+  four_to_floor:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+  breakbeat:      [1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0],
+  house:          [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+  minimal_techno: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+  trap:           [1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
+  dnb:            [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+};
+
+const DECK_STATE = {
+  a: { playing: false, pattern: null, bpm: 128 },
+  b: { playing: false, pattern: null, bpm: null },
+};
+
+const SLOT_STATE = [
+  { name: '—', steps: [] },
+  { name: '—', steps: [] },
+  { name: '—', steps: [] },
+  { name: '—', steps: [] },
+];
+
+// ── WebGL Shader ─────────────────────────────────────────────
+let _gl = null, _prog = null, _uniforms = {};
+let _beatImpulse = 0;
+
+async function initShader() {
+  const canvas = document.getElementById('shader-canvas');
+  _gl = canvas.getContext('webgl', { antialias: false });
+  if (!_gl) return;
+
+  const vert = `
+    attribute vec2 a_position;
+    void main() { gl_Position = vec4(a_position, 0, 1); }
+  `;
+
+  let frag;
+  try {
+    const r = await fetch(`${API}/api/file?path=/home/raphael/K-Creative-Cloud/live_engine/shaders/beat_pulse.glsl`);
+    const j = await r.json();
+    frag = j.content || '';
+  } catch(e) {}
+
+  if (!frag) {
+    // Minimal fallback shader
+    frag = `
+      precision mediump float;
+      uniform float u_time;
+      uniform float u_beat;
+      uniform vec2 u_resolution;
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_resolution;
+        vec3 col = vec3(0.027, 0.024, 0.063);
+        col += vec3(0.424, 0.278, 1.0) * u_beat * (1.0 - length(uv - 0.5) * 2.0);
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+  }
+
+  const vs = compileShader(_gl, _gl.VERTEX_SHADER, vert);
+  const fs = compileShader(_gl, _gl.FRAGMENT_SHADER, frag);
+  if (!vs || !fs) return;
+
+  _prog = _gl.createProgram();
+  _gl.attachShader(_prog, vs);
+  _gl.attachShader(_prog, fs);
+  _gl.linkProgram(_prog);
+
+  const quad = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
+  const buf = _gl.createBuffer();
+  _gl.bindBuffer(_gl.ARRAY_BUFFER, buf);
+  _gl.bufferData(_gl.ARRAY_BUFFER, quad, _gl.STATIC_DRAW);
+  const loc = _gl.getAttribLocation(_prog, 'a_position');
+  _gl.enableVertexAttribArray(loc);
+  _gl.vertexAttribPointer(loc, 2, _gl.FLOAT, false, 0, 0);
+
+  _uniforms = {
+    time:       _gl.getUniformLocation(_prog, 'u_time'),
+    beat:       _gl.getUniformLocation(_prog, 'u_beat'),
+    bpm:        _gl.getUniformLocation(_prog, 'u_bpm'),
+    resolution: _gl.getUniformLocation(_prog, 'u_resolution'),
+    xfader:     _gl.getUniformLocation(_prog, 'u_xfader'),
+  };
+
+  requestAnimationFrame(renderShader);
+}
+
+function compileShader(gl, type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.warn('[shader]', gl.getShaderInfoLog(s));
+    return null;
+  }
+  return s;
+}
+
+function renderShader(ts) {
+  if (!_gl || !_prog) return;
+  const canvas = document.getElementById('shader-canvas');
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w; canvas.height = h;
+    _gl.viewport(0, 0, w, h);
+  }
+  _gl.useProgram(_prog);
+  _gl.uniform1f(_uniforms.time, ts / 1000);
+  _gl.uniform1f(_uniforms.beat, _beatImpulse);
+  _gl.uniform1f(_uniforms.bpm, bpm);
+  _gl.uniform2f(_uniforms.resolution, w, h);
+  _gl.uniform1f(_uniforms.xfader, xfaderVal);
+  _gl.drawArrays(_gl.TRIANGLE_STRIP, 0, 4);
+  _beatImpulse *= 0.85; // decay
+  requestAnimationFrame(renderShader);
+}
+
+// ── xterm.js Terminal ─────────────────────────────────────────
+function initTerminal(sessionId) {
+  if (terms[sessionId]) {
+    const body = document.getElementById('term-body');
+    body.innerHTML = '';
+    terms[sessionId].term.open(body);
+    setTimeout(() => terms[sessionId].fitAddon.fit(), 50);
+    return;
+  }
+
+  const body = document.getElementById('term-body');
+  body.innerHTML = '';
+
+  const term = new Terminal({
+    theme: {
+      background:'#040309', foreground:'#e8e0ff', cursor:'#6C47FF',
+      selection:'rgba(108,71,255,0.25)', green:'#00ff88', yellow:'#fbbf24',
+      blue:'#6C47FF', magenta:'#a855f7', cyan:'#60A5FA',
+    },
+    fontFamily:"'JetBrains Mono','Fira Code',monospace",
+    fontSize:12, lineHeight:1.35, cursorBlink:true, scrollback:2000, allowTransparency:true,
+  });
+
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(body);
+  setTimeout(() => fitAddon.fit(), 100);
+
+  const ws = new WebSocket(`${WS}/ws/terminal/${sessionId}`);
+  ws.onopen = () => {
+    term.write(`\r\n\x1b[35m● K-Creative Live\x1b[0m · ${sessionId}\r\n\r\n`);
+    const dot = document.getElementById(`dot-${sessionId}`);
+    if (dot) dot.className = 'term-live-dot live';
+    // Auto-launch claude in the claude session
+    if (sessionId === 'claude') {
+      setTimeout(() => {
+        ws.send(JSON.stringify({ type:'input', data: btoa('cd /home/raphael/K-Creative-Cloud && claude\n') }));
+      }, 800);
+    }
+  };
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'output') term.write(atob(msg.data));
+  };
+  ws.onclose = () => term.write('\r\n\x1b[31m● Getrennt\x1b[0m\r\n');
+  term.onData(d => {
+    if (ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type:'input', data: btoa(d) }));
+  });
+  term.onResize(({ cols, rows }) => {
+    if (ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type:'resize', cols, rows }));
+  });
+
+  terms[sessionId]   = { term, fitAddon, ws };
+  termSessions[sessionId] = ws;
+
+  window.addEventListener('resize', () => {
+    Object.values(terms).forEach(t => t.fitAddon.fit());
+  });
+}
+
+function switchTerm(id, btn) {
+  activeTerm = id;
+  document.querySelectorAll('.term-tab').forEach(t => t.classList.remove('act'));
+  if (btn) btn.classList.add('act');
+  initTerminal(id);
+}
+
+function termCmd(cmd) {
+  initTerminal(activeTerm);
+  setTimeout(() => {
+    const ws = terms[activeTerm]?.ws;
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type:'input', data: btoa(cmd + '\n') }));
+  }, 200);
+}
+
+// ── Deck controls ─────────────────────────────────────────────
+function togglePlay(deck) {
+  const st = DECK_STATE[deck];
+  st.playing = !st.playing;
+  const dot = document.getElementById(`play-dot-${deck}`);
+  const btn = document.getElementById(`play-${deck}`);
+  const card = document.getElementById(`deck-${deck}`);
+  dot.className = 'deck-play-dot' + (st.playing ? ' playing' : '');
+  btn.textContent = st.playing ? '■ Stop' : '▶ Play';
+  btn.className   = 't-btn play-btn' + (st.playing ? ' active' : '');
+  card.className  = 'deck' + (st.playing ? ' playing' : '');
+  _status(deck.toUpperCase() + (st.playing ? ' playing' : ' stopped'));
+}
+
+function cueDeck(deck) { _status(`Deck ${deck.toUpperCase()}: Cue`); }
+
+// ── Crossfader ────────────────────────────────────────────────
+let _xfDragging = false;
+function startXfader(e) {
+  _xfDragging = true;
+  document.addEventListener('mousemove', doXfader);
+  document.addEventListener('mouseup', stopXfader);
+  doXfader(e);
+}
+function doXfader(e) {
+  if (!_xfDragging) return;
+  const track = document.getElementById('xfader-track');
+  const rect = track.getBoundingClientRect();
+  xfaderVal = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  document.getElementById('xfader-knob').style.left = (xfaderVal * 100) + '%';
+  // Mirror to SC
+  if (midiWs && midiWs.readyState === WebSocket.OPEN)
+    midiWs.send(JSON.stringify({ type:'fx', slot:0, param:'volume', value: 1-xfaderVal }));
+}
+function stopXfader() {
+  _xfDragging = false;
+  document.removeEventListener('mousemove', doXfader);
+  document.removeEventListener('mouseup', stopXfader);
+}
+
+// ── FX Knobs ─────────────────────────────────────────────────
+let _knobDrag = null;
+function startFxKnob(e, param) {
+  _knobDrag = { el: e.currentTarget, param, startY: e.clientY, startRot: getFxRot(e.currentTarget) };
+  document.addEventListener('mousemove', doFxKnob);
+  document.addEventListener('mouseup', stopFxKnob);
+  e.preventDefault();
+}
+function getFxRot(el) {
+  const rot = el.style.getPropertyValue('--rot');
+  return parseFloat(rot) || -120;
+}
+function doFxKnob(e) {
+  if (!_knobDrag) return;
+  const delta = (_knobDrag.startY - e.clientY) * 1.5;
+  const newRot = Math.max(-135, Math.min(135, _knobDrag.startRot + delta));
+  _knobDrag.el.style.setProperty('--rot', newRot + 'deg');
+  const norm = (newRot + 135) / 270;
+  sendFx(activeSlot, _knobDrag.param, norm);
+}
+function stopFxKnob() {
+  _knobDrag = null;
+  document.removeEventListener('mousemove', doFxKnob);
+  document.removeEventListener('mouseup', stopFxKnob);
+}
+
+function startKnob(e, name) {
+  _knobDrag = { el: e.currentTarget, param: name, startY: e.clientY, startRot: getFxRot(e.currentTarget) };
+  document.addEventListener('mousemove', doFxKnob);
+  document.addEventListener('mouseup', stopFxKnob);
+  e.preventDefault();
+}
+
+async function sendFx(slot, param, value) {
+  if (midiWs && midiWs.readyState === WebSocket.OPEN)
+    midiWs.send(JSON.stringify({ type:'fx', slot, param, value }));
+  else
+    await fetch(`${API}/api/dj/sc/fx`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ slot, param, value })
+    });
+}
+
+// ── SC Slots ──────────────────────────────────────────────────
+function selectSlot(n) {
+  activeSlot = n;
+  document.querySelectorAll('.sc-slot').forEach((el,i) =>
+    el.classList.toggle('active', i === n));
+}
+
+function renderSlotGrid(slotIdx, steps) {
+  const el = document.getElementById(`slot-grid-${slotIdx}`);
+  if (!el) return;
+  el.innerHTML = (steps.length ? steps : Array(16).fill(0))
+    .map(s => `<div class="sc-slot-step${s ? ' on' : ''}"></div>`).join('');
+}
+
+// ── Pattern Picker ────────────────────────────────────────────
+let _pmSlot = 0;
+function openPatternPicker(slot) {
+  _pmSlot = slot;
+  document.getElementById('pm-slot-num').textContent = slot;
+  const chips = document.getElementById('pm-chips');
+  chips.innerHTML = Object.keys(PATTERNS).map(name =>
+    `<div class="pm-chip" onclick="applyPattern(${slot},'${name}')">${name}</div>`
+  ).join('');
+  document.getElementById('pattern-modal').classList.add('show');
+}
+
+function closePatternModal() {
+  document.getElementById('pattern-modal').classList.remove('show');
+}
+
+async function applyPattern(slot, name) {
+  closePatternModal();
+  const bpmVal = parseFloat(document.getElementById('bpm-input').value) || 128;
+  const resp = await fetch(`${API}/api/dj/sc/pattern`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ slot, code: name, bpm: bpmVal })
+  }).then(r=>r.json());
+
+  SLOT_STATE[slot] = { name, steps: PATTERNS[name] || [] };
+  document.getElementById(`slot-name-${slot}`).textContent = name;
+  document.getElementById(`slot-dot-${slot}`).className = 'sc-slot-dot on';
+  renderSlotGrid(slot, PATTERNS[name] || []);
+
+  // Update deck display
+  const deckId = ['a','b','c','d'][slot];
+  if (deckId === 'a' || deckId === 'b') {
+    document.getElementById(`pattern-${deckId}`).textContent = name;
+    renderDeckGrid(deckId, PATTERNS[name] || []);
+    DECK_STATE[deckId].pattern = name;
+  }
+  _status(`Pattern '${name}' → Slot ${slot}`);
+  triggerBeat();
+}
+
+function renderDeckGrid(deck, steps) {
+  const el = document.getElementById(`grid-${deck}`);
+  if (!el) return;
+  el.innerHTML = steps.map((s,i) =>
+    `<div class="step-cell${s ? ' on' : ''}"></div>`
+  ).join('');
+}
+
+// ── Live Code Editor ──────────────────────────────────────────
+function handleLcKey(e) {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendCode(); }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const t = e.target, s = t.selectionStart;
+    t.value = t.value.substring(0,s) + '  ' + t.value.substring(t.selectionEnd);
+    t.selectionStart = t.selectionEnd = s+2;
+  }
+}
+
+async function sendCode() {
+  const code = document.getElementById('lc-textarea').value.trim();
+  if (!code) return;
+  const bpmVal = parseFloat(document.getElementById('bpm-input').value) || 128;
+  const resp = await fetch(`${API}/api/dj/sc/pattern`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ slot: activeSlot, code, bpm: bpmVal })
+  }).then(r=>r.json());
+  _status(`Slot ${activeSlot}: ${code.substring(0,30).replace(/\n/,' ')}…`);
+  // If named pattern, update UI
+  if (PATTERNS[code]) {
+    SLOT_STATE[activeSlot] = { name: code, steps: PATTERNS[code] };
+    document.getElementById(`slot-name-${activeSlot}`).textContent = code;
+    document.getElementById(`slot-dot-${activeSlot}`).className = 'sc-slot-dot on';
+    renderSlotGrid(activeSlot, PATTERNS[code]);
+  }
+  triggerBeat();
+}
+
+async function stopSlot() {
+  await fetch(`${API}/api/dj/sc/pattern`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ slot: activeSlot, code: `~kSlots[${activeSlot}].do({|p|p.stop});~kSlots[${activeSlot}]=nil;` })
+  });
+  document.getElementById(`slot-dot-${activeSlot}`).className = 'sc-slot-dot';
+  document.getElementById(`slot-name-${activeSlot}`).textContent = '—';
+  _status(`Slot ${activeSlot} gestoppt`);
+}
+
+async function initSC() {
+  _status('SC wird initialisiert…');
+  await fetch(`${API}/api/dj/sc/pattern`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ slot:0, code: 'Server.default.boot;', bpm: 128 })
+  });
+  _status('SC Init gesendet');
+  setTimeout(pollStatus, 2000);
+}
+
+async function reloadPlugins() {
+  _status('Plugins werden neu geladen…');
+  await fetch(`${API}/api/sync/pipeline`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ target:'sc_loops' })
+  });
+  showHotBadge();
+  _status('Hot-Reload gesendet');
+}
+
+// ── BPM ───────────────────────────────────────────────────────
+function setBPM(val) {
+  bpm = parseFloat(val) || 128;
+  document.getElementById('h-bpm').textContent = Math.round(bpm);
+}
+
+function tapBPM() {
+  const now = performance.now();
+  _tapTimes.push(now);
+  if (_tapTimes.length > 8) _tapTimes.shift();
+  if (_tapTimes.length >= 2) {
+    const diffs = _tapTimes.slice(1).map((t,i) => t - _tapTimes[i]);
+    const avg = diffs.reduce((a,b)=>a+b,0) / diffs.length;
+    bpm = Math.round(60000 / avg);
+    bpm = Math.max(60, Math.min(200, bpm));
+    document.getElementById('bpm-input').value = bpm;
+    document.getElementById('h-bpm').textContent = bpm;
+  }
+  triggerBeat();
+}
+
+// ── Beat trigger (shader + UI pulse) ─────────────────────────
+function triggerBeat() {
+  _beatImpulse = 1.0;
+  // Flash MIDI indicator
+  const fl = document.getElementById('midi-flash');
+  fl.classList.add('active');
+  setTimeout(() => fl.classList.remove('active'), 80);
+}
+
+// ── MIDI WebSocket ────────────────────────────────────────────
+function initMidiWs() {
+  midiWs = new WebSocket(`${WS}/ws/midi`);
+  midiWs.onopen = () => {
+    document.getElementById('f-numark').className = 'f-dot ok';
+    document.getElementById('dot-numark').className = 'dot ok';
+  };
+  midiWs.onclose = () => {
+    document.getElementById('f-numark').className = 'f-dot';
+    setTimeout(initMidiWs, 4000);
+  };
+  midiWs.onmessage = e => {
+    try {
+      const msg = JSON.parse(e.data);
+      handleMidi(msg);
+    } catch(err) {}
+  };
+}
+
+function handleMidi(msg) {
+  if (!msg || msg.type !== 'midi') return;
+  const ctrl = msg.ctrl;
+  const norm  = msg.norm ?? (msg.value / 127);
+
+  // MIDI activity flash
+  const fl = document.getElementById('midi-flash');
+  fl.classList.add('active');
+  clearTimeout(_midiFlashT);
+  _midiFlashT = setTimeout(() => fl.classList.remove('active'), 60);
+  document.getElementById('midi-ctrl-label').textContent = ctrl;
+
+  // Beat trigger: play buttons + pads
+  if (ctrl.includes('play') || ctrl.match(/pad_[ab][1234]/)) {
+    if (msg.value > 0) triggerBeat();
+  }
+
+  // Deck play toggles
+  if (ctrl === 'deck_a_play' && msg.value > 0) togglePlay('a');
+  if (ctrl === 'deck_b_play' && msg.value > 0) togglePlay('b');
+
+  // EQ knobs → mini EQ bars
+  if (ctrl === 'deck_a_eq_high') document.getElementById('eq-a-hi').style.width  = (norm*100)+'%';
+  if (ctrl === 'deck_a_eq_mid')  document.getElementById('eq-a-mid').style.width = (norm*100)+'%';
+  if (ctrl === 'deck_a_eq_low')  document.getElementById('eq-a-low').style.width = (norm*100)+'%';
+  if (ctrl === 'deck_b_eq_high') document.getElementById('eq-b-hi').style.width  = (norm*100)+'%';
+  if (ctrl === 'deck_b_eq_mid')  document.getElementById('eq-b-mid').style.width = (norm*100)+'%';
+  if (ctrl === 'deck_b_eq_low')  document.getElementById('eq-b-low').style.width = (norm*100)+'%';
+
+  // Filter knobs → FX knob visuals + SC
+  if (ctrl === 'deck_a_filter') {
+    const rot = -135 + norm * 270;
+    document.getElementById('fx-filter').style.setProperty('--rot', rot + 'deg');
+    sendFx(0, 'filter', norm);
+  }
+  if (ctrl === 'deck_b_filter') sendFx(1, 'filter', norm);
+
+  // Crossfader
+  if (ctrl === 'crossfader') {
+    xfaderVal = norm;
+    document.getElementById('xfader-knob').style.left = (norm*100)+'%';
+  }
+}
+
+// ── Status polling ────────────────────────────────────────────
+async function pollStatus() {
+  try {
+    const s = await fetch(`${API}/api/dj/status`).then(r=>r.json());
+    const scOk = s.sc;
+    document.getElementById('f-sc').className     = 'f-dot' + (scOk ? ' ok' : '');
+    document.getElementById('dot-sc').className   = 'dot' + (scOk ? ' ok' : '');
+    document.getElementById('dot-sc-term').className = 'term-live-dot' + (scOk ? ' live' : '');
+    if (s.library) document.getElementById('f-right').textContent = `Library: ${s.library} Tracks`;
+  } catch(e) {}
+}
+
+// ── Resize ────────────────────────────────────────────────────
+let _resizing = false, _resizeStartX = 0, _termStartW = 0;
+function startResize(e) {
+  _resizing = true;
+  _resizeStartX = e.clientX;
+  _termStartW = document.getElementById('term-panel').offsetWidth;
+  document.getElementById('resize-handle').classList.add('dragging');
+  document.addEventListener('mousemove', doResize);
+  document.addEventListener('mouseup', stopResize);
+  e.preventDefault();
+}
+function doResize(e) {
+  if (!_resizing) return;
+  const delta = _resizeStartX - e.clientX;
+  const newW = Math.max(200, Math.min(window.innerWidth * 0.7, _termStartW + delta));
+  document.getElementById('term-panel').style.width = newW + 'px';
+  if (terms[activeTerm]) terms[activeTerm].fitAddon.fit();
+}
+function stopResize() {
+  _resizing = false;
+  document.getElementById('resize-handle').classList.remove('dragging');
+  document.removeEventListener('mousemove', doResize);
+  document.removeEventListener('mouseup', stopResize);
+}
+
+// ── Terminal toggle ───────────────────────────────────────────
+function toggleTerminal() {
+  const p = document.getElementById('term-panel');
+  const h = document.getElementById('resize-handle');
+  const hidden = p.style.display === 'none';
+  p.style.display = hidden ? 'flex' : 'none';
+  h.style.display = hidden ? 'block' : 'none';
+  if (hidden && terms[activeTerm]) terms[activeTerm].fitAddon.fit();
+}
+
+// ── Mode switching ────────────────────────────────────────────
+function setMode(mode, btn) {
+  document.querySelectorAll('.h-mode-btn').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  if (mode === 'visual') {
+    document.getElementById('dj-content').style.opacity = '0.1';
+  } else {
+    document.getElementById('dj-content').style.opacity = '1';
+  }
+}
+
+// ── Hot-reload badge ──────────────────────────────────────────
+let _hotTimer;
+function showHotBadge() {
+  const b = document.getElementById('hot-badge');
+  b.classList.add('visible');
+  clearTimeout(_hotTimer);
+  _hotTimer = setTimeout(() => b.classList.remove('visible'), 3000);
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function _status(msg) {
+  document.getElementById('f-right').textContent = msg;
+}
+
+// ── Init ──────────────────────────────────────────────────────
+// Render initial empty grids
+[0,1,2,3].forEach(i => renderSlotGrid(i, []));
+renderDeckGrid('a', []);
+renderDeckGrid('b', []);
+
+initShader();
+initTerminal('claude');
+initMidiWs();
+pollStatus();
+setInterval(pollStatus, 10000);
+
+// Load the default pattern visuals
+setTimeout(() => {
+  SLOT_STATE[0] = { name: 'four_to_floor', steps: PATTERNS.four_to_floor };
+  document.getElementById('slot-name-0').textContent = 'four_to_floor';
+  renderSlotGrid(0, PATTERNS.four_to_floor);
+  renderDeckGrid('a', PATTERNS.four_to_floor);
+  document.getElementById('pattern-a').textContent = 'four_to_floor';
+}, 500);
+
+// ── Electron hot-reload bridge ────────────────────────────────
+if (window.electronBridge) {
+  window.electronBridge.onHotReload(({ event, file, ext }) => {
+    showHotBadge();
+    _status(`hot-reload: ${file}`);
+    if (ext === 'glsl') {
+      // Re-fetch and recompile shader without page reload
+      setTimeout(() => initShader(), 150);
+    }
+    // Python plugins + SC files: live_engine watchdog reloads them automatically.
+    // For HTML changes the user can hit Ctrl+R for a full page reload.
+  });
+}
+</script>
+</body>
+</html>
