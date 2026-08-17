@@ -1,6 +1,6 @@
 {
   "name": "k-creative-desktop",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "K-Creative Studio — Open-Source Creative Cloud",
   "homepage": "https://github.com/RaphaDevx/K-Creative-Cloud",
   "author": "RaphaDevx",
@@ -78,7 +78,6 @@
         "to": "feature_flags.json"
       }
     ],
-    "afterSign": "scripts/notarize.js"
   },
   "dependencies": {
     "chokidar": "^3.6.0",
