@@ -90,7 +90,7 @@ jobs:
       - name: Build Python backend (macOS)
         if: matrix.platform == 'mac'
         run: |
-          pip3 install pyinstaller fastapi uvicorn aiofiles h11 starlette anyio python-osc
+          pip3 install --break-system-packages pyinstaller fastapi uvicorn aiofiles h11 starlette anyio python-osc
           cd studio
           pyinstaller server.spec --distpath dist --workpath build --noconfirm
 

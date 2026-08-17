@@ -1,7 +1,9 @@
 {
   "name": "k-creative-desktop",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "K-Creative Studio — Open-Source Creative Cloud",
+  "homepage": "https://github.com/RaphaDevx/K-Creative-Cloud",
+  "author": "RaphaDevx",
   "main": "main.js",
   "scripts": {
     "dev":          "electron . --no-sandbox",
@@ -42,7 +44,13 @@
       "entitlementsInherit": "entitlements.mac.plist",
       "notarize": {
         "teamId": "${APPLE_TEAM_ID}"
-      }
+      },
+      "extraResources": [
+        {
+          "from": "../studio/dist/k-creative-server",
+          "to": "k-creative-server"
+        }
+      ]
     },
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
@@ -59,12 +67,6 @@
       "main.js",
       "preload.js",
       "!node_modules/.cache"
-    ],
-    "extraResources": [
-      {
-        "from": "../studio/dist/k-creative-server",
-        "to": "k-creative-server"
-      }
     ],
     "extraFiles": [
       {
