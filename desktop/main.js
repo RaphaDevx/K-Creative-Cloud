@@ -144,10 +144,25 @@ function startBackend() {
       resolve();
     }).on('error', () => {
       log.info('[backend] Starting Python backend…');
-      backendProcess = spawn('python3', ['server.py'], {
-        cwd: STUDIO_DIR,
+
+      // Use bundled binary in production, python3 in dev
+      const serverBin = app.isPackaged
+        ? path.join(process.resourcesPath, 'k-creative-server')
+        : null;
+
+      const [cmd, args, cwd] = serverBin
+        ? [serverBin, [], path.dirname(serverBin)]
+        : ['python3', ['server.py'], STUDIO_DIR];
+
+      backendProcess = spawn(cmd, args, {
+        cwd,
         stdio: ['ignore', 'pipe', 'pipe'],
         detached: false,
+        env: {
+          ...process.env,
+          K_CREATIVE_DIR: path.join(app.getPath('home'), 'K-Creative'),
+          K_MUSIC_DIR:    path.join(app.getPath('music')),
+        },
       });
 
       backendProcess.stdout.on('data', d => log.info('[backend]', d.toString().trim()));

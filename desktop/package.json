@@ -8,7 +8,7 @@
     "dev:kiosk":    "electron . --no-sandbox --kiosk",
     "dev:debug":    "electron . --no-sandbox --dev",
     "build":        "electron-builder --linux AppImage deb",
-    "build:mac":    "electron-builder --mac dmg",
+    "build:mac":    "bash scripts/build-backend.sh && electron-builder --mac dmg",
     "build:win":    "electron-builder --win nsis",
     "build:all":    "electron-builder --linux AppImage deb --mac dmg --win nsis",
     "release":      "electron-builder --publish always"
@@ -60,18 +60,13 @@
       "preload.js",
       "!node_modules/.cache"
     ],
-    "extraFiles": [
+    "extraResources": [
       {
-        "from": "../studio",
-        "to": "studio",
-        "filter": [
-          "**/*",
-          "!node_modules/**",
-          "!**/__pycache__/**",
-          "!*.db",
-          "!*.log"
-        ]
-      },
+        "from": "../studio/dist/k-creative-server",
+        "to": "k-creative-server"
+      }
+    ],
+    "extraFiles": [
       {
         "from": "../live_engine",
         "to": "live_engine"

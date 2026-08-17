@@ -33,14 +33,22 @@ from starlette.middleware.cors import CORSMiddleware
 app = FastAPI(title="K-Creative Studio")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-ROOT = Path(__file__).parent
-ASSETS_DIR = Path("/home/raphael/K-Creative-Cloud/designer/assets")
-PROJECTS_DIR = Path("/home/raphael/K-Creative-Cloud/designer")
-HOME = Path("/home/raphael")
-RENDERS_DIR = Path("/home/raphael/K-Creative-Cloud/renders")
+import sys as _sys
+
+# Support PyInstaller bundle: __file__ is unreliable in frozen mode
+if getattr(_sys, 'frozen', False):
+    ROOT = Path(_sys.executable).parent
+else:
+    ROOT = Path(__file__).parent
+
+HOME         = Path.home()
+K_DIR        = Path(os.environ.get("K_CREATIVE_DIR", HOME / "K-Creative"))
+ASSETS_DIR   = K_DIR / "assets"
+PROJECTS_DIR = K_DIR
+RENDERS_DIR  = K_DIR / "renders"
 SCRIPTS_DIR  = ROOT / "headless"
-DJ_LIBRARY   = Path("/home/raphael/Music")
-DJ_DB        = ROOT / "dj_library.db"
+DJ_LIBRARY   = Path(os.environ.get("K_MUSIC_DIR", HOME / "Music"))
+DJ_DB        = K_DIR / "dj_library.db"
 DJ_SC_HOST   = "127.0.0.1"
 DJ_SC_PORT   = 57120
 RENDERS_DIR.mkdir(parents=True, exist_ok=True)
