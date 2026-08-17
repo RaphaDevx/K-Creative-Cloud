@@ -166,10 +166,11 @@ jobs:
           if echo "${{ github.ref_name }}" | grep -qE '\-(beta|rc)'; then
             PRERELEASE="--prerelease"
           fi
-          gh release create "${{ github.ref_name }}" artifacts/**/* \
+          gh release create "${{ github.ref_name }}" \
             --title "K-Creative Studio ${{ github.ref_name }}" \
             --generate-notes \
             $PRERELEASE
+          find artifacts -maxdepth 1 -type f | xargs gh release upload "${{ github.ref_name }}" --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
