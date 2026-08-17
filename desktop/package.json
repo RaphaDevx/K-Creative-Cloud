@@ -1,6 +1,6 @@
 {
   "name": "k-creative-desktop",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "description": "K-Creative Studio — Open-Source Creative Cloud",
   "homepage": "https://github.com/RaphaDevx/K-Creative-Cloud",
   "author": "RaphaDevx",
@@ -72,7 +72,9 @@
       {
         "from": "../live_engine",
         "to": "live_engine"
-      },
+      }
+    ],
+    "extraResources": [
       {
         "from": "../feature_flags.json",
         "to": "feature_flags.json"
