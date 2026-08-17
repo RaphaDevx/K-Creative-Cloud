@@ -1,24 +1,19 @@
 {
   "_version": 1,
-  "_updated": "2026-08-16",
-  "_latest_release": "v0.1.0",
+  "_updated": "2026-08-17",
+  "_latest_release": "v0.1.9",
   "_rollout_pct": 100,
-
   "update_channel": "stable",
-
   "kiosk_mode_default": false,
   "shader_quality": "medium",
   "sc_auto_start": false,
-
   "beta_features": {
     "stem_separation": false,
     "ai_bpm_sync": false,
     "cloud_collaboration": false,
     "ai_beat_match": false
   },
-
   "crash_reporting": true,
-
   "ui": {
     "show_fps_counter": false,
     "particle_count": 24,
