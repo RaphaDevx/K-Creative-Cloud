@@ -86,6 +86,14 @@ jobs:
         run: npm ci
         working-directory: desktop
 
+      # macOS: build Python backend binary with PyInstaller
+      - name: Build Python backend (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          pip3 install pyinstaller fastapi uvicorn aiofiles h11 starlette anyio python-osc
+          cd studio
+          pyinstaller server.spec --distpath dist --workpath build --noconfirm
+
       # macOS: import signing certificate from secret
       - name: Import macOS certificate
         if: matrix.platform == 'mac' && github.event_name != 'pull_request'
@@ -107,6 +115,7 @@ jobs:
       - name: Build Electron app
         run: npx electron-builder ${{ matrix.args }} --publish never
         working-directory: desktop
+        # electron-builder 24.x avoids ESM/noble-hashes compatibility issue
         env:
           # macOS notarization
           APPLE_ID: ${{ secrets.APPLE_ID }}
