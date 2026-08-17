@@ -10,9 +10,9 @@ exports.default = async function notarizing(context) {
 
   if (electronPlatformName !== 'darwin') return;
 
-  // Skip notarization in PRs / local builds (env vars not set)
-  if (!process.env.APPLE_ID) {
-    console.log('[notarize] APPLE_ID not set — skipping');
+  // Skip notarization if credentials are not set
+  if (!process.env.APPLE_ID || !process.env.APPLE_APP_SPECIFIC_PASSWORD) {
+    console.log('[notarize] Credentials not set — skipping notarization');
     return;
   }
 

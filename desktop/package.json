@@ -1,6 +1,6 @@
 {
   "name": "k-creative-desktop",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "K-Creative Studio — Open-Source Creative Cloud",
   "homepage": "https://github.com/RaphaDevx/K-Creative-Cloud",
   "author": "RaphaDevx",
@@ -42,9 +42,6 @@
       "gatekeeperAssess": false,
       "entitlements": "entitlements.mac.plist",
       "entitlementsInherit": "entitlements.mac.plist",
-      "notarize": {
-        "teamId": "${APPLE_TEAM_ID}"
-      },
       "extraResources": [
         {
           "from": "../studio/dist/k-creative-server",
