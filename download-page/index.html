@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Creative Studio — Download</title>
+<style>
+  :root {
+    --bg: #07060d;
+    --accent: #6C47FF;
+    --acc2: #a855f7;
+    --acc3: #60A5FA;
+    --green: #00ff88;
+    --txt: #e8e0ff;
+    --t2: rgba(232,224,255,0.55);
+    --t3: rgba(232,224,255,0.28);
+    --border: rgba(108,71,255,0.2);
+    --panel: rgba(10,8,22,0.85);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(108,71,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,71,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    opacity: 0.35;
+  }
+  .orb-1 { width: 600px; height: 600px; background: #6C47FF; top: -200px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: #a855f7; bottom: -100px; right: -100px; }
+
+  /* Layout */
+  .page {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    gap: 0;
+    z-index: 1;
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(7,6,13,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    z-index: 50;
+  }
+  .logo {
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #6C47FF, #a855f7, #60A5FA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .nav-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .nav-link {
+    font-size: 13px;
+    color: var(--t2);
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .nav-link:hover { color: var(--txt); }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    max-width: 720px;
+    margin-top: 56px;
+    padding: 80px 0 60px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 99px;
+    border: 1px solid rgba(0,255,136,.3);
+    background: rgba(0,255,136,.06);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--green);
+    margin-bottom: 28px;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+  h1 {
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, #fff 30%, #a855f7 70%, #60A5FA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+  .subtitle {
+    font-size: 18px;
+    color: var(--t2);
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0 auto 48px;
+  }
+
+  /* Download buttons */
+  .download-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6C47FF, #a855f7);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: .02em;
+    box-shadow: 0 0 40px rgba(108,71,255,.4), 0 4px 20px rgba(0,0,0,.4);
+    transition: transform .15s, box-shadow .15s;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 60px rgba(108,71,255,.5), 0 8px 30px rgba(0,0,0,.5);
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--t2);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color .15s, color .15s;
+  }
+  .btn-secondary:hover {
+    border-color: rgba(108,71,255,.5);
+    color: var(--txt);
+  }
+  .version-note {
+    font-size: 12px;
+    color: var(--t3);
+  }
+
+  /* Features grid */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    max-width: 800px;
+    width: 100%;
+    margin-top: 80px;
+  }
+  .feature {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(12px);
+    transition: border-color .2s, transform .2s;
+  }
+  .feature:hover {
+    border-color: rgba(108,71,255,.4);
+    transform: translateY(-2px);
+  }
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+  .feature-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--txt);
+    margin-bottom: 6px;
+    letter-spacing: .02em;
+  }
+  .feature-desc {
+    font-size: 12px;
+    color: var(--t2);
+    line-height: 1.5;
+  }
+
+  /* System req */
+  .sysreq {
+    margin-top: 64px;
+    text-align: center;
+    max-width: 600px;
+  }
+  .sysreq h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--t3);
+    margin-bottom: 16px;
+  }
+  .req-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .req-pill {
+    padding: 5px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--t2);
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 80px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--t3);
+    width: 100%;
+    max-width: 800px;
+  }
+  footer a { color: var(--t2); text-decoration: none; }
+  footer a:hover { color: var(--txt); }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<nav>
+  <span class="logo">K-Creative Studio</span>
+  <div class="nav-right">
+    <a href="https://github.com/RaphaDevx/K-Creative-Cloud" class="nav-link" target="_blank">GitHub</a>
+    <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="nav-link" target="_blank">Releases</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="hero">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <span id="badge-version">Loading…</span>
+    </div>
+
+    <h1>K-Creative<br>Studio</h1>
+
+    <p class="subtitle">
+      Open-source creative suite powered by AI. DJ Live Interface,
+      Plugin Engine, and Claude Terminal — all in one app.
+    </p>
+
+    <div class="download-group">
+      <a id="btn-mac" href="#" class="btn-primary" style="opacity:.5;pointer-events:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+        Download for macOS
+      </a>
+
+      <span id="version-note" class="version-note">Fetching latest version…</span>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <a id="btn-linux" href="#" class="btn-secondary" target="_blank" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          Linux (AppImage)
+        </a>
+        <a id="btn-win" href="#" class="btn-secondary" target="_blank" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="18" rx="1"/><path d="M2 9h20M9 21V9"/>
+          </svg>
+          Windows
+        </a>
+        <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="btn-secondary" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+          </svg>
+          All releases &amp; changelog
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🎛</div>
+      <div class="feature-title">DJ Live Interface</div>
+      <div class="feature-desc">Split-screen DJ deck with BPM detection, waveform display, EQ and crossfader.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">Claude Terminal</div>
+      <div class="feature-desc">Built-in AI terminal. Claude controls your creative tools in real time.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔌</div>
+      <div class="feature-title">Plugin Engine</div>
+      <div class="feature-desc">Hot-reload MIDI plugins. Write Python, see changes instantly — no restart needed.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔄</div>
+      <div class="feature-title">Auto Updates</div>
+      <div class="feature-desc">Silent background updates via GitHub Releases. Always on the latest version.</div>
+    </div>
+  </div>
+
+  <div class="sysreq">
+    <h3>System Requirements</h3>
+    <div class="req-list">
+      <span class="req-pill">macOS 12 Monterey+</span>
+      <span class="req-pill">Intel x64 or Apple Silicon</span>
+      <span class="req-pill">4 GB RAM</span>
+      <span class="req-pill">500 MB disk space</span>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      K-Creative Studio is open-source —
+      <a href="https://github.com/RaphaDevx/K-Creative-Cloud" target="_blank">view on GitHub</a>
+      · Built by RaphaDevx
+    </p>
+  </footer>
+</div>
+
+<script>
+(async () => {
+  try {
+    const r = await fetch('https://api.github.com/repos/RaphaDevx/K-Creative-Cloud/releases/latest', {
+      headers: { Accept: 'application/vnd.github+json' }
+    });
+    const rel = await r.json();
+    const tag = rel.tag_name;                 // e.g. "v0.1.9"
+    const assets = rel.assets || [];
+
+    // Find assets by suffix
+    const find = (suffix) => assets.find(a => a.name.endsWith(suffix))?.browser_download_url;
+    const dmgArm = find('-arm64.dmg');
+    const dmgX64 = find('-x64.dmg');
+    const appimage = find('.AppImage');
+    const exe = find('.exe');
+
+    // macOS button — prefer arm64, fall back to x64
+    const macUrl = dmgArm || dmgX64;
+    if (macUrl) {
+      const btn = document.getElementById('btn-mac');
+      btn.href = macUrl;
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      const arch = dmgArm && dmgX64 ? 'Intel & Apple Silicon' : dmgArm ? 'Apple Silicon' : 'Intel x64';
+      btn.querySelector('svg').insertAdjacentHTML('afterend',
+        `<span> Download for macOS</span>`);
+      btn.textContent = '';
+      btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download for macOS`;
+      document.getElementById('version-note').textContent =
+        `${tag} · macOS 12+ · ${arch}`;
+    }
+
+    // Linux button
+    if (appimage) {
+      const btn = document.getElementById('btn-linux');
+      btn.href = appimage;
+      btn.style.display = 'inline-flex';
+    }
+
+    // Windows button
+    if (exe) {
+      const btn = document.getElementById('btn-win');
+      btn.href = exe;
+      btn.style.display = 'inline-flex';
+    }
+
+    // Badge
+    document.getElementById('badge-version').textContent = `${tag} — Now Available`;
+
+  } catch (e) {
+    document.getElementById('badge-version').textContent = 'Latest Release';
+    document.getElementById('version-note').textContent = 'See GitHub for downloads';
+  }
+})();
+</script>
+</body>
+</html>
