@@ -40,10 +40,8 @@ jobs:
 
       - name: Install Python deps
         run: |
-          pip install pyinstaller
-          pip install -r K-DAW/requirements.txt
-        # librosa / numpy optional — skip silently if they fail
-        # (analyze_quality.py is excluded from the frozen build)
+          pip3 install --break-system-packages --ignore-installed pyinstaller
+          pip3 install --break-system-packages --ignore-installed -r K-DAW/requirements.txt
 
       - name: Build Python server binary
         run: |
