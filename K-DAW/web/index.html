@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI-DAW</title>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #18181f;
+    --panel: #1e1e28;
+    --border: #2a2a38;
+    --accent: #7c5cfc;
+    --accent2: #00d4aa;
+    --text: #e2e2f0;
+    --muted: #6b6b88;
+    --error: #ff4d6d;
+    --warn: #ffd166;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ─── Header ─── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    height: 44px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .logo { font-size: 17px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted); margin-left: auto;
+    transition: background 0.3s;
+  }
+  .status-dot.ok { background: var(--accent2); }
+  .status-dot.busy { background: var(--warn); animation: pulse 1s infinite; }
+  .status-dot.err { background: var(--error); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  #status-text { color: var(--muted); font-size: 12px; }
+
+  /* ─── Layout ─── */
+  .workspace {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 1fr 200px;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ─── Left: Chat ─── */
+  .chat-panel {
+    grid-row: 1 / 3;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .panel-title {
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg {
+    padding: 9px 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+    max-width: 95%;
+    font-size: 13px;
+  }
+  .msg.user { background: var(--accent); align-self: flex-end; }
+  .msg.ai { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; }
+  .msg.status { background: transparent; color: var(--muted); font-size: 11px; align-self: center; font-style: italic; }
+  .msg.error { background: rgba(255,77,109,0.15); border: 1px solid var(--error); color: var(--error); }
+
+  .chat-input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  textarea {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: none;
+    height: 64px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+  button:hover { opacity: 0.85; }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  /* ─── Piano Roll ─── */
+  .piano-roll {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .roll-overlay {
+    position: absolute;
+    top: 10px; right: 12px;
+    display: flex;
+    gap: 8px;
+  }
+
+  /* ─── Bottom: Controls ─── */
+  .controls-panel {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .controls-inner {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Audio player */
+  .audio-section {
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  audio {
+    width: 100%;
+    height: 32px;
+    filter: invert(0.9) hue-rotate(180deg) brightness(0.9);
+    border-radius: 4px;
+  }
+  .track-info {
+    font-size: 12px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .track-info strong { color: var(--text); }
+
+  /* File list */
+  .file-list-section {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .file-list-section::-webkit-scrollbar { width: 3px; }
+  .file-list-section::-webkit-scrollbar-thumb { background: var(--border); }
+  .file-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .file-entry:hover { background: var(--surface); }
+  .file-entry .ext {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .ext.wav { background: rgba(0,212,170,0.2); color: var(--accent2); }
+  .ext.mid { background: rgba(124,92,252,0.2); color: var(--accent); }
+  .file-entry .fname { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-entry .fsize { font-size: 11px; color: var(--muted); margin-left: auto; flex-shrink: 0; }
+
+  /* LMMS button */
+  .lmms-btn-wrap {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 1px solid var(--border);
+    min-width: 140px;
+    justify-content: center;
+  }
+
+  /* Info chips */
+  .music-info {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 0 6px 8px;
+  }
+  .chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .chip strong { color: var(--accent); }
+
+  /* ─── Tab bar ─── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab-btn {
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 8px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); background: transparent; opacity: 1; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Piano roll tab wrapper */
+  .tab-content { display: none; flex: 1; overflow: hidden; }
+  .tab-content.active { display: flex; flex-direction: column; }
+  .piano-roll { flex: 1; background: var(--bg); position: relative; overflow: hidden; }
+
+  /* ─── Downloader panel ─── */
+  .dl-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 16px;
+    gap: 14px;
+    overflow-y: auto;
+  }
+  .dl-panel::-webkit-scrollbar { width: 4px; }
+  .dl-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .dl-url-row { display: flex; gap: 8px; }
+  .dl-url-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .dl-url-row input:focus { border-color: var(--accent); }
+  .dl-url-row input::placeholder { color: var(--muted); }
+
+  .fmt-row { display: flex; gap: 6px; align-items: center; }
+  .fmt-label { font-size: 11px; color: var(--muted); margin-right: 4px; }
+  .fmt-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .fmt-btn:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+  .fmt-btn.active { background: rgba(124,92,252,0.2); border-color: var(--accent); color: var(--accent); }
+
+  .dl-status-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    min-height: 40px;
+    word-break: break-all;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    display: none;
+  }
+  .dl-status-box.visible { display: block; }
+  .dl-status-box.done { color: var(--accent2); border-color: var(--accent2); }
+  .dl-status-box.error { color: var(--error); border-color: var(--error); }
+
+  .dl-file-list { display: flex; flex-direction: column; gap: 2px; }
+  .dl-file-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .dl-file-entry:hover { background: var(--surface); }
+  .dl-file-entry .ext {
+    font-size: 10px; font-weight: 700; padding: 2px 5px;
+    border-radius: 3px; text-transform: uppercase; flex-shrink: 0;
+  }
+  .ext.mp3 { background: rgba(255,209,102,0.2); color: var(--warn); }
+  .ext.flac { background: rgba(0,212,170,0.2); color: var(--accent2); }
+  .dl-file-entry .fname { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .dl-file-entry .fsize { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+  .dl-file-entry .dl-btn {
+    font-size: 10px; padding: 2px 8px; margin-left: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); flex-shrink: 0;
+  }
+  .dl-file-entry .dl-btn:hover { color: var(--text); border-color: var(--text); opacity: 1; }
+
+  .quality-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px;
+    border-radius: 10px; flex-shrink: 0; white-space: nowrap;
+  }
+  .quality-badge.CLUB-READY { background: rgba(0,212,170,0.15); color: var(--accent2); border: 1px solid rgba(0,212,170,0.4); }
+  .quality-badge.GOOD       { background: rgba(255,209,102,0.15); color: var(--warn); border: 1px solid rgba(255,209,102,0.4); }
+  .quality-badge.MEDIUM     { background: rgba(255,107,0,0.15); color: #ff9500; border: 1px solid rgba(255,107,0,0.4); }
+  .quality-badge.LOW        { background: rgba(255,77,109,0.15); color: var(--error); border: 1px solid rgba(255,77,109,0.4); }
+  .quality-badge.unknown    { background: var(--surface); color: var(--muted); border: 1px solid var(--border); cursor:pointer; }
+
+  .info-note {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    line-height: 1.6;
+  }
+  .info-note strong { color: var(--accent2); }
+  .info-note .no { color: var(--error); }
+
+  /* ─── MIDI Learn Tab ─── */
+  .midi-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+  }
+  .midi-top {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--panel);
+  }
+  .midi-device-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .midi-device-row select {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+  }
+  .midi-device-row select:focus { border-color: var(--accent); }
+  .midi-status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted); flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .midi-status-dot.connected { background: var(--accent2); }
+  .midi-status-dot.error { background: var(--error); }
+
+  .midi-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Left: Learn wizard */
+  .learn-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .learn-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .learn-name-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .learn-name-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .learn-name-row input:focus { border-color: var(--accent); }
+  .learn-name-row input::placeholder { color: var(--muted); }
+
+  .learn-prompt-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: none;
+  }
+  .learn-prompt-box.active { display: block; border-color: var(--accent); }
+  .learn-step-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .learn-event-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .learn-waiting {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    animation: blink 1.2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .learn-btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-danger {
+    background: rgba(255,77,109,0.15);
+    border: 1px solid var(--error);
+    color: var(--error);
+  }
+  .btn-danger:hover { background: rgba(255,77,109,0.25); opacity: 1; }
+
+  /* Binding table */
+  .binding-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .binding-list::-webkit-scrollbar { width: 4px; }
+  .binding-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .binding-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    transition: background 0.15s;
+  }
+  .binding-row:hover { background: var(--surface); }
+  .binding-event { color: var(--accent); font-weight: 600; min-width: 140px; }
+  .binding-arrow { color: var(--muted); }
+  .binding-key { color: var(--text); font-family: monospace; font-size: 11px; }
+  .binding-empty { color: var(--muted); font-style: italic; }
+
+  /* Right: saved mappings */
+  .mappings-col {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .mappings-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+  .mapping-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 12px;
+  }
+  .mapping-entry:hover { background: var(--surface); }
+  .mapping-entry .mname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mapping-entry .mdel {
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 2px;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .mapping-entry .mdel:hover { color: var(--error); opacity: 1; }
+
+  /* Live monitor */
+  .midi-monitor {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .monitor-event { color: var(--accent2); font-weight: 700; }
+
+  /* VNC overlay */
+  .vnc-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .vnc-overlay.open { display: flex; }
+  .vnc-box {
+    width: 90vw; height: 85vh;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .vnc-header {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    gap: 10px;
+  }
+  .vnc-header span { color: var(--muted); font-size: 12px; font-weight: 400; }
+  .vnc-header button { margin-left: auto; }
+  iframe { border: none; flex: 1; }
+
+  /* Suggestions */
+  .suggestions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 8px 12px 0;
+  }
+  .suggestion {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .suggestion:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,92,252,0.1); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">KI<span>DAW</span></div>
+  <div id="status-text">Verbinde...</div>
+  <div class="status-dot" id="dot"></div>
+</header>
+
+<div class="workspace">
+
+  <!-- LEFT: Chat -->
+  <div class="chat-panel">
+    <div class="panel-title">Claude Musik-Generator</div>
+
+    <div class="suggestions">
+      <button class="suggestion" onclick="fillPrompt('Melancholisches Klavierstück in c-Moll, 70 BPM, für Filmmusik')">Film-Klavier</button>
+      <button class="suggestion" onclick="fillPrompt('Energetischer Electronic Dance Track in A-Dur, 128 BPM mit Bass und Synth-Lead')">EDM</button>
+      <button class="suggestion" onclick="fillPrompt('Ruhige Jazz-Ballade mit Rhodes-Piano, Bass und sanfter Melodie, 90 BPM')">Jazz</button>
+      <button class="suggestion" onclick="fillPrompt('Episches Orchester-Intro mit Streicher-Ensemble, 60 BPM, dramatisch und aufbauend')">Orchester</button>
+      <button class="suggestion" onclick="fillPrompt('Lo-Fi Hip-Hop Beat mit Piano-Chords, Bass und Drums, 85 BPM entspannt')">Lo-Fi</button>
+    </div>
+
+    <div class="chat-messages" id="messages">
+      <div class="msg ai">Hallo! Beschreib mir die Musik die du erstellen möchtest — Stil, Stimmung, Tempo, Instrumente. Ich generiere dann automatisch Noten, eine MIDI-Datei und rendere das Audio.</div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea id="prompt" placeholder="z.B. Trauriges Klavierstück in C-Moll, 80 BPM..." onkeydown="handleKey(event)"></textarea>
+      <button id="send-btn" onclick="generate()">Generieren</button>
+    </div>
+  </div>
+
+  <!-- CENTER: Tabbed (Piano Roll / Downloader) -->
+  <div style="display:flex;flex-direction:column;overflow:hidden;">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="roll" onclick="switchTab('roll')">Piano Roll</button>
+      <button class="tab-btn" data-tab="downloader" onclick="switchTab('downloader')">Downloader</button>
+      <button class="tab-btn" data-tab="midi" onclick="switchTab('midi')">MIDI Learn</button>
+    </div>
+
+    <!-- Piano Roll Tab -->
+    <div class="tab-content active" id="tab-roll">
+      <div class="piano-roll">
+        <canvas id="roll"></canvas>
+        <div class="roll-overlay">
+          <button class="secondary" onclick="openVNC()" style="font-size:11px;padding:5px 10px;">LMMS öffnen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDI Learn Tab -->
+    <div class="tab-content" id="tab-midi">
+      <div class="midi-panel">
+
+        <!-- Device selector row -->
+        <div class="midi-top">
+          <div class="midi-device-row">
+            <span style="font-size:11px;color:var(--muted);flex-shrink:0">MIDI Input</span>
+            <select id="midi-port-select" onchange="selectMidiPort(this.value)">
+              <option value="">-- Port wählen --</option>
+            </select>
+            <button class="secondary" style="font-size:11px;padding:5px 10px;" onclick="refreshMidiPorts()">Refresh</button>
+            <div class="midi-status-dot" id="midi-dot" title="MIDI Status"></div>
+            <span id="midi-status-text" style="font-size:11px;color:var(--muted)">Kein Gerät</span>
+          </div>
+        </div>
+
+        <div class="midi-body">
+
+          <!-- Left: Learn wizard + binding table -->
+          <div class="learn-col">
+
+            <!-- Wizard controls -->
+            <div class="learn-section">
+              <div class="learn-name-row">
+                <input type="text" id="ctrl-name" placeholder="Controller-Name (z.B. DDJ-200)" />
+                <input type="text" id="mapping-filename" placeholder="Dateiname (config_xxx.json)" style="max-width:180px;" />
+              </div>
+
+              <!-- Step prompt (shown during learn) -->
+              <div class="learn-prompt-box" id="learn-prompt-box">
+                <div class="learn-step-label" id="learn-step-label">Schritt 1 / 30</div>
+                <div class="learn-event-name" id="learn-event-name">crossfader</div>
+                <div class="learn-waiting">Warte auf MIDI-Signal...</div>
+                <div class="progress-track" style="margin-top:10px;">
+                  <div class="progress-fill" id="learn-progress"></div>
+                </div>
+              </div>
+
+              <div class="learn-btn-row">
+                <button id="btn-start-learn" onclick="startLearn()">Learn starten</button>
+                <button class="secondary" id="btn-skip" onclick="skipLearn()" style="display:none">Überspringen</button>
+                <button class="btn-danger" id="btn-stop-learn" onclick="stopLearn()" style="display:none">Abbrechen</button>
+                <button class="secondary" id="btn-save-mapping" onclick="saveMapping()" style="display:none;margin-left:auto;">Mapping speichern</button>
+              </div>
+            </div>
+
+            <!-- Binding table -->
+            <div class="panel-title" style="padding:8px 16px 4px;flex-shrink:0">Zugeordnete Controls</div>
+            <div class="binding-list" id="binding-list">
+              <div style="color:var(--muted);font-size:12px;padding:4px 8px">Noch keine Zuordnungen</div>
+            </div>
+
+            <!-- Live monitor -->
+            <div class="midi-monitor" id="midi-monitor">
+              <span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px">Monitor</span>
+              <span id="monitor-text">—</span>
+            </div>
+          </div>
+
+          <!-- Right: saved mappings list -->
+          <div class="mappings-col">
+            <div class="panel-title" style="padding:10px 14px;flex-shrink:0;">Gespeicherte Mappings</div>
+            <div class="mappings-list" id="mappings-list">
+              <div style="color:var(--muted);font-size:12px;padding:4px">Noch keine gespeichert</div>
+            </div>
+            <div style="padding:10px;">
+              <button class="secondary" style="width:100%;font-size:11px;" onclick="loadMappingsList()">Aktualisieren</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Downloader Tab -->
+    <div class="tab-content" id="tab-downloader">
+      <div class="dl-panel">
+
+        <div class="info-note">
+          <strong>Unterstützt:</strong> YouTube (Videos &amp; Playlists), SoundCloud (Tracks &amp; Playlists), Bandcamp, Vimeo, Twitch &amp; 1000+ weitere<br>
+          <span class="no">✗ Apple Music</span> — DRM-geschützt, nicht unterstützt
+        </div>
+
+        <div class="dl-url-row">
+          <input type="text" id="dl-url" placeholder="YouTube- oder SoundCloud-URL einfügen (einzeln oder Playlist)..." />
+        </div>
+
+        <div class="fmt-row">
+          <span class="fmt-label">Format:</span>
+          <button class="fmt-btn active" onclick="setFmt('mp3', this)">MP3 (320k)</button>
+          <button class="fmt-btn" onclick="setFmt('wav', this)">WAV (lossless)</button>
+          <button class="fmt-btn" onclick="setFmt('flac', this)">FLAC (lossless)</button>
+          <button onclick="startDownload()" style="margin-left:auto;">Herunterladen</button>
+        </div>
+
+        <div class="dl-status-box" id="dl-status"></div>
+
+        <div>
+          <div class="panel-title" style="margin-bottom:8px;">Heruntergeladene Tracks</div>
+          <div id="dl-file-list" class="dl-file-list">
+            <div style="color:var(--muted);font-size:12px;padding:4px">Noch keine Downloads</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: Audio + Files -->
+  <div class="controls-panel">
+    <div class="music-info" id="music-info"></div>
+    <div class="controls-inner">
+      <div class="audio-section">
+        <div class="track-info" id="track-label">Noch kein Track generiert</div>
+        <audio id="player" controls preload="none"></audio>
+        <button class="secondary" style="font-size:11px;" onclick="downloadMidi()">MIDI herunterladen</button>
+      </div>
+      <div class="file-list-section">
+        <div class="panel-title" style="margin-bottom:6px;">Renders</div>
+        <div id="file-list"></div>
+      </div>
+      <div class="lmms-btn-wrap">
+        <button class="secondary" onclick="launchLmms()" style="font-size:11px;">LMMS starten</button>
+        <button class="secondary" onclick="openVNC()" style="font-size:11px;">GUI im Browser</button>
+        <button class="secondary" onclick="loadRenders()" style="font-size:11px;">Refresh</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VNC Overlay -->
+<div class="vnc-overlay" id="vnc-overlay">
+  <div class="vnc-box">
+    <div class="vnc-header">
+      LMMS GUI <span>via noVNC · Port 6080</span>
+      <button class="secondary" onclick="closeVNC()" style="font-size:11px;padding:4px 10px;">Schließen</button>
+    </div>
+    <iframe id="vnc-frame" src=""></iframe>
+  </div>
+</div>
+
+<script>
+let ws, currentMidi = null, currentAudio = null;
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+  ws.onopen = () => {
+    setStatus('ok', 'Verbunden');
+    loadRenders();
+  };
+
+  ws.onclose = () => {
+    setStatus('err', 'Getrennt — reconnect in 3s...');
+    setTimeout(connect, 3000);
+  };
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    handleMessage(msg);
+  };
+}
+
+function handleMessage(msg) {
+  if (msg.type === 'status') {
+    setStatus('busy', msg.message);
+    addMsg('status', msg.message);
+  } else if (msg.type === 'error') {
+    setStatus('err', 'Fehler');
+    addMsg('error', msg.message);
+    document.getElementById('send-btn').disabled = false;
+  } else if (msg.type === 'music_data') {
+    drawPianoRoll(msg.data);
+    showMusicInfo(msg.data);
+  } else if (msg.type === 'complete') {
+    setStatus('ok', 'Fertig');
+    document.getElementById('send-btn').disabled = false;
+
+    currentMidi = msg.midi;
+    currentAudio = msg.audio;
+
+    const desc = msg.music?.description || `${msg.music?.title || 'Track'} generiert`;
+    addMsg('ai', `✓ ${desc}\n\n` +
+      `MIDI: ${msg.midi}\n` +
+      (msg.audio ? `Audio: ${msg.audio}` : 'Kein Audio (FluidSynth fehlt — MIDI-Datei im Renders-Ordner)'));
+
+    if (msg.audio) {
+      const player = document.getElementById('player');
+      player.src = `/renders/${msg.audio}?t=${Date.now()}`;
+      document.getElementById('track-label').innerHTML =
+        `<strong>${msg.music?.title || 'Track'}</strong> · ${msg.music?.bpm} BPM · ${msg.music?.key} ${msg.music?.mode}`;
+      player.play().catch(() => {});
+    }
+    loadRenders();
+  } else if (msg.type === 'renders') {
+    renderFileList(msg.files);
+  }
+}
+
+function generate() {
+  const prompt = document.getElementById('prompt').value.trim();
+  if (!prompt || !ws || ws.readyState !== 1) return;
+  addMsg('user', prompt);
+  document.getElementById('prompt').value = '';
+  document.getElementById('send-btn').disabled = true;
+  setStatus('busy', 'Generiere...');
+  ws.send(JSON.stringify({ action: 'generate', prompt }));
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
+}
+
+function fillPrompt(text) {
+  document.getElementById('prompt').value = text;
+  document.getElementById('prompt').focus();
+}
+
+function addMsg(type, text) {
+  const el = document.createElement('div');
+  el.className = `msg ${type}`;
+  el.textContent = text;
+  const c = document.getElementById('messages');
+  c.appendChild(el);
+  c.scrollTop = c.scrollHeight;
+}
+
+function setStatus(state, text) {
+  const dot = document.getElementById('dot');
+  dot.className = `status-dot ${state}`;
+  document.getElementById('status-text').textContent = text;
+}
+
+// ─── Piano Roll ───
+const COLORS = ['#7c5cfc','#00d4aa','#ffd166','#ff6b9d','#06d6a0','#ef476f'];
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function drawPianoRoll(music) {
+  const canvas = document.getElementById('roll');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = canvas.offsetHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+
+  // Background grid
+  ctx.fillStyle = '#0e0e12';
+  ctx.fillRect(0, 0, W, H);
+
+  const allNotes = music.tracks.flatMap(t => t.notes.map(n => ({...n, track: t})));
+  if (!allNotes.length) return;
+
+  const minPitch = Math.max(0, Math.min(...allNotes.map(n => n.pitch)) - 2);
+  const maxPitch = Math.min(127, Math.max(...allNotes.map(n => n.pitch)) + 2);
+  const pitchRange = maxPitch - minPitch || 1;
+
+  const maxBeat = Math.max(...allNotes.map(n => n.start_beat + n.duration_beats)) + 0.5;
+  const beatW = (W - 40) / maxBeat;
+  const noteH = Math.max(4, (H - 20) / pitchRange);
+  const offsetX = 40;
+
+  // Draw beat lines
+  ctx.strokeStyle = '#1e1e28';
+  ctx.lineWidth = 1;
+  for (let b = 0; b <= maxBeat; b++) {
+    const x = offsetX + b * beatW;
+    ctx.beginPath();
+    ctx.moveTo(x, 0); ctx.lineTo(x, H);
+    ctx.stroke();
+    if (b % 4 === 0) {
+      ctx.fillStyle = '#2a2a38';
+      ctx.fillRect(x, 0, 1, H);
+      ctx.fillStyle = '#6b6b88';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(`${b/4 + 1}`, x + 2, H - 4);
+    }
+  }
+
+  // Piano keys on left
+  for (let p = minPitch; p <= maxPitch; p++) {
+    const y = H - 20 - (p - minPitch) * noteH;
+    const isBlack = [1,3,6,8,10].includes(p % 12);
+    ctx.fillStyle = isBlack ? '#1a1a24' : '#22222e';
+    ctx.fillRect(0, y - noteH, 38, noteH - 1);
+    if (p % 12 === 0) {
+      ctx.fillStyle = '#444';
+      ctx.font = '9px sans-serif';
+      ctx.fillText(`C${Math.floor(p/12)-1}`, 2, y - 2);
+    }
+  }
+
+  // Draw notes
+  music.tracks.forEach((track, ti) => {
+    const color = COLORS[ti % COLORS.length];
+    track.notes.forEach(note => {
+      const x = offsetX + note.start_beat * beatW;
+      const y = H - 20 - (note.pitch - minPitch + 1) * noteH;
+      const w = Math.max(2, note.duration_beats * beatW - 2);
+      const alpha = 0.4 + (note.velocity / 127) * 0.6;
+
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, noteH - 1, 2);
+      ctx.fill();
+
+      // Velocity indicator
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fillRect(x, y + noteH - 3, Math.max(1, (note.velocity / 127) * w), 2);
+    });
+  });
+
+  ctx.globalAlpha = 1;
+
+  // Track legend
+  music.tracks.forEach((track, ti) => {
+    const color = COLORS[ti % COLORS.length];
+    ctx.fillStyle = color;
+    ctx.fillRect(offsetX + 10 + ti * 100, 8, 10, 10);
+    ctx.fillStyle = '#e2e2f0';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(track.name, offsetX + 24 + ti * 100, 18);
+  });
+}
+
+function showMusicInfo(music) {
+  const el = document.getElementById('music-info');
+  el.innerHTML = [
+    ['Titel', music.title],
+    ['BPM', music.bpm],
+    ['Tonart', `${music.key} ${music.mode}`],
+    ['Tracks', music.tracks?.length],
+  ].map(([k,v]) => `<div class="chip">${k}: <strong>${v}</strong></div>`).join('');
+}
+
+// ─── File List ───
+function loadRenders() {
+  if (ws?.readyState === 1) ws.send(JSON.stringify({ action: 'list_renders' }));
+}
+
+function renderFileList(files) {
+  const el = document.getElementById('file-list');
+  if (!files.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:4px">Noch keine Renders</div>'; return; }
+  el.innerHTML = files.map(f => `
+    <div class="file-entry" onclick="playFile('${f.name}','${f.type}')">
+      <span class="ext ${f.type}">${f.type}</span>
+      <span class="fname">${f.name}</span>
+      <span class="fsize">${(f.size/1024).toFixed(0)}k</span>
+    </div>`).join('');
+}
+
+function playFile(name, type) {
+  if (type === 'wav' || type === 'ogg') {
+    const player = document.getElementById('player');
+    player.src = `/renders/${name}?t=${Date.now()}`;
+    document.getElementById('track-label').innerHTML = `<strong>${name}</strong>`;
+    player.play().catch(() => {});
+  }
+}
+
+function downloadMidi() {
+  if (!currentMidi) return;
+  const a = document.createElement('a');
+  a.href = `/renders/${currentMidi}`;
+  a.download = currentMidi;
+  a.click();
+}
+
+// ─── LMMS ───
+function launchLmms() {
+  fetch('/api/launch-lmms', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' })
+    .then(() => addMsg('status', 'LMMS gestartet (GUI auf dem Server)'));
+}
+
+function openVNC() {
+  document.getElementById('vnc-frame').src = `/novnc/vnc.html?host=${location.hostname}&port=6080&autoconnect=1&resize=scale`;
+  document.getElementById('vnc-overlay').classList.add('open');
+}
+
+function closeVNC() {
+  document.getElementById('vnc-overlay').classList.remove('open');
+  document.getElementById('vnc-frame').src = '';
+}
+
+// ─── Resize canvas on window resize ───
+window.addEventListener('resize', () => {
+  // Re-draw if we have data (simple: just clear)
+  const canvas = document.getElementById('roll');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0e0e12';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#2a2a38';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Generiere Musik um den Piano Roll zu sehen', canvas.offsetWidth/2, canvas.offsetHeight/2);
+  ctx.textAlign = 'left';
+});
+
+// ─── Tab switching ───
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if (name === 'downloader') loadDownloads();
+  if (name === 'midi') { initMidi(); loadMappingsList(); }
+}
+
+// ─── Downloader ───
+let dlFmt = 'mp3';
+let dlPollTimer = null;
+
+function setFmt(fmt, btn) {
+  dlFmt = fmt;
+  document.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function startDownload() {
+  const url = document.getElementById('dl-url').value.trim();
+  if (!url) { showDlStatus('Bitte URL eingeben', 'error'); return; }
+
+  showDlStatus('Startet Download...', '');
+  try {
+    const res = await fetch('/api/download/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, format: dlFmt }),
+    });
+    const data = await res.json();
+    if (data.error) { showDlStatus(data.error, 'error'); return; }
+    pollJob(data.job_id);
+  } catch (e) {
+    showDlStatus('Fehler: ' + e.message, 'error');
+  }
+}
+
+function pollJob(jobId) {
+  if (dlPollTimer) clearInterval(dlPollTimer);
+  dlPollTimer = setInterval(async () => {
+    try {
+      const res = await fetch(`/api/download/status/${jobId}`);
+      const job = await res.json();
+      const line = job.progress || '';
+
+      if (job.status === 'done') {
+        clearInterval(dlPollTimer);
+        showDlStatus('Fertig!', 'done');
+        loadDownloads();
+      } else if (job.status === 'error') {
+        clearInterval(dlPollTimer);
+        showDlStatus(job.error || 'Fehler', 'error');
+      } else {
+        showDlStatus(line, '');
+      }
+    } catch (e) {
+      clearInterval(dlPollTimer);
+      showDlStatus('Verbindungsfehler', 'error');
+    }
+  }, 800);
+}
+
+function showDlStatus(text, state) {
+  const el = document.getElementById('dl-status');
+  el.textContent = text;
+  el.className = 'dl-status-box visible' + (state ? ' ' + state : '');
+}
+
+async function loadDownloads() {
+  try {
+    const res = await fetch('/api/downloads');
+    const data = await res.json();
+    renderDlList(data.files || []);
+  } catch {}
+}
+
+const QUALITY_LABEL = {
+  'CLUB-READY': '✅ CLUB',
+  'GOOD':       '🟡 GOOD',
+  'MEDIUM':     '🟠 MED',
+  'LOW':        '❌ LOW',
+};
+
+function renderDlList(files) {
+  const el = document.getElementById('dl-file-list');
+  if (!files.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:4px">Noch keine Downloads</div>';
+    return;
+  }
+  el.innerHTML = files.map(f => {
+    const q = f.quality;
+    const badge = q && QUALITY_LABEL[q]
+      ? `<span class="quality-badge ${q}" title="${f.freq_ceiling || ''}">${QUALITY_LABEL[q]}${f.freq_ceiling ? ' · ' + f.freq_ceiling : ''}</span>`
+      : `<span class="quality-badge unknown" title="Klicken zum Analysieren" onclick="event.stopPropagation();analyzeFile('${escHtml(f.name)}', this)">? Analyse</span>`;
+    return `
+    <div class="dl-file-entry" onclick="playDl('${escHtml(f.name)}')">
+      <span class="ext ${f.type}">${f.type}</span>
+      <span class="fname">${escHtml(f.name)}</span>
+      ${badge}
+      <span class="fsize">${(f.size / 1048576).toFixed(1)} MB</span>
+      <a href="/downloads/${encodeURIComponent(f.name)}" download class="dl-btn" onclick="event.stopPropagation()">↓</a>
+    </div>`;
+  }).join('');
+}
+
+async function analyzeFile(name, badgeEl) {
+  badgeEl.textContent = '⏳ …';
+  try {
+    const res = await fetch(`/api/analyze/${encodeURIComponent(name)}`, { method: 'POST' });
+    const r = await res.json();
+    if (r.error) { badgeEl.textContent = '? Fehler'; return; }
+    const q = r.grade;
+    badgeEl.className = `quality-badge ${q}`;
+    badgeEl.title = r.ceiling_khz + ' kHz';
+    badgeEl.textContent = (QUALITY_LABEL[q] || q) + ' · ' + r.ceiling_khz + ' kHz';
+    badgeEl.onclick = null;
+  } catch { badgeEl.textContent = '? Fehler'; }
+}
+
+function playDl(name) {
+  const player = document.getElementById('player');
+  player.src = `/downloads/${encodeURIComponent(name)}?t=${Date.now()}`;
+  document.getElementById('track-label').innerHTML = `<strong>${escHtml(name)}</strong>`;
+  player.play().catch(() => {});
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── MIDI Learn ──────────────────────────────────────────────────────────────
+
+const midi = {
+  access: null,           // MIDIAccess object
+  activeInput: null,      // Current MIDIInput port
+  learning: false,        // Is learn wizard active
+  events: [],             // Internal event list from /api/midi/events
+  index: 0,               // Current step in learn wizard
+  bindings: {},           // midi_key → event_name  (live state)
+  reverseMap: {},         // event_name → midi_key  (for display)
+  lastDebounce: 0,        // Timestamp — prevents double-binding on CC sweep
+};
+
+// ─── Initialise Web MIDI API ──────────────────────────────────────────────
+let _midiInitDone = false;
+
+async function initMidi() {
+  if (_midiInitDone) { refreshMidiPorts(); return; }
+  _midiInitDone = true;
+  if (!navigator.requestMIDIAccess) {
+    setMidiStatus('error', 'Web MIDI nicht unterstützt (Chrome/Edge erforderlich)');
+    return;
+  }
+  try {
+    midi.access = await navigator.requestMIDIAccess({ sysex: false });
+    midi.access.onstatechange = () => refreshMidiPorts();
+    refreshMidiPorts();
+
+    // Fetch internal event catalog from backend
+    const res = await fetch('/api/midi/events');
+    const data = await res.json();
+    midi.events = data.all || [];
+  } catch (e) {
+    setMidiStatus('error', 'MIDI-Zugriff verweigert: ' + e.message);
+  }
+}
+
+function refreshMidiPorts() {
+  if (!midi.access) return;
+  const sel = document.getElementById('midi-port-select');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">-- Port wählen --</option>';
+  for (const [id, port] of midi.access.inputs) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = port.name;
+    if (id === prev) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  if (!prev && midi.access.inputs.size === 1) {
+    sel.selectedIndex = 1;
+    selectMidiPort(sel.value);
+  }
+}
+
+function selectMidiPort(portId) {
+  // Detach previous listener
+  if (midi.activeInput) {
+    midi.activeInput.onmidimessage = null;
+    midi.activeInput = null;
+  }
+  if (!portId || !midi.access) {
+    setMidiStatus('', 'Kein Gerät');
+    return;
+  }
+  midi.activeInput = midi.access.inputs.get(portId);
+  if (!midi.activeInput) { setMidiStatus('error', 'Port nicht gefunden'); return; }
+  midi.activeInput.onmidimessage = onMidiMessage;
+  setMidiStatus('connected', midi.activeInput.name + ' verbunden');
+}
+
+function setMidiStatus(state, text) {
+  const dot = document.getElementById('midi-dot');
+  dot.className = 'midi-status-dot' + (state ? ' ' + state : '');
+  document.getElementById('midi-status-text').textContent = text;
+}
+
+// ─── Incoming MIDI message handler ────────────────────────────────────────
+function onMidiMessage(ev) {
+  const [status, note_or_cc, data] = ev.data;
+  const channel = status & 0x0F;
+  let type = null;
+
+  if ((status & 0xF0) === 0x90 && data > 0) type = 'note';  // NoteOn
+  else if ((status & 0xF0) === 0xB0)         type = 'cc';   // CC
+
+  if (!type) return;
+
+  const key = `${type}:${channel}:${note_or_cc}`;
+
+  // Update live monitor
+  const mapped = midi.bindings[key];
+  const monEl = document.getElementById('monitor-text');
+  monEl.innerHTML = `<span style="color:var(--muted)">${key}</span>${
+    mapped ? ` → <span class="monitor-event">${mapped}</span>` : ''
+  } <span style="color:var(--muted)">= ${data}</span>`;
+
+  // Learn mode: bind the current event
+  if (midi.learning) {
+    const now = Date.now();
+    if (now - midi.lastDebounce < 120) return;  // 120ms debounce — ignore CC sweeps
+    midi.lastDebounce = now;
+    registerBinding(key);
+    return;
+  }
+
+  // EXTEND: In live (non-learn) mode, dispatch to your DJ engine here.
+  // Example:  if (mapped === 'crossfader') djEngine.setCrossfader(data / 127);
+}
+
+// ─── Learn wizard ─────────────────────────────────────────────────────────
+async function startLearn() {
+  if (!midi.activeInput) {
+    alert('Bitte zuerst einen MIDI-Port auswählen.');
+    return;
+  }
+  if (!midi.events.length) {
+    const res = await fetch('/api/midi/events');
+    const data = await res.json();
+    midi.events = data.all || [];
+  }
+  midi.learning = true;
+  midi.index = 0;
+  midi.bindings = {};
+  midi.reverseMap = {};
+
+  document.getElementById('btn-start-learn').style.display = 'none';
+  document.getElementById('btn-skip').style.display = '';
+  document.getElementById('btn-stop-learn').style.display = '';
+  document.getElementById('btn-save-mapping').style.display = 'none';
+
+  updateLearnPrompt();
+  renderBindingTable();
+}
+
+function registerBinding(midiKey) {
+  if (!midi.learning || midi.index >= midi.events.length) return;
+
+  const eventName = midi.events[midi.index];
+  // Remove any previous binding for this midi key
+  const oldEvent = midi.bindings[midiKey];
+  if (oldEvent) delete midi.reverseMap[oldEvent];
+
+  midi.bindings[midiKey] = eventName;
+  midi.reverseMap[eventName] = midiKey;
+  midi.index++;
+
+  if (midi.index >= midi.events.length) {
+    finishLearn();
+  } else {
+    updateLearnPrompt();
+    renderBindingTable();
+  }
+}
+
+function skipLearn() {
+  if (!midi.learning) return;
+  midi.index++;
+  if (midi.index >= midi.events.length) {
+    finishLearn();
+  } else {
+    updateLearnPrompt();
+  }
+}
+
+function stopLearn() {
+  midi.learning = false;
+  document.getElementById('learn-prompt-box').classList.remove('active');
+  document.getElementById('btn-start-learn').style.display = '';
+  document.getElementById('btn-skip').style.display = 'none';
+  document.getElementById('btn-stop-learn').style.display = 'none';
+  if (Object.keys(midi.bindings).length > 0) {
+    document.getElementById('btn-save-mapping').style.display = '';
+  }
+}
+
+function finishLearn() {
+  midi.learning = false;
+  document.getElementById('learn-prompt-box').classList.remove('active');
+  document.getElementById('btn-start-learn').style.display = '';
+  document.getElementById('btn-skip').style.display = 'none';
+  document.getElementById('btn-stop-learn').style.display = 'none';
+  document.getElementById('btn-save-mapping').style.display = '';
+  renderBindingTable();
+}
+
+function updateLearnPrompt() {
+  const box = document.getElementById('learn-prompt-box');
+  box.classList.add('active');
+  const total = midi.events.length;
+  const current = midi.index;
+  const pct = total ? (current / total * 100) : 0;
+
+  document.getElementById('learn-step-label').textContent =
+    `Schritt ${current + 1} / ${total}`;
+  document.getElementById('learn-event-name').textContent =
+    midi.events[current] || '—';
+  document.getElementById('learn-progress').style.width = pct + '%';
+}
+
+function renderBindingTable() {
+  const el = document.getElementById('binding-list');
+  const bound = Object.keys(midi.bindings).length;
+
+  if (!bound && !midi.learning) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:4px 8px">Noch keine Zuordnungen</div>';
+    return;
+  }
+
+  // Show all events; bound ones show their key, unbound ones show placeholder
+  const rows = midi.events.map(eventName => {
+    const key = midi.reverseMap[eventName];
+    if (key) {
+      return `<div class="binding-row">
+        <span class="binding-event">${eventName}</span>
+        <span class="binding-arrow">←</span>
+        <span class="binding-key">${key}</span>
+      </div>`;
+    }
+    return `<div class="binding-row">
+      <span class="binding-event" style="color:var(--muted)">${eventName}</span>
+      <span class="binding-arrow">←</span>
+      <span class="binding-empty">nicht gebunden</span>
+    </div>`;
+  });
+  el.innerHTML = rows.join('');
+}
+
+// ─── Save / Load mappings ─────────────────────────────────────────────────
+async function saveMapping() {
+  const ctrlName = document.getElementById('ctrl-name').value.trim() || 'Unknown Controller';
+  let filename = document.getElementById('mapping-filename').value.trim();
+  if (!filename) {
+    filename = 'config_' + ctrlName.toLowerCase().replace(/\s+/g, '_') + '.json';
+    document.getElementById('mapping-filename').value = filename;
+  }
+  if (!filename.endsWith('.json')) filename += '.json';
+
+  const body = {
+    filename,
+    controller_name: ctrlName,
+    created: new Date().toISOString(),
+    mappings: midi.bindings,
+  };
+
+  try {
+    const res = await fetch('/api/midi/mappings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (data.error) { alert('Fehler: ' + data.error); return; }
+    document.getElementById('monitor-text').innerHTML =
+      `<span class="monitor-event">✓ Gespeichert: ${data.saved}</span>`;
+    loadMappingsList();
+  } catch (e) {
+    alert('Fehler beim Speichern: ' + e.message);
+  }
+}
+
+async function loadMappingsList() {
+  try {
+    const res = await fetch('/api/midi/mappings');
+    const data = await res.json();
+    renderMappingsList(data.mappings || []);
+  } catch {}
+}
+
+function renderMappingsList(names) {
+  const el = document.getElementById('mappings-list');
+  if (!names.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:4px">Noch keine gespeichert</div>';
+    return;
+  }
+  el.innerHTML = names.map(name => `
+    <div class="mapping-entry" onclick="loadMappingFile('${escHtml(name)}')">
+      <span class="mname" title="${escHtml(name)}">${escHtml(name)}</span>
+      <button class="mdel" title="Löschen" onclick="event.stopPropagation();deleteMappingFile('${escHtml(name)}')">×</button>
+    </div>`).join('');
+}
+
+async function loadMappingFile(filename) {
+  try {
+    const res = await fetch(`/api/midi/mappings/${encodeURIComponent(filename)}`);
+    const data = await res.json();
+    if (data.error) { alert('Fehler: ' + data.error); return; }
+
+    midi.bindings = data.mappings || {};
+    midi.reverseMap = {};
+    for (const [k, v] of Object.entries(midi.bindings)) midi.reverseMap[v] = k;
+
+    document.getElementById('ctrl-name').value = data.controller_name || '';
+    document.getElementById('mapping-filename').value = filename;
+    document.getElementById('btn-save-mapping').style.display = '';
+    renderBindingTable();
+    document.getElementById('monitor-text').innerHTML =
+      `<span class="monitor-event">✓ Geladen: ${escHtml(filename)}</span>`;
+  } catch (e) {
+    alert('Fehler beim Laden: ' + e.message);
+  }
+}
+
+async function deleteMappingFile(filename) {
+  if (!confirm(`Mapping "${filename}" löschen?`)) return;
+  try {
+    await fetch(`/api/midi/mappings/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+    loadMappingsList();
+  } catch {}
+}
+
+// ─── Init ───
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('roll');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  ctx.fillStyle = '#0e0e12';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#2a2a38';
+  ctx.font = '14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Piano Roll erscheint nach der ersten Generierung', canvas.offsetWidth/2, canvas.offsetHeight/2);
+  ctx.textAlign = 'left';
+  connect();
+});
+</script>
+</body>
+</html>
