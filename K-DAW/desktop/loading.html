@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0e0e12;
+    color: #e2e2f0;
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 24px;
+    user-select: none;
+    -webkit-app-region: drag;
+  }
+  .logo {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .logo span { color: #7c5cfc; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid rgba(124,92,252,0.2);
+    border-top-color: #7c5cfc;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sub {
+    font-size: 13px;
+    color: #6b6b88;
+  }
+</style>
+</head>
+<body>
+  <div class="logo">KI<span>DAW</span></div>
+  <div class="spinner"></div>
+  <div class="sub">Starting server…</div>
+</body>
+</html>

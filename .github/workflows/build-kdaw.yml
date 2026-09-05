@@ -1,0 +1,87 @@
+name: Build K-DAW
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      upload_release:
+        description: 'Upload to GitHub Release'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: build-kdaw-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-kdaw:
+    name: K-DAW (${{ matrix.name }})
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            runner: macos-latest
+            platform: mac
+            eb_args: --mac dmg
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Python: bundle backend with PyInstaller ────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python deps
+        run: |
+          pip install pyinstaller
+          pip install -r K-DAW/requirements.txt
+        # librosa / numpy optional — skip silently if they fail
+        # (analyze_quality.py is excluded from the frozen build)
+
+      - name: Build Python server binary
+        run: |
+          cd K-DAW/backend
+          pyinstaller server.spec \
+            --distpath dist \
+            --workpath build \
+            --noconfirm
+
+      # ── Node: build Electron DMG ───────────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Electron deps
+        run: npm ci
+        working-directory: K-DAW/desktop
+
+      - name: Build DMG
+        run: npx electron-builder ${{ matrix.eb_args }} --publish never
+        working-directory: K-DAW/desktop
+
+      # ── Upload artifact ────────────────────────────────────────────────────
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdaw-${{ matrix.platform }}
+          path: |
+            K-DAW/desktop/release/**/*.dmg
+            K-DAW/desktop/release/**/*.AppImage
+          if-no-files-found: warn
+          retention-days: 7
+
+      # ── Publish to GitHub Release (tags only) ─────────────────────────────
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          find K-DAW/desktop/release -maxdepth 2 \( -name "*.dmg" -o -name "*.AppImage" \) \
+            -print0 | xargs -0 gh release upload "${{ github.ref_name }}" --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

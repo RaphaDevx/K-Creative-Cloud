@@ -197,6 +197,68 @@
     color: var(--t3);
   }
 
+  /* ── K-DAW product card ── */
+  .product-divider {
+    width: 100%;
+    max-width: 800px;
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 72px 0 0;
+  }
+  .product-card {
+    width: 100%;
+    max-width: 800px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 48px;
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .product-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--acc3);
+    background: rgba(96,165,250,.1);
+    border: 1px solid rgba(96,165,250,.25);
+    border-radius: 99px;
+    padding: 4px 14px;
+  }
+  .product-card h2 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+  .product-card h2 span { color: var(--acc3); }
+  .product-card p {
+    font-size: 15px;
+    color: var(--t2);
+    text-align: center;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+  .kdaw-features {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--t2);
+  }
+  .kdaw-feat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kdaw-feat::before { content: '✦'; color: var(--acc3); font-size: 10px; }
+
   /* Features grid */
   .features {
     display: grid;
@@ -338,6 +400,49 @@
     </div>
   </div>
 
+  <!-- ── K-DAW Product Card ── -->
+  <hr class="product-divider">
+
+  <div class="product-card">
+    <div class="product-tag">Part of K-Creative Suite</div>
+    <h2>K-<span>DAW</span></h2>
+    <p>AI-powered music production and DJ app. Generate full tracks from text prompts, learn any MIDI controller in seconds, and mix with a live interface — all in one window.</p>
+
+    <div class="kdaw-features">
+      <span class="kdaw-feat">Claude AI Music Generator</span>
+      <span class="kdaw-feat">MIDI-Learn (any controller)</span>
+      <span class="kdaw-feat">DJ Live Interface</span>
+      <span class="kdaw-feat">Piano Roll</span>
+      <span class="kdaw-feat">Track Downloader</span>
+    </div>
+
+    <div class="download-group" style="margin-top:4px;">
+      <a id="kdaw-btn-mac" href="#" class="btn-primary"
+         style="background:linear-gradient(135deg,#2563eb,#60a5fa);box-shadow:0 0 40px rgba(96,165,250,.35),0 4px 20px rgba(0,0,0,.4);opacity:.5;pointer-events:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+        Download K-DAW for macOS
+      </a>
+      <span id="kdaw-version-note" class="version-note">Fetching…</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <a href="https://github.com/RaphaDevx/K-Creative-Cloud/tree/main/K-DAW" class="btn-secondary" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+          </svg>
+          Run from source (Python)
+        </a>
+        <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="btn-secondary" target="_blank">
+          All releases
+        </a>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:var(--t3);text-align:center;line-height:1.6;">
+      Requires macOS 12+ · Python 3.11 bundled · Port 9879 · ANTHROPIC_API_KEY for AI features
+    </div>
+  </div>
+
   <div class="features">
     <div class="feature">
       <div class="feature-icon">🎛</div>
@@ -430,9 +535,29 @@
     // Badge
     document.getElementById('badge-version').textContent = `${tag} — Now Available`;
 
+    // ── K-DAW assets (same release, prefixed "K-DAW") ────────────────────────
+    const kdawDmgArm = find('K-DAW-arm64.dmg') || find('K-DAW arm64.dmg');
+    const kdawDmgX64 = find('K-DAW-x64.dmg')  || find('K-DAW.dmg');
+    const kdawUrl    = kdawDmgArm || kdawDmgX64;
+
+    if (kdawUrl) {
+      const btn = document.getElementById('kdaw-btn-mac');
+      btn.href = kdawUrl;
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      const arch = kdawDmgArm && kdawDmgX64 ? 'Intel & Apple Silicon'
+                 : kdawDmgArm ? 'Apple Silicon' : 'Intel x64';
+      document.getElementById('kdaw-version-note').textContent =
+        `${tag} · macOS 12+ · ${arch}`;
+    } else {
+      document.getElementById('kdaw-version-note').textContent =
+        'Not yet in this release — run from source';
+    }
+
   } catch (e) {
     document.getElementById('badge-version').textContent = 'Latest Release';
     document.getElementById('version-note').textContent = 'See GitHub for downloads';
+    document.getElementById('kdaw-version-note').textContent = 'See GitHub for downloads';
   }
 })();
 </script>
