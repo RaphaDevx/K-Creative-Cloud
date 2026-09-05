@@ -1,7 +1,7 @@
 {
   "_version": 1,
   "_updated": "2026-09-05",
-  "_latest_release": "v0.2.1",
+  "_latest_release": "v0.2.2",
   "_rollout_pct": 100,
   "update_channel": "stable",
   "kiosk_mode_default": false,
