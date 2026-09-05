@@ -417,13 +417,22 @@
     </div>
 
     <div class="download-group" style="margin-top:4px;">
-      <a id="kdaw-btn-mac" href="#" class="btn-primary"
-         style="background:linear-gradient(135deg,#2563eb,#60a5fa);box-shadow:0 0 40px rgba(96,165,250,.35),0 4px 20px rgba(0,0,0,.4);opacity:.5;pointer-events:none">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-        </svg>
-        Download K-DAW for macOS
-      </a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <a id="kdaw-btn-arm64" href="#" class="btn-primary"
+           style="background:linear-gradient(135deg,#2563eb,#60a5fa);box-shadow:0 0 40px rgba(96,165,250,.35),0 4px 20px rgba(0,0,0,.4);opacity:.5;pointer-events:none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Apple Silicon (M1–M4)
+        </a>
+        <a id="kdaw-btn-x64" href="#" class="btn-secondary"
+           style="opacity:.5;pointer-events:none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Intel Mac (x64)
+        </a>
+      </div>
       <span id="kdaw-version-note" class="version-note">Fetching…</span>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
         <a href="https://github.com/RaphaDevx/K-Creative-Cloud/tree/main/K-DAW" class="btn-secondary" target="_blank">
@@ -536,23 +545,21 @@
     document.getElementById('badge-version').textContent = `${tag} — Now Available`;
 
     // ── K-DAW assets (same release, prefixed "K-DAW") ────────────────────────
-    const kdawDmgArm = find('K-DAW-arm64.dmg') || find('K-DAW arm64.dmg');
-    const kdawDmgX64 = find('K-DAW-x64.dmg')  || find('K-DAW.dmg');
-    const kdawUrl    = kdawDmgArm || kdawDmgX64;
+    const kdawDmgArm = assets.find(a => a.name.startsWith('K-DAW') && a.name.includes('arm64') && a.name.endsWith('.dmg'))?.browser_download_url;
+    const kdawDmgX64 = assets.find(a => a.name.startsWith('K-DAW') && (a.name.includes('x64') || a.name.includes('x86_64')) && a.name.endsWith('.dmg'))?.browser_download_url;
 
-    if (kdawUrl) {
-      const btn = document.getElementById('kdaw-btn-mac');
-      btn.href = kdawUrl;
-      btn.style.opacity = '1';
-      btn.style.pointerEvents = 'auto';
-      const arch = kdawDmgArm && kdawDmgX64 ? 'Intel & Apple Silicon'
-                 : kdawDmgArm ? 'Apple Silicon' : 'Intel x64';
-      document.getElementById('kdaw-version-note').textContent =
-        `${tag} · macOS 12+ · ${arch}`;
-    } else {
-      document.getElementById('kdaw-version-note').textContent =
-        'Not yet in this release — run from source';
-    }
+    const enableBtn = (id, url) => {
+      const btn = document.getElementById(id);
+      btn.href = url; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+    };
+    if (kdawDmgArm) enableBtn('kdaw-btn-arm64', kdawDmgArm);
+    if (kdawDmgX64) enableBtn('kdaw-btn-x64', kdawDmgX64);
+
+    const archLabel = kdawDmgArm && kdawDmgX64 ? 'Apple Silicon + Intel'
+                    : kdawDmgArm ? 'Apple Silicon' : kdawDmgX64 ? 'Intel x64' : null;
+    document.getElementById('kdaw-version-note').textContent = archLabel
+      ? `${tag} · macOS 12+ · ${archLabel}`
+      : 'Not yet in this release — run from source';
 
   } catch (e) {
     document.getElementById('badge-version').textContent = 'Latest Release';

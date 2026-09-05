@@ -114,8 +114,9 @@ function checkForUpdates(win) {
         const current = app.getVersion();
         if (!latest || latest === current) return;
 
+        const archTag  = process.arch === 'arm64' ? 'arm64' : 'x64';
         const dmgAsset = (release.assets || []).find(
-          a => a.name.startsWith('K-DAW') && a.name.includes('arm64') && a.name.endsWith('.dmg')
+          a => a.name.startsWith('K-DAW') && a.name.includes(archTag) && a.name.endsWith('.dmg')
         );
         const downloadUrl = dmgAsset
           ? dmgAsset.browser_download_url

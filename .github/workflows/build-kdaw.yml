@@ -25,10 +25,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
+          - name: macOS (Apple Silicon)
             runner: macos-latest
-            platform: mac
-            eb_args: --mac dmg
+            platform: mac-arm64
+            eb_args: --mac dmg --arm64
+          - name: macOS (Intel)
+            runner: macos-13
+            platform: mac-x64
+            eb_args: --mac dmg --x64
 
     steps:
       - uses: actions/checkout@v4
