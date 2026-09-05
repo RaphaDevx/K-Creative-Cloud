@@ -76,10 +76,21 @@ jobs:
           retention-days: 7
 
       # ── Publish to GitHub Release (tags only) ─────────────────────────────
+      # Wartet bis das Release existiert (parallel Build & Release Workflow
+      # erstellt es) — max 5 min, dann selbst anlegen als Fallback.
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          find K-DAW/desktop/release -maxdepth 2 \( -name "*.dmg" -o -name "*.AppImage" \) \
-            -print0 | xargs -0 gh release upload "${{ github.ref_name }}" --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in $(seq 1 30); do
+            gh release view "${{ github.ref_name }}" > /dev/null 2>&1 && break
+            echo "Release noch nicht da, warte 10s... ($i/30)"
+            sleep 10
+          done
+          gh release view "${{ github.ref_name }}" > /dev/null 2>&1 || \
+            gh release create "${{ github.ref_name }}" \
+              --title "K-Creative Studio ${{ github.ref_name }}" \
+              --generate-notes
+          find K-DAW/desktop/release -maxdepth 2 \( -name "*.dmg" -o -name "*.AppImage" \) \
+            -print0 | xargs -0 gh release upload "${{ github.ref_name }}" --clobber
