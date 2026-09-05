@@ -60,6 +60,13 @@ jobs:
         run: npm ci
         working-directory: K-DAW/desktop
 
+      - name: Sync version from git tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${{ github.ref_name }}"
+          npm version "${TAG#v}" --no-git-tag-version --allow-same-version
+        working-directory: K-DAW/desktop
+
       - name: Build DMG
         run: npx electron-builder ${{ matrix.eb_args }} --publish never
         working-directory: K-DAW/desktop

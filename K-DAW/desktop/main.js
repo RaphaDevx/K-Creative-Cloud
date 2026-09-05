@@ -92,12 +92,60 @@ async function createWindow() {
   });
 
   mainWindow.on('closed', () => { mainWindow = null; });
+  return mainWindow;
+}
+
+// ── OTA update check ──────────────────────────────────────────────────────────
+function checkForUpdates(win) {
+  const { net } = require('electron');
+  const req = net.request({
+    method: 'GET',
+    url: 'https://api.github.com/repos/RaphaDevx/K-Creative-Cloud/releases/latest',
+    headers: { 'User-Agent': 'K-DAW' },
+  });
+
+  req.on('response', res => {
+    let body = '';
+    res.on('data', chunk => { body += chunk; });
+    res.on('end', () => {
+      try {
+        const release = JSON.parse(body);
+        const latest  = (release.tag_name || '').replace(/^v/, '');
+        const current = app.getVersion();
+        if (!latest || latest === current) return;
+
+        const dmgAsset = (release.assets || []).find(
+          a => a.name.startsWith('K-DAW') && a.name.includes('arm64') && a.name.endsWith('.dmg')
+        );
+        const downloadUrl = dmgAsset
+          ? dmgAsset.browser_download_url
+          : release.html_url;
+
+        dialog.showMessageBox(win, {
+          type: 'info',
+          title: 'Update available',
+          message: `K-DAW ${latest} is available`,
+          detail: `You are running v${current}. Do you want to download the update?`,
+          buttons: ['Download', 'Later'],
+          defaultId: 0,
+          cancelId: 1,
+        }).then(({ response }) => {
+          if (response === 0) shell.openExternal(downloadUrl);
+        });
+      } catch (_) {}
+    });
+  });
+
+  req.on('error', () => {});
+  req.end();
 }
 
 // ── App lifecycle ──────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   startServer();
-  createWindow();
+  createWindow().then(() => {
+    if (mainWindow) setTimeout(() => checkForUpdates(mainWindow), 3000);
+  });
 
   app.on('activate', () => {
     if (!mainWindow) createWindow();
