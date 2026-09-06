@@ -1,14 +1,12 @@
 name: Build K-DAW
 
 on:
-  push:
-    tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
       upload_release:
         description: 'Upload to GitHub Release'
         required: false
-        default: 'false'
+        default: 'true'
 
 concurrency:
   group: build-kdaw-${{ github.ref }}
