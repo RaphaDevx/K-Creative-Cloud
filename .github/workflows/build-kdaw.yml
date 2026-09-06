@@ -71,9 +71,33 @@ jobs:
           npm version "${TAG#v}" --no-git-tag-version --allow-same-version
         working-directory: K-DAW/desktop
 
+      # ── Import Developer ID certificate ───────────────────────────────────
+      - name: Import macOS signing certificate
+        if: env.MAC_CERTS != ''
+        env:
+          MAC_CERTS: ${{ secrets.MAC_CERTS }}
+          MAC_CERTS_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+        run: |
+          KEYCHAIN=kdaw-build.keychain
+          KEYCHAIN_PASS="kdaw-keychain-pw"
+          security create-keychain -p "$KEYCHAIN_PASS" $KEYCHAIN
+          security set-keychain-settings -lut 21600 $KEYCHAIN
+          security unlock-keychain -p "$KEYCHAIN_PASS" $KEYCHAIN
+          echo "$MAC_CERTS" | base64 --decode > cert.p12
+          security import cert.p12 -k $KEYCHAIN -P "$MAC_CERTS_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASS" $KEYCHAIN
+          security list-keychains -d user -s $KEYCHAIN ~/Library/Keychains/login.keychain-db
+          rm cert.p12
+
       - name: Build DMG
         run: npx electron-builder ${{ matrix.eb_args }} --publish never
         working-directory: K-DAW/desktop
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       # ── Upload artifact ────────────────────────────────────────────────────
       - name: Upload build artifact

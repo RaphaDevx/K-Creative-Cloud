@@ -11,7 +11,8 @@
   },
   "devDependencies": {
     "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "@electron/notarize": "^2.5.0"
   },
   "build": {
     "appId": "io.k-creative.kdaw",
@@ -33,8 +34,11 @@
       ],
       "icon": "build/icon.icns",
       "category": "public.app-category.music",
-      "hardenedRuntime": false,
-      "gatekeeperAssess": false
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "afterSign": "scripts/notarize.js"
     },
     "dmg": {
       "title": "K-DAW ${version}",
