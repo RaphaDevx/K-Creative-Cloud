@@ -18,6 +18,7 @@
     "appId": "io.k-creative.kdaw",
     "productName": "K-DAW",
     "copyright": "Copyright © 2026 RaphaDevx",
+    "afterSign": "scripts/notarize.js",
     "directories": {
       "output": "release"
     },
@@ -37,8 +38,7 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "entitlements.mac.plist",
-      "entitlementsInherit": "entitlements.mac.plist",
-      "afterSign": "scripts/notarize.js"
+      "entitlementsInherit": "entitlements.mac.plist"
     },
     "dmg": {
       "title": "K-DAW ${version}",
