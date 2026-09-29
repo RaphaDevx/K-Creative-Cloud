@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TI-30X Pro &mdash; Bedienungsanleitung</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #161920;
+  color: #dde4f4;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+h1 {
+  color: #f0f0f0;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.subtitle {
+  color: #909090;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+
+h2 {
+  color: #8aacf0;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #252b38;
+  padding-bottom: 6px;
+  margin: 32px 0 14px;
+}
+
+h3 {
+  color: #c0d0f0;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 18px 0 8px;
+}
+
+p { margin: 8px 0; color: #c8d0e8; }
+
+ul, ol { padding-left: 20px; margin: 8px 0; color: #c8d0e8; }
+li { margin: 4px 0; }
+
+.card {
+  background: #1e2230;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+  border-left: 3px solid #3560b8;
+}
+
+.card-warn {
+  border-left-color: #c08030;
+  background: #201c14;
+}
+
+.card-tip {
+  border-left-color: #4a8a30;
+  background: #141e10;
+}
+
+.keys {
+  display: inline-block;
+  font-family: monospace;
+  background: #252b38;
+  padding: 2px 7px;
+  border-radius: 3px;
+  color: #f0d878;
+  font-size: 12px;
+  border: 1px solid #3560b8;
+}
+
+.tip {
+  background: #1a2810;
+  border-left: 3px solid #4a8a30;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin: 10px 0;
+  color: #a8d090;
+  font-size: 13px;
+}
+
+.warn {
+  background: #201810;
+  border-left: 3px solid #c08030;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin: 10px 0;
+  color: #e0b060;
+  font-size: 13px;
+}
+
+.step-list { margin: 10px 0; }
+.step {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0;
+  align-items: flex-start;
+}
+.step-num {
+  background: #3560b8;
+  color: white;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-text { color: #c8d0e8; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+}
+th {
+  background: #252b38;
+  color: #8aacf0;
+  padding: 9px 10px;
+  text-align: left;
+  font-weight: 600;
+}
+td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #1e2230;
+  color: #c8d0e8;
+  vertical-align: top;
+}
+tr:hover td { background: #1e2230; }
+
+code {
+  background: #252b38;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #f0d878;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.code-block {
+  background: #131620;
+  border: 1px solid #252b38;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #a8d4a8;
+  margin: 10px 0;
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.badge {
+  display: inline-block;
+  background: #3560b8;
+  color: #dde4f4;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.toc {
+  background: #1a1e2a;
+  border: 1px solid #252b38;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+}
+.toc h3 { margin-top: 0; margin-bottom: 10px; }
+.toc ol { padding-left: 18px; }
+.toc li { margin: 4px 0; }
+.toc a { color: #8aacf0; text-decoration: none; font-size: 13px; }
+.toc a:hover { color: #b0c8ff; text-decoration: underline; }
+
+hr {
+  border: none;
+  border-top: 1px solid #252b38;
+  margin: 36px 0;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .two-col { grid-template-columns: 1fr; }
+  body { padding: 16px 14px 40px; }
+}
+
+.section-anchor { scroll-margin-top: 20px; }
+
+.highlight { color: #f0d878; font-weight: 600; }
+.green { color: #7ad070; }
+.orange { color: #e0a050; }
+.red { color: #e07060; }
+</style>
+</head>
+<body>
+
+<h1>TI-30X Pro MathPrint</h1>
+<p class="subtitle">Vollst&auml;ndige Bedienungsanleitung &mdash; Stand 2026 &bull; Alle Funktionen erkl&auml;rt</p>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h3>Inhaltsverzeichnis</h3>
+  <ol>
+    <li><a href="#ueberblick">Was kann dieser Rechner?</a></li>
+    <li><a href="#erste-schritte">Erste Schritte</a></li>
+    <li><a href="#basis">Basis-Operationen</a></li>
+    <li><a href="#brueche">Br&uuml;che (Fractions)</a></li>
+    <li><a href="#potenzen">Potenzen und Wurzeln</a></li>
+    <li><a href="#trig">Trigonometrie</a></li>
+    <li><a href="#log">Logarithmen</a></li>
+    <li><a href="#statistik">Statistik &mdash; Data + Stat-Reg/Distr</a></li>
+    <li><a href="#gleichungen">Gleichungen l&ouml;sen</a></li>
+    <li><a href="#matrizen">Matrizen</a></li>
+    <li><a href="#konstanten">Physikalische Konstanten</a></li>
+    <li><a href="#einheiten">Einheitenumrechnung</a></li>
+    <li><a href="#basen">Zahlensysteme (Base-N)</a></li>
+    <li><a href="#optimierung">Optimierungstipps f&uuml;r Pr&uuml;fungen</a></li>
+    <li><a href="#fehler">H&auml;ufige Fehler und L&ouml;sungen</a></li>
+  </ol>
+</div>
+
+<!-- ─── 1. ÜBERBLICK ─────────────────────────────────────────────────────── -->
+<h2 id="ueberblick" class="section-anchor">1. Was kann dieser Rechner?</h2>
+
+<p>Der TI-30X Pro MathPrint ist ein wissenschaftlicher Taschenrechner mit einem breiten Funktionsspektrum f&uuml;r Studium und Pr&uuml;fungen.</p>
+
+<div class="two-col">
+  <div class="card">
+    <h3>Kernfunktionen</h3>
+    <ul>
+      <li>Arithmetik, Potenzen, Wurzeln</li>
+      <li>Trigonometrie inkl. Hyperbolische Funktionen</li>
+      <li>Logarithmen (ln, log, log<sub>B</sub>)</li>
+      <li>Statistik: 1-Var &amp; 2-Var, LinReg</li>
+      <li>Normalverteilung: normalcdf, invNorm</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Solver &amp; Extras</h3>
+    <ul>
+      <li>Numerischer Gleichungsl&ouml;ser (NumSolv)</li>
+      <li>Polynom-Solver bis Grad 4 (PolySolv)</li>
+      <li>Gleichungssystem-Solver 2&times;2/3&times;3 (SysSolv)</li>
+      <li>Matrizen A, B, C (2&times;2, 3&times;3)</li>
+      <li>Vektoren (3D), Base-N, Einheitenumrechnung</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ─── 2. ERSTE SCHRITTE ─────────────────────────────────────────────────── -->
+<h2 id="erste-schritte" class="section-anchor">2. Erste Schritte</h2>
+
+<table>
+  <tr><th>Aktion</th><th>Tastendruck</th><th>Hinweis</th></tr>
+  <tr><td>Einschalten</td><td><span class="keys">on</span></td><td>Startet mit leerem Bildschirm</td></tr>
+  <tr><td>Ausschalten</td><td><span class="keys">2nd</span> + <span class="keys">on</span></td><td>Speicher bleibt erhalten</td></tr>
+  <tr><td>Winkelmode wechseln</td><td><span class="keys">mode</span></td><td>DEG &rarr; RAD &rarr; GRAD &rarr; DEG</td></tr>
+  <tr><td>Bildschirm l&ouml;schen</td><td><span class="keys">clear</span></td><td>2&times; dr&uuml;cken = History l&ouml;schen</td></tr>
+  <tr><td>Letzte Eingabe</td><td><span class="keys">&#9650;</span> (oben)</td><td>Durch History bl&auml;ttern</td></tr>
+  <tr><td>Antwort wiederverwenden</td><td><span class="keys">(&#x2212;)</span> dann 2nd</td><td>F&uuml;gt &ldquo;ans&rdquo; ein</td></tr>
+  <tr><td>Zeichen l&ouml;schen</td><td><span class="keys">del</span></td><td>Backspace-Funktion</td></tr>
+  <tr><td>2nd-Modus</td><td><span class="keys">2nd</span></td><td>Gelbe Labels &uuml;ber Tasten werden aktiv</td></tr>
+</table>
+
+<div class="tip">Tipp: Das &ldquo;2ND&rdquo; oben links im Display leuchtet auf, wenn der 2nd-Modus aktiv ist. Jede n&auml;chste Taste verwendet dann ihre Zweitfunktion.</div>
+
+<!-- ─── 3. BASIS ───────────────────────────────────────────────────────────── -->
+<h2 id="basis" class="section-anchor">3. Basis-Operationen</h2>
+
+<table>
+  <tr><th>Operation</th><th>Tastendruck</th><th>Beispiel</th><th>Ergebnis</th></tr>
+  <tr><td>Addition</td><td><span class="keys">+</span></td><td><code>3+4</code></td><td>7</td></tr>
+  <tr><td>Subtraktion</td><td><span class="keys">&minus;</span></td><td><code>10&minus;3</code></td><td>7</td></tr>
+  <tr><td>Multiplikation</td><td><span class="keys">&times;</span></td><td><code>6&times;7</code></td><td>42</td></tr>
+  <tr><td>Division</td><td><span class="keys">&divide;</span></td><td><code>15&divide;4</code></td><td>3.75</td></tr>
+  <tr><td>Negatives Vorzeichen</td><td><span class="keys">(&minus;)</span></td><td><code>(&minus;)5+3</code></td><td>&minus;2</td></tr>
+  <tr><td>Klammern</td><td><span class="keys">(</span> / <span class="keys">2nd</span>+<span class="keys">(</span></td><td><code>(2+3)&times;4</code></td><td>20</td></tr>
+  <tr><td>Potenz</td><td><span class="keys">^</span></td><td><code>2^10</code></td><td>1024</td></tr>
+  <tr><td>Quadrat</td><td><span class="keys">2nd</span>+<span class="keys">&harr;=</span></td><td><code>5^2</code></td><td>25</td></tr>
+  <tr><td>Fakult&auml;t</td><td>(Tastatur <code>!</code> oder in Math-Men&uuml;)</td><td><code>5!</code></td><td>120</td></tr>
+  <tr><td>Dezimal&harr;Bruch</td><td><span class="keys">f&harr;d</span></td><td>0.75 &rarr;</td><td>3/4</td></tr>
+  <tr><td>Prozent</td><td><span class="keys">2nd</span>+<span class="keys">clear</span></td><td><code>200/100</code></td><td>(Teilt durch 100)</td></tr>
+</table>
+
+<!-- ─── 4. BRÜCHE ─────────────────────────────────────────────────────────── -->
+<h2 id="brueche" class="section-anchor">4. Br&uuml;che (Fractions)</h2>
+
+<div class="card">
+  <h3>Beispiel: 3/4 + 1/2</h3>
+  <div class="step-list">
+    <div class="step"><div class="step-num">1</div><div class="step-text">Dr&uuml;cke <span class="keys">&square;/&square;</span> &rarr; Bruch-Eingabemodus</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">Tippe <code>3</code> (Z&auml;hler)</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">Dr&uuml;cke <span class="keys">&darr;</span> um zum Nenner zu springen</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-text">Tippe <code>4</code> (Nenner)</div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-text">Dr&uuml;cke <span class="keys">+</span>, dann <code>1/2</code> analog</div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-text">Dr&uuml;cke <span class="keys">enter</span> &rarr; Ergebnis: <strong>5/4</strong> oder <strong>1.25</strong></div></div>
+  </div>
+</div>
+
+<table>
+  <tr><th>Taste</th><th>Funktion</th></tr>
+  <tr><td><span class="keys">&square;/&square;</span></td><td>Bruch eingeben (Z&auml;hler/Nenner)</td></tr>
+  <tr><td><span class="keys">2nd</span>+<span class="keys">&square;/&square;</span></td><td>n-te Wurzel: <code>nthRoot(n, x)</code></td></tr>
+  <tr><td><span class="keys">f&harr;d</span></td><td>Ergebnis zwischen Bruch &harr; Dezimal umschalten</td></tr>
+  <tr><td><span class="keys">&harr;=</span></td><td>Auch f&harr;d (alternative Taste)</td></tr>
+</table>
+
+<!-- ─── 5. POTENZEN & WURZELN ─────────────────────────────────────────────── -->
+<h2 id="potenzen" class="section-anchor">5. Potenzen und Wurzeln</h2>
+
+<table>
+  <tr><th>Funktion</th><th>Eingabe</th><th>Beispiel</th><th>Ergebnis</th></tr>
+  <tr><td>Quadrat x&sup2;</td><td><span class="keys">2nd</span>+<span class="keys">&harr;=</span></td><td><code>5^2</code></td><td>25</td></tr>
+  <tr><td>Beliebige Potenz</td><td><span class="keys">^</span></td><td><code>2^10</code></td><td>1024</td></tr>
+  <tr><td>e<sup>x</sup></td><td><span class="keys">e<sup>x</sup></span> (1. Druck)</td><td><code>e^(1)</code></td><td>2.718281828</td></tr>
+  <tr><td>10<sup>x</sup></td><td><span class="keys">e<sup>x</sup></span> (2. Druck)</td><td><code>10^(3)</code></td><td>1000</td></tr>
+  <tr><td>Quadratwurzel &radic;</td><td>&radic; (im Math-Men&uuml; oder Tastatur)</td><td><code>&radic;(16)</code></td><td>4</td></tr>
+  <tr><td>n-te Wurzel</td><td><span class="keys">2nd</span>+<span class="keys">&square;/&square;</span></td><td><code>nthRoot(3, 27)</code></td><td>3</td></tr>
+  <tr><td>Reziprokwert</td><td><code>^(&minus;1)</code></td><td><code>4^(&minus;1)</code></td><td>0.25</td></tr>
+</table>
+
+<div class="tip">Tipp: <span class="keys">e<sup>x</sup></span> ist eine Multi-Tap-Taste. Erst <code>e^(</code>, nach nochmaligem Dr&uuml;cken <code>10^(</code>.</div>
+
+<!-- ─── 6. TRIGONOMETRIE ───────────────────────────────────────────────────── -->
+<h2 id="trig" class="section-anchor">6. Trigonometrie</h2>
+
+<div class="card">
+  <h3>Die Trig-Taste (Multi-Tap)</h3>
+  <p>Die Taste <span class="keys">sin</span> ist eine Mehrfachbelegte Taste. Jeder Druck wechselt die Funktion:</p>
+  <div class="code-block">sin( &rarr; cos( &rarr; tan( &rarr; sin&sup1;( &rarr; cos&sup1;( &rarr; tan&sup1;(
+&rarr; sinh( &rarr; cosh( &rarr; tanh( &rarr; sinh&sup1;( &rarr; cosh&sup1;( &rarr; tanh&sup1;( &rarr; sin( ...</div>
+</div>
+
+<table>
+  <tr><th>Funktion</th><th>Tastendruck</th><th>Beispiel (DEG)</th><th>Ergebnis</th></tr>
+  <tr><td>Sinus</td><td><span class="keys">sin</span> (1&times;)</td><td><code>sin(30)</code></td><td>0.5</td></tr>
+  <tr><td>Cosinus</td><td><span class="keys">sin</span> (2&times;)</td><td><code>cos(60)</code></td><td>0.5</td></tr>
+  <tr><td>Tangens</td><td><span class="keys">sin</span> (3&times;)</td><td><code>tan(45)</code></td><td>1</td></tr>
+  <tr><td>Arcsin</td><td><span class="keys">sin</span> (4&times;)</td><td><code>asin(0.5)</code></td><td>30</td></tr>
+  <tr><td>Arccos</td><td><span class="keys">sin</span> (5&times;)</td><td><code>acos(0.5)</code></td><td>60</td></tr>
+  <tr><td>Arctan</td><td><span class="keys">sin</span> (6&times;)</td><td><code>atan(1)</code></td><td>45</td></tr>
+  <tr><td>sinh</td><td><span class="keys">sin</span> (7&times;)</td><td><code>sinh(1)</code></td><td>1.175201194</td></tr>
+  <tr><td>&pi;</td><td><span class="keys">2nd</span>+<span class="keys">sin</span></td><td>f&uuml;gt &pi; ein</td><td>3.141592654</td></tr>
+</table>
+
+<div class="warn">Winkel-Achtung: Pr&uuml;fe immer den Modus (DEG/RAD/GRAD) oben rechts im Display. Im falschen Modus gibt <code>sin(90)</code> in RAD nicht 1!</div>
+
+<div class="card">
+  <h3>Beispiel: Hypotenuse berechnen</h3>
+  <p>Dreieck mit Katheten a=3, b=4 &rarr; <code>&radic;(3^2+4^2)</code> = 5</p>
+  <div class="code-block">Eingabe: &radic;(3^2+4^2)
+Ergebnis: 5</div>
+</div>
+
+<!-- ─── 7. LOGARITHMEN ────────────────────────────────────────────────────── -->
+<h2 id="log" class="section-anchor">7. Logarithmen</h2>
+
+<div class="card">
+  <h3>ln-log-Taste (Multi-Tap)</h3>
+  <p>Jeder Druck wechselt zwischen: <strong>ln(</strong> &rarr; <strong>log(</strong> &rarr; <strong>logB(</strong></p>
+  <ul>
+    <li><strong>ln</strong> = Nat&uuml;rlicher Logarithmus (Basis e)</li>
+    <li><strong>log</strong> = Dekadischer Logarithmus (Basis 10)</li>
+    <li><strong>logB</strong> = Allgemeiner Logarithmus (beliebige Basis)</li>
+  </ul>
+</div>
+
+<table>
+  <tr><th>Funktion</th><th>Taste</th><th>Beispiel</th><th>Ergebnis</th></tr>
+  <tr><td>Nat. Logarithmus</td><td><span class="keys">ln</span> (1&times;)</td><td><code>ln(e)</code></td><td>1</td></tr>
+  <tr><td>Log Basis 10</td><td><span class="keys">ln</span> (2&times;)</td><td><code>log(100)</code></td><td>2</td></tr>
+  <tr><td>Log Basis 2</td><td><span class="keys">ln</span> (3&times;) + Basis</td><td><code>logB(8)</code>/ln(2)</td><td>3</td></tr>
+  <tr><td>e<sup>x</sup></td><td><span class="keys">2nd</span>+<span class="keys">e<sup>x</sup></span></td><td><code>e^(2)</code></td><td>7.389056099</td></tr>
+  <tr><td>10<sup>x</sup></td><td><span class="keys">e<sup>x</sup></span> 2&times;</td><td><code>10^(3)</code></td><td>1000</td></tr>
+</table>
+
+<div class="tip">Wann ln vs. log? In Naturwissenschaften, Physik und Wirtschaft meist <strong>ln</strong> (nat&uuml;rliches Wachstum, Zinseszins, Halbwertszeit). In Ingenieurwesen und Dezibel <strong>log</strong> (Basis 10).</div>
+
+<!-- ─── 8. STATISTIK ───────────────────────────────────────────────────────── -->
+<h2 id="statistik" class="section-anchor">8. Statistik &mdash; Data + Stat-Reg/Distr <span class="badge">WICHTIG!</span></h2>
+
+<h3>8a. Daten eingeben</h3>
+<div class="step-list">
+  <div class="step"><div class="step-num">1</div><div class="step-text">Dr&uuml;cke <span class="keys">data</span> &rarr; L1/L2-Editor &ouml;ffnet sich</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">L1: x-Werte eingeben, mit <span class="keys">&#9650;</span>/<span class="keys">&#9660;</span> navigieren. &ldquo;+: Add row&rdquo; f&uuml;r mehr Zeilen.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">L2: y-Werte eingeben (f&uuml;r 2-Var Statistik / LinReg)</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text"><span class="keys">2nd</span>+<span class="keys">data</span> &rarr; Statistik-Men&uuml; (3 Tabs: STAT | REGR | DISTR)</div></div>
+</div>
+
+<h3>8b. 1-Variable Statistik</h3>
+<div class="card">
+  <p>Men&uuml;: <span class="keys">2nd</span>+<span class="keys">data</span> &rarr; STAT &rarr; <strong>1-Var Stats</strong></p>
+  <p>Gibt automatisch aus:</p>
+  <table>
+    <tr><th>Symbol</th><th>Bedeutung</th></tr>
+    <tr><td>n</td><td>Anzahl der Datenpunkte</td></tr>
+    <tr><td>x&#x0304;</td><td>Arithmetisches Mittel</td></tr>
+    <tr><td>&Sigma;x</td><td>Summe aller Werte</td></tr>
+    <tr><td>&Sigma;x&sup2;</td><td>Summe der Quadrate</td></tr>
+    <tr><td>Sx</td><td>Stichproben-Standardabweichung (n&minus;1)</td></tr>
+    <tr><td>&sigma;x</td><td>Grundgesamtheit-Standardabweichung (n)</td></tr>
+    <tr><td>min / max</td><td>Minimum und Maximum</td></tr>
+    <tr><td>med</td><td>Median</td></tr>
+  </table>
+</div>
+
+<h3>8c. Lineare Regression (LinReg)</h3>
+<div class="card">
+  <p>Men&uuml;: <span class="keys">2nd</span>+<span class="keys">data</span> &rarr; REGR &rarr; <strong>LinReg(ax+b)</strong></p>
+  <table>
+    <tr><th>Symbol</th><th>Bedeutung</th></tr>
+    <tr><td>a</td><td>Steigung (slope)</td></tr>
+    <tr><td>b</td><td>y-Achsenabschnitt (intercept)</td></tr>
+    <tr><td>r</td><td>Korrelationskoeffizient (&minus;1 bis +1)</td></tr>
+    <tr><td>r&sup2;</td><td>Bestimmtheitsma&szlig; (0 bis 1)</td></tr>
+  </table>
+</div>
+<div class="tip">r&sup2; nahe 1 = sehr gute lineare Anpassung. r&sup2; unter 0.7 = schlechter linearer Zusammenhang.</div>
+
+<h3>8d. Normalverteilung</h3>
+<div class="card">
+  <p>Men&uuml;: <span class="keys">2nd</span>+<span class="keys">data</span> &rarr; DISTR</p>
+  <table>
+    <tr><th>Funktion</th><th>Bedeutung</th><th>Beispiel</th></tr>
+    <tr><td><code>normalcdf(a, b, &mu;, &sigma;)</code></td><td>P(a &le; X &le; b)</td><td><code>normalcdf(100, 120, 110, 10)</code></td></tr>
+    <tr><td><code>invNorm(p, &mu;, &sigma;)</code></td><td>Quantil f&uuml;r Wahrscheinlichkeit p</td><td><code>invNorm(0.95, 0, 1)</code> = 1.645</td></tr>
+    <tr><td><code>normalpdf(x, &mu;, &sigma;)</code></td><td>Wahrscheinlichkeitsdichte an Punkt x</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ─── 9. GLEICHUNGEN LÖSEN ─────────────────────────────────────────────── -->
+<h2 id="gleichungen" class="section-anchor">9. Gleichungen l&ouml;sen</h2>
+
+<h3>9a. Numerischer Solver (num-solv)</h3>
+<div class="card">
+  <p><strong>Wann:</strong> Transzendente Gleichungen, die keine algebraische L&ouml;sung haben (z.B. x = cos(x), e<sup>x</sup> = 3x)</p>
+  <div class="code-block">Schritt 1: [num-solv] dr&uuml;cken
+Schritt 2: f(x) eingeben &mdash; alles auf eine Seite: f(x) = 0
+          Beispiel: x &minus; cos(x) (statt x = cos(x))
+Schritt 3: Startwert x&#x2080; eingeben (N&auml;herung an die Nullstelle)
+Schritt 4: [solve] dr&uuml;cken
+           &rarr; Ergebnis: x = ...</div>
+</div>
+<div class="warn">NumSolv findet NUR EINE L&ouml;sung &mdash; die n&auml;chstgelegene zum Startwert! F&uuml;r mehrere L&ouml;sungen verschiedene Startwerte versuchen.</div>
+<div class="tip">F&uuml;r Polynome bis Grad 4 immer PolySolv verwenden &mdash; schneller und gibt alle L&ouml;sungen auf einmal.</div>
+
+<h3>9b. Polynom-Solver (poly-solv) <span class="badge">Pr&uuml;fungstipp!</span></h3>
+<div class="card">
+  <p><strong>Wann:</strong> ax&sup2; + bx + c = 0 und h&ouml;here Grade (bis 4)</p>
+  <div class="code-block">Schritt 1: [poly-solv] &rarr; Grad w&auml;hlen (2, 3, oder 4)
+Schritt 2: Koeffizienten a, b, c eingeben
+           Beispiel: x&sup2; &minus; 5x + 6 = 0 &rarr; a=1, b=&minus;5, c=6
+Schritt 3: [solve] &rarr; x&#x2081; = 3, x&#x2082; = 2 (alle L&ouml;sungen!)
+           Auch komplexe L&ouml;sungen: x = a + bi</div>
+</div>
+<div class="tip"><strong>Pr&uuml;fungs-Tipp:</strong> Quadratische Gleichungen IMMER mit PolySolv l&ouml;sen statt die L&ouml;sungsformel von Hand. Schneller, fehlerfreier, gibt auch komplexe L&ouml;sungen.</div>
+
+<h3>9c. Gleichungssystem (sys-solv)</h3>
+<div class="card">
+  <p><strong>Wann:</strong> 2&times;2 oder 3&times;3 lineare Gleichungssysteme</p>
+  <div class="code-block">Beispiel:  2x + 3y = 7
+           x  + 4y = 6
+
+Schritt 1: [sys-solv] &rarr; 2&times;2 w&auml;hlen
+Schritt 2: Koeffizienten der Zeilen eingeben:
+           Zeile 1: 2, 3 | = 7
+           Zeile 2: 1, 4 | = 6
+Schritt 3: [solve] &rarr; x = 2, y = 1</div>
+</div>
+
+<!-- ─── 10. MATRIZEN ──────────────────────────────────────────────────────── -->
+<h2 id="matrizen" class="section-anchor">10. Matrizen</h2>
+
+<p>Zugang: <span class="keys">2nd</span>+<span class="keys">math</span> &rarr; Matrix-Men&uuml;</p>
+
+<table>
+  <tr><th>Operation</th><th>Beschreibung</th></tr>
+  <tr><td>Matrizen A, B, C</td><td>Werte in 2&times;2 oder 3&times;3 eingeben</td></tr>
+  <tr><td>det(A)</td><td>Determinante berechnen</td></tr>
+  <tr><td>inv(A)</td><td>Inverse Matrix (nur wenn det &ne; 0)</td></tr>
+  <tr><td>A<sup>T</sup></td><td>Transponierte Matrix</td></tr>
+  <tr><td>A+B</td><td>Matrizenaddition</td></tr>
+  <tr><td>A&times;B</td><td>Matrizenmultiplikation</td></tr>
+</table>
+
+<div class="warn">Singul&auml;re Matrix: Wenn det(A) = 0, existiert keine Inverse. Der Rechner zeigt &ldquo;SINGULAR&rdquo;.</div>
+
+<!-- ─── 11. KONSTANTEN ─────────────────────────────────────────────────────── -->
+<h2 id="konstanten" class="section-anchor">11. Physikalische Konstanten</h2>
+
+<p>Zugang: <span class="keys">const</span></p>
+
+<table>
+  <tr><th>#</th><th>Symbol</th><th>Wert</th><th>Bedeutung</th></tr>
+  <tr><td>1</td><td>c</td><td>2.99792458&times;10<sup>8</sup> m/s</td><td>Lichtgeschwindigkeit</td></tr>
+  <tr><td>2</td><td>g</td><td>9.80665 m/s&sup2;</td><td>Erdbeschleunigung</td></tr>
+  <tr><td>3</td><td>G</td><td>6.6743&times;10<sup>&minus;11</sup></td><td>Gravitationskonstante</td></tr>
+  <tr><td>4</td><td>h</td><td>6.62607015&times;10<sup>&minus;34</sup> J&middot;s</td><td>Planck&rsquo;sches Wirkungsquantum</td></tr>
+  <tr><td>5</td><td>e</td><td>1.602176634&times;10<sup>&minus;19</sup> C</td><td>Elementarladung</td></tr>
+  <tr><td>6</td><td>m<sub>e</sub></td><td>9.1093837015&times;10<sup>&minus;31</sup> kg</td><td>Elektronenmasse</td></tr>
+  <tr><td>7</td><td>N<sub>A</sub></td><td>6.02214076&times;10<sup>23</sup> mol<sup>&minus;1</sup></td><td>Avogadro-Zahl</td></tr>
+  <tr><td>8</td><td>R</td><td>8.314462618 J/(mol&middot;K)</td><td>Universelle Gaskonstante</td></tr>
+  <tr><td>9</td><td>k</td><td>1.380649&times;10<sup>&minus;23</sup> J/K</td><td>Boltzmann-Konstante</td></tr>
+</table>
+
+<!-- ─── 12. EINHEITEN ─────────────────────────────────────────────────────── -->
+<h2 id="einheiten" class="section-anchor">12. Einheitenumrechnung</h2>
+
+<p>Zugang: <span class="keys">conv</span></p>
+
+<table>
+  <tr><th>Kategorie</th><th>Einheiten</th><th>Beispiel</th></tr>
+  <tr><td>L&auml;nge</td><td>m, ft, cm, in, km, mi</td><td>100 cm = 1 m</td></tr>
+  <tr><td>Temperatur</td><td>&deg;C, &deg;F, K</td><td>100&deg;C = 212&deg;F = 373.15 K</td></tr>
+  <tr><td>Masse</td><td>kg, lb, g, oz</td><td>1 kg = 2.205 lb</td></tr>
+  <tr><td>Geschwindigkeit</td><td>km/h, m/s, mph</td><td>100 km/h = 27.78 m/s</td></tr>
+  <tr><td>Druck</td><td>Pa, atm, bar</td><td>1 atm = 101325 Pa</td></tr>
+</table>
+
+<!-- ─── 13. ZAHLENSYSTEME ─────────────────────────────────────────────────── -->
+<h2 id="basen" class="section-anchor">13. Zahlensysteme (Base-N)</h2>
+
+<p>Zugang: <span class="keys">base&#8209;n</span></p>
+
+<table>
+  <tr><th>Basis</th><th>Name</th><th>Beispiel (255)</th><th>Hinweis</th></tr>
+  <tr><td>DEC</td><td>Dezimal</td><td>255</td><td>Standard</td></tr>
+  <tr><td>HEX</td><td>Hexadezimal</td><td>FF</td><td>Ziffern 0&ndash;9, A&ndash;F</td></tr>
+  <tr><td>BIN</td><td;>Bin&auml;r</td><td>11111111</td><td>Nur 0 und 1</td></tr>
+  <tr><td>OCT</td><td>Oktal</td><td>377</td><td>Ziffern 0&ndash;7</td></tr>
+</table>
+
+<h3>Logische Operationen</h3>
+<table>
+  <tr><th>Operation</th><th>Symbol</th><th>Beispiel</th></tr>
+  <tr><td>Bitweises AND</td><td>AND</td><td>12 AND 10 = 8</td></tr>
+  <tr><td>Bitweises OR</td><td>OR</td><td>12 OR 10 = 14</td></tr>
+  <tr><td>Bitweises XOR</td><td>XOR</td><td>12 XOR 10 = 6</td></tr>
+</table>
+
+<!-- ─── 14. OPTIMIERUNGSTIPPS ─────────────────────────────────────────────── -->
+<h2 id="optimierung" class="section-anchor">14. Optimierungstipps f&uuml;r Pr&uuml;fungen</h2>
+
+<table>
+  <tr>
+    <th>Problem</th>
+    <th>Beste Methode</th>
+    <th>Warum</th>
+  </tr>
+  <tr>
+    <td>Quadratische Gleichung</td>
+    <td><span class="highlight">PolySolv</span></td>
+    <td>Alle L&ouml;sungen auf einmal, kein Tippfehler in der L&ouml;sungsformel</td>
+  </tr>
+  <tr>
+    <td>x = cos(x) oder e<sup>x</sup> = 3x</td>
+    <td><span class="highlight">NumSolv</span></td>
+    <td>Algebraische L&ouml;sung unm&ouml;glich</td>
+  </tr>
+  <tr>
+    <td>3&times;3 Gleichungssystem</td>
+    <td><span class="highlight">SysSolv</span></td>
+    <td>Sekunden statt Minuten Gau&szlig;-Elimination per Hand</td>
+  </tr>
+  <tr>
+    <td>Standardabweichung</td>
+    <td><span class="highlight">data &rarr; 1-Var</span></td>
+    <td>Automatisch, fehlerfrei; Sx vs. &sigma;x richtig lesen!</td>
+  </tr>
+  <tr>
+    <td>LinReg-Koeffizienten</td>
+    <td><span class="highlight">data &rarr; LinReg</span></td>
+    <td>r&sup2; als G&uuml;techeck direkt mitgeliefert</td>
+  </tr>
+  <tr>
+    <td>P(a &le; X &le; b) Normalverteilung</td>
+    <td><span class="highlight">normalcdf(...)</span></td>
+    <td>Kein Tabellenwerk n&ouml;tig, beliebige &mu; und &sigma;</td>
+  </tr>
+  <tr>
+    <td>Quantil / z-Wert</td>
+    <td><span class="highlight">invNorm(...)</span></td>
+    <td>Direkt, kein Ablesen aus Tabelle</td>
+  </tr>
+  <tr>
+    <td>Gro&szlig;e Fakult&auml;ten (50!)</td>
+    <td><span class="highlight">n! Taste</span></td>
+    <td>Berechnet bis 170! exakt</td>
+  </tr>
+  <tr>
+    <td>&pi;-Berechnungen</td>
+    <td><span class="highlight">2nd + sin</span></td>
+    <td>Volle Pr&auml;zision 3.141592654&hellip;</td>
+  </tr>
+  <tr>
+    <td>Determinante / Inverse</td>
+    <td><span class="highlight">2nd + math (Matrix)</span></td>
+    <td>Schneller als Sarrus / Gau&szlig; per Hand</td>
+  </tr>
+  <tr>
+    <td>Einheitenumrechnung</td>
+    <td><span class="highlight">conv</span></td>
+    <td>Keine Umrechnungsfaktoren auswendig lernen</td>
+  </tr>
+</table>
+
+<!-- ─── 15. FEHLER ────────────────────────────────────────────────────────── -->
+<h2 id="fehler" class="section-anchor">15. H&auml;ufige Fehler und L&ouml;sungen</h2>
+
+<div class="card card-warn">
+  <h3>Fehler: &ldquo;Syntax Error&rdquo;</h3>
+  <p>Ursache: Ung&uuml;ltige Formel (z.B. <code>2+*3</code> oder unbalancierte Klammern).</p>
+  <p>L&ouml;sung: Formel nochmals pr&uuml;fen. Klammern z&auml;hlen. <span class="keys">del</span> zum Korrigieren.</p>
+</div>
+
+<div class="card card-warn">
+  <h3>Fehler: Division durch 0</h3>
+  <p>Ursache: Ausdruck wie <code>5/0</code> oder <code>tan(90)</code> in DEG-Modus.</p>
+  <p>L&ouml;sung: Den Ausdruck &uuml;berpr&uuml;fen. tan(90) = &infin;, ist kein Rechenfehler.</p>
+</div>
+
+<div class="card card-warn">
+  <h3>NumSolv konvergiert nicht</h3>
+  <p>Ursache: Startwert zu weit von der L&ouml;sung entfernt, oder die Funktion hat keine Nullstelle im gew&auml;hlten Bereich.</p>
+  <p>L&ouml;sung: Anderen Startwert w&auml;hlen. Funktion vorher grob plotten (Tabellen-Funktion nutzen). F&uuml;r Polynome PolySolv verwenden.</p>
+</div>
+
+<div class="card card-warn">
+  <h3>Falsches Winkelma&szlig; (DEG/RAD verwechselt)</h3>
+  <p>Ursache: <code>sin(90)</code> sollte 1 ergeben, gibt aber 0.894.</p>
+  <p>L&ouml;sung: Oben rechts im Display: DEG, RAD oder GRAD. Mit <span class="keys">mode</span> umschalten.</p>
+</div>
+
+<div class="card card-warn">
+  <h3>Klammern bei Bruchausdr&uuml;cken vergessen</h3>
+  <p>Ursache: <code>1/2+3</code> wird als <code>0.5+3 = 3.5</code> berechnet, nicht <code>1/(2+3) = 0.2</code>.</p>
+  <p>L&ouml;sung: Nenner immer in Klammern: <code>1/(2+3)</code>.</p>
+</div>
+
+<div class="card card-warn">
+  <h3>Sx vs. &sigma;x: Welche Standardabweichung?</h3>
+  <p><strong>Sx</strong> = Stichprobenst.abw. (Teiler n&minus;1) &mdash; bei Stichproben aus einer gr&ouml;&szlig;eren Grundgesamtheit.</p>
+  <p><strong>&sigma;x</strong> = Grundgesamtheitst.abw. (Teiler n) &mdash; wenn die vorliegenden Daten die gesamte Population sind.</p>
+  <p>In den meisten Statistik-Aufgaben an Hochschulen: <strong>Sx</strong> verwenden!</p>
+</div>
+
+<hr>
+
+<p style="text-align:center;color:#606880;font-size:12px;">&#9658; Texas Instruments TI-30X Pro MathPrint &mdash; Inoffizielle Bedienungsanleitung</p>
+
+</body>
+</html>

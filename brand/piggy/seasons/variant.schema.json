@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Piggy Logo-Variante (Datenschicht über dem Basis-Logo)",
+  "type": "object",
+  "required": ["id", "kind", "name", "valid"],
+  "properties": {
+    "id":      { "type": "string", "pattern": "^(season|month)-[a-z0-9-]+$" },
+    "kind":    { "enum": ["season", "month"], "description": "month schlägt season; Gleichstand auf derselben Ebene → Basis-Logo" },
+    "name":    { "type": "string" },
+    "enabled": { "type": "boolean", "default": true },
+    "valid": {
+      "type": "object",
+      "required": ["from", "to"],
+      "properties": {
+        "month": { "type": "integer", "minimum": 1, "maximum": 12, "description": "Pflicht bei kind=month; from/to müssen in diesem Monat liegen" },
+        "from":  { "type": "string", "pattern": "^\\d\\d-\\d\\d$", "description": "MM-DD inklusiv" },
+        "to":    { "type": "string", "pattern": "^\\d\\d-\\d\\d$", "description": "MM-DD inklusiv; from > to = über Jahreswechsel" }
+      }
+    },
+    "palette":     { "type": "object", "description": "Token-Overrides: Pfad → Wert oder {Referenz}. Z.B. \"component.appIcon.bgFrom\": \"{primitive.color.sky.600}\"", "additionalProperties": { "type": "string" } },
+    "accessories": { "type": "array", "items": { "type": "string" }, "description": "IDs aus PiggyBrand.ACCESSORIES (lib/art.js)" },
+    "background":  { "type": "array", "items": { "type": "string" }, "description": "IDs aus PiggyBrand.BACKGROUNDS (nur App-Icon & Splash)" },
+    "note":        { "type": "string" }
+  }
+}

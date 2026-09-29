@@ -1,0 +1,23 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "season-summer",
+  "kind": "season",
+  "name": "Sommer",
+  "enabled": true,
+  "valid": {
+    "from": "06-21",
+    "to": "09-22"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.sky.200}",
+    "component.appIcon.bgTo": "{primitive.color.sky.400}",
+    "component.appIcon.bgRim": "{primitive.color.sky.600}"
+  },
+  "accessories": [
+    "sunglasses"
+  ],
+  "background": [
+    "sun"
+  ],
+  "note": "Sonnenbrille, Sonne, Himmelblau"
+}

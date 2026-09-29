@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TI-30X Pro MathPrint</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+#calculator {
+  width: 288px;
+  background: #161920;
+  border-radius: 15px 15px 20px 20px;
+  border: 1px solid #0a0d12;
+  padding: 10px 37px 16px;
+  box-shadow: 0 0 0 2px #0a0d12, 0 20px 60px rgba(0,0,0,0.95);
+  user-select: none;
+}
+
+/* Solar panel — gemessen: 203×45px im 272px-Bild → skaliert auf 215×48px */
+.solar {
+  width: 100%;
+  height: 48px;
+  border-radius: 4px;
+  background: #0a0c10;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #0d1018 0px, #0d1018 14px,
+    #05080e 14px, #05080e 16px
+  );
+  margin-bottom: 8px;
+  border: 1px solid #050709;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 6px;
+}
+.header .brand {
+  display: block;
+  color: #f0f0f0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
+}
+.header .sub {
+  display: block;
+  color: #909090;
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+/* Display bezel */
+.display-bezel {
+  background: #0c1018;
+  border-radius: 4px;
+  padding: 5px;
+  margin-bottom: 9px;
+}
+
+/* LCD screen — gemessen: 203×84px → skaliert 89px hoch */
+.lcd {
+  background: #bdd098;
+  border: 1px solid #8a9e60;
+  border-radius: 2px;
+  padding: 4px 5px 3px;
+  position: relative;
+  height: 89px;
+  overflow: hidden;
+}
+
+.lcd-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 11px;
+  font-size: 7px;
+  font-family: 'Courier New', monospace;
+  color: #1a2808;
+  margin-bottom: 2px;
+}
+.lcd-status .left { display: flex; gap: 4px; align-items: center; }
+.status-2nd { color: #c0a020; font-weight: 700; opacity: 0; transition: opacity 0.1s; }
+.status-2nd.active { opacity: 1; }
+.status-angle { color: #1a2808; }
+.status-arrows { letter-spacing: -1px; opacity: 0; }
+.status-arrows.visible { opacity: 1; }
+
+.lcd-lines { position: relative; }
+
+.lcd-line {
+  font-family: 'Courier New', monospace;
+  font-size: 10.5px;
+  color: #0e1c04;
+  line-height: 16px;
+  height: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lcd-line.history-expr  { color: #4a5830; font-size: 9px; }
+.lcd-line.history-result { color: #3a4820; font-size: 9px; text-align: right; }
+.lcd-line.current-expr  { color: #0e1c04; }
+.lcd-line.result-line {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0a1602;
+  line-height: 16px;
+  height: 16px;
+}
+
+/* Menu overlay */
+.menu-overlay {
+  position: absolute;
+  inset: 0;
+  background: #b8c888;
+  padding: 4px 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: #1a2808;
+  overflow-y: auto;
+  z-index: 10;
+  border-radius: 2px;
+}
+.menu-overlay .menu-title {
+  font-weight: 700;
+  font-size: 9px;
+  border-bottom: 1px solid #6a7848;
+  margin-bottom: 3px;
+  padding-bottom: 1px;
+  color: #0a1800;
+}
+.menu-overlay .menu-item { line-height: 12px; cursor: pointer; padding: 0 2px; }
+.menu-overlay .menu-item:hover { background: #a8b870; }
+.menu-overlay .menu-tabs {
+  display: flex; gap: 6px; margin-bottom: 3px;
+  border-bottom: 1px solid #6a7848; padding-bottom: 2px;
+}
+.menu-overlay .menu-tab { font-size: 7.5px; font-weight: 700; cursor: pointer; padding: 0 2px; }
+.menu-overlay .menu-tab.active { text-decoration: underline; }
+.menu-overlay .menu-prompt { color: #2a4010; margin: 3px 0 1px; }
+.menu-overlay input[type=text],
+.menu-overlay input[type=number] {
+  background: #c8d4a0; border: 1px solid #6a7848; color: #1a2808;
+  font-family: 'Courier New', monospace; font-size: 9px;
+  width: 100%; padding: 1px 2px; margin-bottom: 2px; outline: none;
+}
+.menu-overlay .menu-result {
+  background: #d0dc98; border: 1px solid #8a9a60; padding: 2px 4px;
+  font-size: 10px; font-weight: 700; margin-top: 3px; word-break: break-all;
+}
+.menu-overlay .menu-tip {
+  font-size: 7.5px; color: #3a5010; margin-top: 3px;
+  border-top: 1px solid #8a9a60; padding-top: 2px; line-height: 11px;
+}
+
+/* ─── KEYPAD ─────────────────────────────────────────── */
+/* Gap gemessen: Spaltenabstand 42px - Tastenbreite 33px = 9px Abstand */
+.keypad {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 0;
+}
+
+.key-row {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+
+/* Base key */
+.key {
+  flex: 1;
+  min-width: 0;
+  height: 27px;
+  position: relative;
+  background: #252b38;
+  border-top: 1px solid #2e3648;
+  border-left: 1px solid #1e2430;
+  border-right: 1px solid #1e2430;
+  border-bottom: none;
+  border-radius: 3px;
+  box-shadow: 0 2.5px 0 #10141e, 0 1px 2px rgba(0,0,0,0.4);
+  color: #dde4f4;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 2px 2px;
+  transition: transform 60ms, filter 60ms, box-shadow 60ms;
+  text-align: center;
+  line-height: 1.2;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.key:active, .key.pressed {
+  transform: scale(0.91) translateY(1.5px);
+  filter: brightness(1.45);
+  box-shadow: 0 0.5px 0 #10141e, 0 0 6px rgba(200,180,80,0.35);
+}
+
+/* 2nd mode: highlight k2 labels */
+.mode-2nd .key .k2 {
+  color: #f0c820;
+  text-shadow: 0 0 5px rgba(240,200,30,0.7);
+}
+
+/* Key label spans */
+.k2 {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #c0a020;
+  font-size: 6.5px;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  line-height: 1;
+  pointer-events: none;
+}
+.kp {
+  font-size: 10px;
+  font-weight: 600;
+  color: #dde4f4;
+  line-height: 1.2;
+}
+.ks {
+  font-size: 7px;
+  color: #909aae;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+/* 2nd key */
+.key-2nd {
+  background: #3560b8 !important;
+  border-top: 1px solid #4a74cc !important;
+  box-shadow: 0 2.5px 0 #1a3068, 0 1px 2px rgba(0,0,0,0.4) !important;
+}
+.key-2nd.is-active {
+  background: #4a78d8 !important;
+  box-shadow: 0 0 10px rgba(90,140,255,0.7), 0 0 4px rgba(90,140,255,0.5), 0 2.5px 0 #1a3068 !important;
+}
+
+/* 2nd mode overlay on all keys */
+.mode-2nd .key:not(.key-2nd):hover .k2 {
+  background: rgba(60,80,150,0.15);
+  border-radius: 2px;
+  padding: 1px 3px;
+}
+
+/* ─── NAVIGATION ROW ────────────────────────────────── */
+.row-with-dpad {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+.three-keys {
+  display: flex;
+  gap: 9px;
+  flex: 1;
+}
+.three-keys .key { flex: 1; }
+
+/* D-pad — gemessen: 69×52px im Original → ~80px skaliert */
+.dpad {
+  width: 80px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 24px 24px 24px;
+  grid-template-rows: 22px 22px 22px;
+  gap: 4px;
+}
+.dpad-btn {
+  background: #252b38;
+  border: 1px solid #1e2430;
+  border-radius: 3px;
+  color: #ccd4ea;
+  font-size: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 60ms, filter 60ms;
+  box-shadow: 0 2px 0 #10141e;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+}
+.dpad-btn:active, .dpad-btn.pressed {
+  transform: scale(0.88);
+  filter: brightness(1.4);
+  box-shadow: none;
+}
+/* D-pad grid positions */
+.dpad-up    { grid-column: 2; grid-row: 1; }
+.dpad-left  { grid-column: 1; grid-row: 2; }
+.dpad-center {
+  grid-column: 2; grid-row: 2;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 700;
+  color: #dde4f4;
+}
+.dpad-right { grid-column: 3; grid-row: 2; }
+.dpad-down  { grid-column: 2; grid-row: 3; }
+
+/* Spacer = gleiche Breite wie D-pad */
+.dpad-spacer {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+/* Invisible key (row E, F last key) */
+.key-invisible {
+  flex: 1;
+  opacity: 0;
+  pointer-events: none;
+  height: 27px;
+}
+
+/* Enter key — gemessen: ~2.5× normal → 2×27 + 9gap = 63px */
+.key-enter {
+  height: 63px !important;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 8px;
+  color: #606880;
+  letter-spacing: 0.3px;
+}
+.ti-arrow {
+  color: #909ab0;
+}
+</style>
+</head>
+<body>
+
+<div id="calculator">
+
+  <!-- Solar panel -->
+  <div class="solar"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="brand">TI-30X Pro</span>
+    <span class="sub">MathPrint&#8482;</span>
+  </div>
+
+  <!-- Display -->
+  <div class="display-bezel">
+    <div class="lcd" id="lcd">
+      <div class="lcd-status">
+        <div class="left">
+          <span class="status-2nd" id="st2nd">2ND</span>
+          <span class="status-angle" id="stAngle">DEG</span>
+        </div>
+        <div class="right">
+          <span class="status-arrows" id="stArrows">&#x2191;&#x2193;</span>
+        </div>
+      </div>
+      <div class="lcd-lines">
+        <div class="lcd-line history-expr"   id="line1"></div>
+        <div class="lcd-line history-result" id="line2"></div>
+        <div class="lcd-line current-expr"   id="line3"></div>
+        <div class="lcd-line result-line"    id="line4"></div>
+      </div>
+      <div class="menu-overlay" id="menuOverlay" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Keys -->
+  <div class="keypad" id="keypad">
+
+    <!-- Nav row: [2nd] [mode] [del] + D-pad -->
+    <div class="row-with-dpad">
+      <div class="three-keys">
+        <button class="key key-2nd" id="key2nd" onclick="k2nd(this)">
+          <span class="kp" style="font-size:9px;font-weight:700;">2nd</span>
+        </button>
+        <button class="key" onclick="flashKey(this);kMode()">
+          <span class="k2">quit</span>
+          <span class="kp" style="font-size:9px;">mode</span>
+        </button>
+        <button class="key" onclick="flashKey(this);kDel()">
+          <span class="k2">insert</span>
+          <span class="kp" style="font-size:9px;">del</span>
+        </button>
+      </div>
+      <div class="dpad">
+        <button class="dpad-btn dpad-up"     onclick="flashKey(this);kUp()">&#9650;</button>
+        <button class="dpad-btn dpad-left"   onclick="flashKey(this);kLeft()">&#9668;</button>
+        <button class="dpad-btn dpad-center" onclick="flashKey(this);kEnter()">&#10003;</button>
+        <button class="dpad-btn dpad-right"  onclick="flashKey(this);kRight()">&#9658;</button>
+        <button class="dpad-btn dpad-down"   onclick="flashKey(this);kDown()">&#9660;</button>
+      </div>
+    </div>
+
+    <!-- Row A: [ln log] [math] [data] + dpad-spacer -->
+    <div class="row-with-dpad">
+      <div class="three-keys">
+        <button class="key" onclick="flashKey(this);kLn()">
+          <span class="k2">d/dx</span>
+          <span class="kp">ln</span>
+          <span class="ks">log</span>
+        </button>
+        <button class="key" onclick="flashKey(this);kMath()">
+          <span class="k2">matrix</span>
+          <span class="kp">math</span>
+        </button>
+        <button class="key" onclick="flashKey(this);kData()">
+          <span class="k2" style="font-size:5.5px;">stat-reg/distr</span>
+          <span class="kp">data</span>
+        </button>
+      </div>
+      <div class="dpad-spacer"></div>
+    </div>
+
+    <!-- Row B: [eˣ 10ˣ] [EE] [nCr/nPr] [table] [clear] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kEx()">
+        <span class="k2">&#x222B;</span>
+        <span class="kp">e<sup style="font-size:7px">x</sup></span>
+        <span class="ks">10<sup style="font-size:6px">x</sup></span>
+      </button>
+      <button class="key" onclick="flashKey(this);kEE()">
+        <span class="k2">vector</span>
+        <span class="kp">EE</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kNcr()">
+        <span class="k2">random</span>
+        <span class="kp" style="font-size:9px;">&#x2191;nCr</span>
+        <span class="ks">&#x2193;nPr</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kTable()">
+        <span class="k2">expr-eval</span>
+        <span class="kp" style="font-size:9px;">table</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kClear()">
+        <span class="k2">%</span>
+        <span class="kp" style="font-size:9px;">clear</span>
+      </button>
+    </div>
+
+    <!-- Row C: [sin complex] [num-solv] [poly-solv] [sys-solv] [÷] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kTrig()">
+        <span class="k2">complex</span>
+        <span class="kp" id="trigLabel">sin</span>
+        <span class="ks" id="trigSub" style="font-size:6px;">sin&#x207B;&#xB9;</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kNumSolv()">
+        <span class="kp" style="font-size:8px;">num-solv</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kPolySolv()">
+        <span class="kp" style="font-size:8px;">poly-solv</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kSysSolv()">
+        <span class="kp" style="font-size:8px;">sys-solv</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kOp('&#xF7;')">
+        <span class="kp" style="font-size:13px;">&#xF7;</span>
+      </button>
+    </div>
+
+    <!-- Row D: [x^( πf] [constants] [op] [set op] [×] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kPower()">
+        <span class="k2">&#x3C0;f</span>
+        <span class="kp" style="font-size:9px;">x<sup style="font-size:6px">^(</sup></span>
+      </button>
+      <button class="key" onclick="flashKey(this);kConstants()">
+        <span class="kp" style="font-size:8px;">constants</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kOp2()">
+        <span class="kp" style="font-size:9px;">op</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kSetOp()">
+        <span class="kp" style="font-size:8px;">set op</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kOp('&#xD7;')">
+        <span class="kp" style="font-size:13px;">&#xD7;</span>
+      </button>
+    </div>
+
+    <!-- Row E: [□/□ x√□] [( )] [convert] [base n] [−] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kFrac()">
+        <span class="k2">x&#x221A;&#x25A1;</span>
+        <span class="kp" style="font-size:11px;">&#x25A1;/&#x25A1;</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kParen('(')">
+        <span class="k2">)</span>
+        <span class="kp" style="font-size:13px;">(</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kConvert()">
+        <span class="kp" style="font-size:8px;">convert</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kBaseN()">
+        <span class="kp" style="font-size:8px;">base&#8209;n</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kOp('&#x2212;')">
+        <span class="kp" style="font-size:14px;">&#x2212;</span>
+      </button>
+    </div>
+
+    <!-- Row F: [↔=] [7] [8] [9] [spacer] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kAns2nd()">
+        <span class="k2">x&#xB2;</span>
+        <span class="kp" style="font-size:9px;">&#x21D4;=</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('7')">
+        <span class="k2">A</span>
+        <span class="kp" style="font-size:13px;">7</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('8')">
+        <span class="k2">B</span>
+        <span class="kp" style="font-size:13px;">8</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('9')">
+        <span class="k2">C</span>
+        <span class="kp" style="font-size:13px;">9</span>
+      </button>
+      <div class="key-invisible"></div>
+    </div>
+
+    <!-- Row G: [x^yzt abcd] [4] [5] [6] [+] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kVar()">
+        <span class="k2">clr var</span>
+        <span class="kp" style="font-size:8px;">x<sup style="font-size:6px">yzt</sup></span>
+        <span class="ks" id="varLabel">abcd</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('4')">
+        <span class="k2">D</span>
+        <span class="kp" style="font-size:13px;">4</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('5')">
+        <span class="k2">E</span>
+        <span class="kp" style="font-size:13px;">5</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('6')">
+        <span class="k2">F</span>
+        <span class="kp" style="font-size:13px;">6</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kOp('+')">
+        <span class="kp" style="font-size:14px;">+</span>
+      </button>
+    </div>
+
+    <!-- Row H: [recall] [1] [2] [3] [f↔d] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kRecall()">
+        <span class="k2">sto&#x2192;</span>
+        <span class="kp" style="font-size:8.5px;">recall</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('1')">
+        <span class="kp" style="font-size:13px;">1</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('2')">
+        <span class="kp" style="font-size:13px;">2</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('3')">
+        <span class="kp" style="font-size:13px;">3</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kFd()">
+        <span class="kp" style="font-size:8.5px;">f&#x21D4;d</span>
+      </button>
+    </div>
+
+    <!-- Row I: [on] [0] [.] [(−)] [enter] -->
+    <div class="key-row">
+      <button class="key" onclick="flashKey(this);kOn()">
+        <span class="k2">off</span>
+        <span class="kp" style="font-size:9px;">on</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('0')">
+        <span class="k2">reset</span>
+        <span class="kp" style="font-size:13px;">0</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kDigit('.')">
+        <span class="kp" style="font-size:14px;">.</span>
+      </button>
+      <button class="key" onclick="flashKey(this);kNegAns()">
+        <span class="k2">answer</span>
+        <span class="kp" style="font-size:9px;">(&#x2212;)</span>
+      </button>
+      <button class="key key-enter" onclick="flashKey(this);kEnter()">
+        <span class="kp" style="font-size:9px;">enter</span>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer"><span class="ti-arrow">&#9658;</span> <span>Texas Instruments</span></div>
+</div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────────────────────────
+const S = {
+  input: '',
+  cursor: 0,
+  showResult: false,
+  history: [],
+  histIdx: -1,
+  is2nd: false,
+  angleMode: 'DEG',
+  ans: 0,
+  vars: {x:0,y:0,z:0,t:0,a:0,b:0,c:0,d:0},
+  varIdx: 0,
+  trigIdx: 0,
+  lnIdx: 0,
+  exIdx: 0,
+  ncrIdx: 0,
+  negIdx: 0,
+  baseMode: 'DEC',
+  storedOp: null,
+  lastResult: null,
+  complexMode: false,
+  menuActive: null,
+};
+
+const TRIG_LABELS = ['sin','cos','tan','sin⁻\xB9','cos⁻\xB9','tan⁻\xB9','sinh','cosh','tanh','sinh⁻\xB9','cosh⁻\xB9','tanh⁻\xB9'];
+const TRIG_TOKENS = ['sin(','cos(','tan(','asin(','acos(','atan(','sinh(','cosh(','tanh(','asinh(','acosh(','atanh('];
+const VAR_MAIN  = ['x','y','z','t'];
+const VAR_2ND   = ['a','b','c','d'];
+const LN_LABELS = ['ln(','log(','logB('];
+
+// ─── FACTORIAL ─────────────────────────────────────────────────────────────
+function factorial(n) {
+  n = Math.round(n);
+  if (n < 0) return NaN;
+  if (n === 0 || n === 1) return 1;
+  if (n > 170) return Infinity;
+  let r = 1;
+  for (let i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+function gcd(a, b) { a=Math.abs(a); b=Math.abs(b); while(b){let t=b;b=a%b;a=t;} return a; }
+function lcm(a, b) { return Math.abs(a*b)/gcd(a,b); }
+
+// ─── ANGLE CONVERSION ──────────────────────────────────────────────────────
+function toRad(x) {
+  if (S.angleMode === 'RAD') return x;
+  if (S.angleMode === 'GRAD') return x * Math.PI / 200;
+  return x * Math.PI / 180;
+}
+function fromRad(x) {
+  if (S.angleMode === 'RAD') return x;
+  if (S.angleMode === 'GRAD') return x * 200 / Math.PI;
+  return x * 180 / Math.PI;
+}
+
+// ─── NORMAL DISTRIBUTION ───────────────────────────────────────────────────
+function normalPDF(x, mu=0, sigma=1) {
+  return Math.exp(-0.5*((x-mu)/sigma)**2) / (sigma*Math.sqrt(2*Math.PI));
+}
+function normalCDF(x, mu=0, sigma=1) {
+  const z = (x - mu) / (sigma * Math.sqrt(2));
+  const t = 1 / (1 + 0.3275911 * Math.abs(z));
+  const poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
+  const val = 1 - poly * Math.exp(-z*z);
+  return z >= 0 ? val : 1 - val;
+}
+function invNorm(p, mu=0, sigma=1) {
+  let x;
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return Infinity;
+  const q = p < 0.5 ? p : 1 - p;
+  const t = Math.sqrt(-2 * Math.log(q));
+  const c0=2.515517, c1=0.802853, c2=0.010328;
+  const d1=1.432788, d2=0.189269, d3=0.001308;
+  x = t - (c0 + c1*t + c2*t*t) / (1 + d1*t + d2*t*t + d3*t*t*t);
+  if (p < 0.5) x = -x;
+  return mu + sigma * x;
+}
+
+// ─── EXPRESSION EVALUATION ─────────────────────────────────────────────────
+function evalExpr(expr) {
+  let e = expr;
+  e = e.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+  e = e.replace(/\bπ\b/g,'Math.PI').replace(/\be\b(?!\^|\()/g,'Math.E');
+  e = e.replace(/\bans\b/g, String(S.ans));
+  Object.keys(S.vars).forEach(v => {
+    e = e.replace(new RegExp('\\b'+v+'\\b','g'), String(S.vars[v]));
+  });
+  e = e.replace(/(\d+(?:\.\d+)?)\s*!/g, '__fact($1)');
+  e = e.replace(/\^/g,'**');
+  e = e.replace(/nCr\(([^,]+),([^)]+)\)/g,'__nCr($1,$2)');
+  e = e.replace(/nPr\(([^,]+),([^)]+)\)/g,'__nPr($1,$2)');
+  e = e.replace(/nthRoot\(([^,]+),([^)]+)\)/g,'Math.pow($2,1/($1))');
+  e = e.replace(/\basin\(/g,'__asin(').replace(/\bacos\(/g,'__acos(').replace(/\batan\(/g,'__atan(');
+  e = e.replace(/\bsin\(/g,'__sin(').replace(/\bcos\(/g,'__cos(').replace(/\btan\(/g,'__tan(');
+  e = e.replace(/\basinh\(/g,'Math.asinh(').replace(/\bacosh\(/g,'Math.acosh(').replace(/\batanh\(/g,'Math.atanh(');
+  e = e.replace(/\bsinh\(/g,'Math.sinh(').replace(/\bcosh\(/g,'Math.cosh(').replace(/\btanh\(/g,'Math.tanh(');
+  e = e.replace(/\bln\(/g,'Math.log(').replace(/\blog\(/g,'Math.log10(');
+  e = e.replace(/\blogB\(/g,'Math.log(');
+  e = e.replace(/√\(/g,'Math.sqrt(').replace(/∛\(/g,'Math.cbrt(');
+  e = e.replace(/\babs\(/g,'Math.abs(').replace(/\bround\(/g,'Math.round(');
+  e = e.replace(/\bfloor\(/g,'Math.floor(').replace(/\bceil\(/g,'Math.ceil(');
+  e = e.replace(/\bmod\(/g,'__mod(').replace(/\bmin\(/g,'Math.min(').replace(/\bmax\(/g,'Math.max(');
+  // Replace (−) with unary minus
+  e = e.replace(/\(−\)/g, '-');
+  // Auto-close parens
+  let open = 0;
+  for (const ch of e) { if (ch==='(') open++; else if (ch===')') open--; }
+  if (open > 0) e += ')'.repeat(open);
+
+  try {
+    const fn = new Function(
+      '__sin','__cos','__tan','__asin','__acos','__atan',
+      '__fact','__nCr','__nPr','__mod',
+      `"use strict"; return (${e});`
+    );
+    return fn(
+      x => Math.sin(toRad(x)),
+      x => Math.cos(toRad(x)),
+      x => Math.tan(toRad(x)),
+      x => fromRad(Math.asin(x)),
+      x => fromRad(Math.acos(x)),
+      x => fromRad(Math.atan(x)),
+      factorial,
+      (n,r) => factorial(n)/(factorial(r)*factorial(n-r)),
+      (n,r) => factorial(n)/factorial(n-r),
+      (a,b) => a - b * Math.floor(a/b)
+    );
+  } catch(err) {
+    throw new Error('Syntax Error');
+  }
+}
+
+// ─── DISPLAY CONVERSION ────────────────────────────────────────────────────
+function toDisplay(expr) {
+  return expr
+    .replace(/e\^\(/g, 'e^(□')
+    .replace(/10\^\(/g, '10^(□')
+    .replace(/asin\(/g, 'sin⁻¹(')
+    .replace(/acos\(/g, 'cos⁻¹(')
+    .replace(/atan\(/g, 'tan⁻¹(')
+    .replace(/asinh\(/g, 'sinh⁻¹(')
+    .replace(/acosh\(/g, 'cosh⁻¹(')
+    .replace(/atanh\(/g, 'tanh⁻¹(')
+    .replace(/nthRoot\(/g, '□√(')
+    .replace(/√\(/g, '√(□')
+    .replace(/Math\.sqrt\(/g, '√(□')
+    .replace(/\bans\b/g, 'Ans')
+    .replace(/\(−\)/g, '−');
+}
+
+// ─── NUMBER FORMAT ──────────────────────────────────────────────────────────
+function fmtNum(n) {
+  if (typeof n !== 'number') return String(n);
+  if (!isFinite(n)) return n === Infinity ? '∞' : (n === -Infinity ? '-∞' : 'ERR');
+  if (isNaN(n)) return 'ERROR';
+  const abs = Math.abs(n);
+  if (abs !== 0 && (abs >= 1e10 || abs < 1e-4)) {
+    const s = n.toExponential(9).replace(/0+e/, 'e').replace(/\.e/, 'e');
+    const [man, exp] = s.split('e');
+    return man + 'E' + parseInt(exp);
+  }
+  let s = n.toPrecision(10);
+  if (s.includes('.')) s = s.replace(/\.?0+$/, '');
+  return s;
+}
+
+function toFraction(x) {
+  if (!isFinite(x) || x !== Math.floor(x*1000)/1000) {
+    let h1=1,h2=0,k1=0,k2=1,b=x;
+    const limit = 1000;
+    for (let i=0;i<50;i++) {
+      const a = Math.floor(b);
+      let h=a*h1+h2, k=a*k1+k2;
+      if (Math.abs(h/k - x) < 1e-9 || k > limit) break;
+      h2=h1;h1=h;k2=k1;k1=k;
+      if (b===a) break;
+      b=1/(b-a);
+    }
+    const n=Math.round(x*k1), d=k1;
+    if (d===1) return String(n);
+    if (Math.abs(n/d - x) < 1e-9) return n+'/'+d;
+  }
+  return null;
+}
+
+// ─── KEY FLASH ─────────────────────────────────────────────────────────────
+function flashKey(btn) {
+  btn.classList.add('pressed');
+  setTimeout(() => btn.classList.remove('pressed'), 80);
+}
+
+// ─── DISPLAY ────────────────────────────────────────────────────────────────
+function render() {
+  document.getElementById('st2nd').className = 'status-2nd' + (S.is2nd ? ' active' : '');
+  document.getElementById('stAngle').textContent = S.angleMode;
+  document.getElementById('stArrows').className = 'status-arrows' + (S.history.length > 0 ? ' visible' : '');
+  document.getElementById('trigLabel').textContent = TRIG_LABELS[S.trigIdx % 12];
+  const varNames = S.is2nd ? VAR_2ND : VAR_MAIN;
+  document.getElementById('varLabel').textContent = varNames.join('');
+
+  // 2nd-mode keypad tint
+  const kp = document.getElementById('keypad');
+  if (S.is2nd) kp.classList.add('mode-2nd');
+  else kp.classList.remove('mode-2nd');
+
+  const l1 = document.getElementById('line1');
+  const l2 = document.getElementById('line2');
+  const l3 = document.getElementById('line3');
+  const l4 = document.getElementById('line4');
+
+  if (S.history.length > 0) {
+    const last = S.history[S.history.length-1];
+    l1.textContent = truncate(toDisplay(last.expr), 20);
+    l2.textContent = fmtNum(last.result);
+  } else {
+    l1.textContent = '';
+    l2.textContent = '';
+  }
+
+  if (S.showResult && S.lastResult !== null) {
+    l3.textContent = truncate(toDisplay(S.input), 22);
+    l4.textContent = fmtNum(S.lastResult);
+  } else {
+    l3.textContent = truncate(toDisplay(S.input), 22) + (S.menuActive ? '' : '▌');
+    l4.textContent = '';
+  }
+}
+
+function truncate(s, n) {
+  if (s.length > n) return '…' + s.slice(-(n-1));
+  return s;
+}
+
+// ─── MENU SYSTEM ────────────────────────────────────────────────────────────
+function showMenu(html, onKey) {
+  const overlay = document.getElementById('menuOverlay');
+  overlay.innerHTML = html;
+  overlay.style.display = 'block';
+  S.menuActive = onKey;
+}
+function closeMenu() {
+  document.getElementById('menuOverlay').style.display = 'none';
+  S.menuActive = null;
+  render();
+}
+
+// ─── KEY HANDLERS ──────────────────────────────────────────────────────────
+
+function k2nd(btn) {
+  S.is2nd = !S.is2nd;
+  document.getElementById('key2nd').className = 'key key-2nd' + (S.is2nd ? ' is-active' : '');
+  if (btn) flashKey(btn);
+  render();
+}
+
+function clear2nd() { if (S.is2nd) k2nd(); }
+
+function appendInput(s) {
+  if (S.showResult) { S.input = ''; S.showResult = false; S.lastResult = null; }
+  S.input += s;
+  render();
+}
+
+function kDigit(d) {
+  if (S.menuActive) { S.menuActive(d); return; }
+  if (S.is2nd && ['7','8','9'].includes(d)) {
+    const map = {'7':'A','8':'B','9':'C','4':'D','5':'E','6':'F'};
+    if (S.baseMode === 'HEX') { appendInput(map[d]||d); clear2nd(); return; }
+  }
+  appendInput(d);
+  clear2nd();
+}
+
+function kOp(op) {
+  if (S.menuActive) return;
+  if (S.showResult) S.showResult = false;
+  S.input += op;
+  render();
+  clear2nd();
+}
+
+function kDel() {
+  if (S.menuActive) { closeMenu(); return; }
+  if (S.is2nd) { S.input += ''; clear2nd(); return; }
+  if (S.showResult) { S.input = ''; S.showResult = false; S.lastResult = null; }
+  else { S.input = S.input.slice(0, -1); }
+  render();
+}
+
+function kClear() {
+  if (S.is2nd) { appendInput('/100'); clear2nd(); return; }
+  if (S.menuActive) { closeMenu(); return; }
+  if (S.input === '' || S.showResult) {
+    S.input = ''; S.showResult = false; S.lastResult = null; S.history = [];
+  } else {
+    S.input = ''; S.showResult = false; S.lastResult = null;
+  }
+  render();
+}
+
+function kEnter() {
+  if (S.menuActive) { if (typeof S.menuActive === 'function') S.menuActive('enter'); return; }
+  if (!S.input.trim()) return;
+  try {
+    const result = evalExpr(S.input);
+    S.lastResult = result;
+    S.ans = result;
+    S.history.push({ expr: S.input, result });
+    if (S.history.length > 20) S.history.shift();
+    S.showResult = true;
+    render();
+    S.storedOp = { expr: S.input, result };
+  } catch(e) {
+    document.getElementById('line4').textContent = e.message || 'ERROR';
+    S.showResult = true;
+    S.lastResult = null;
+  }
+  clear2nd();
+}
+
+// Multi-tap trig
+function kTrig() {
+  if (S.is2nd) { appendInput('π'); clear2nd(); return; }
+  if (S.menuActive) return;
+  if (S.showResult) { S.input = ''; S.showResult = false; S.lastResult = null; }
+  S.trigIdx = (S.trigIdx + 1) % 12;
+  const prevToken = TRIG_TOKENS[(S.trigIdx - 1 + 12) % 12];
+  if (S.input.endsWith(prevToken)) {
+    S.input = S.input.slice(0, -prevToken.length);
+  }
+  S.input += TRIG_TOKENS[S.trigIdx % 12];
+  render();
+}
+
+// Multi-tap ln/log
+function kLn() {
+  if (S.is2nd) {
+    showNumDerivWizard();
+    clear2nd();
+    return;
+  }
+  const tokens = ['ln(','log(','logB('];
+  const prev = tokens[S.lnIdx % 3];
+  S.lnIdx = (S.lnIdx + 1) % 3;
+  if (S.showResult) { S.input = ''; S.showResult = false; S.lastResult = null; }
+  if (S.input.endsWith(prev)) S.input = S.input.slice(0, -prev.length);
+  S.input += tokens[S.lnIdx];
+  render();
+}
+
+// Multi-tap e^x / 10^x
+function kEx() {
+  if (S.is2nd) { appendInput('fnInt('); clear2nd(); return; }
+  S.exIdx = (S.exIdx + 1) % 2;
+  if (S.showResult) { S.input = ''; S.showResult = false; S.lastResult = null; }
+  const tokens = ['e^(','10^('];
+  const prev = tokens[(S.exIdx+1)%2];
+  if (S.input.endsWith(prev)) S.input = S.input.slice(0, -prev.length);
+  S.input += tokens[S.exIdx];
+  render();
+}
+
+function kEE() {
+  if (S.is2nd) { kVectorMenu(); clear2nd(); return; }
+  appendInput('E');
+}
+
+function kNcr() {
+  if (S.is2nd) { kRandMenu(); clear2nd(); return; }
+  S.ncrIdx = (S.ncrIdx + 1) % 2;
+  const tokens = ['nCr(','nPr('];
+  const prev = tokens[(S.ncrIdx+1)%2];
+  if (S.input.endsWith(prev)) S.input = S.input.slice(0, -prev.length);
+  S.input += tokens[S.ncrIdx];
+  render();
+}
+
+function kTable() {
+  if (S.is2nd) { kExprEval(); clear2nd(); return; }
+  kTableWizard();
+}
+
+function kVar() {
+  if (S.is2nd) {
+    Object.keys(S.vars).forEach(k => S.vars[k] = 0);
+    document.getElementById('line4').textContent = 'VARS CLEARED';
+    setTimeout(render, 800);
+    clear2nd();
+    return;
+  }
+  S.varIdx = (S.varIdx + 1) % 4;
+  appendInput(VAR_MAIN[S.varIdx]);
+}
+
+function kRecall() {
+  if (S.is2nd) {
+    kSto();
+    clear2nd();
+    return;
+  }
+  showMenu(
+    `<div class="menu-title">RECALL VARS</div>` +
+    Object.entries(S.vars).map(([k,v],i)=>`<div class="menu-item">${i+1}:${k}=${fmtNum(v)}</div>`).join('') +
+    `<div style="margin-top:4px;font-size:7px;">Press key to insert var</div>`,
+    (key) => {
+      const keys = Object.keys(S.vars);
+      const idx = parseInt(key) - 1;
+      if (idx >= 0 && idx < keys.length) {
+        closeMenu();
+        appendInput(keys[idx]);
+      } else if (key === 'enter') closeMenu();
+    }
+  );
+}
+
+function kSto() {
+  showMenu(
+    `<div class="menu-title">STORE ANS → VAR</div>` +
+    `<div class="menu-prompt">ANS = ${fmtNum(S.ans)}</div>` +
+    Object.keys(S.vars).map((k,i)=>`<div class="menu-item">${i+1}:→${k}</div>`).join('') +
+    `<div style="margin-top:4px;font-size:7px;">[clear] to cancel</div>`,
+    (key) => {
+      const keys = Object.keys(S.vars);
+      const idx = parseInt(key) - 1;
+      if (idx >= 0 && idx < keys.length) {
+        S.vars[keys[idx]] = S.ans;
+        closeMenu();
+        document.getElementById('line4').textContent = `${fmtNum(S.ans)}→${keys[idx]}`;
+        setTimeout(render, 900);
+      } else if (key === 'enter') closeMenu();
+    }
+  );
+}
+
+function kNegAns() {
+  if (S.is2nd) { appendInput('ans'); clear2nd(); return; }
+  appendInput('(−)');
+}
+
+function kPower() {
+  if (S.is2nd) { appendInput('π'); clear2nd(); return; }
+  appendInput('^(');
+}
+
+function kFrac() {
+  if (S.is2nd) { appendInput('nthRoot('); clear2nd(); return; }
+  appendInput('(');
+}
+
+function kParen(p) {
+  if (S.is2nd) { appendInput(')'); clear2nd(); return; }
+  appendInput(p);
+}
+
+function kFd() {
+  if (S.lastResult !== null && isFinite(S.lastResult)) {
+    const frac = toFraction(S.lastResult);
+    const l4 = document.getElementById('line4');
+    if (frac && frac !== fmtNum(S.lastResult)) {
+      l4.textContent = frac;
+    } else {
+      l4.textContent = fmtNum(S.lastResult);
+    }
+  }
+}
+
+function kAns2nd() {
+  if (S.is2nd) { appendInput('^2'); clear2nd(); return; }
+  kFd();
+}
+
+function kOn() {
+  if (S.is2nd) {
+    S.input=''; S.showResult=false; S.lastResult=null;
+    document.getElementById('line1').textContent='';
+    document.getElementById('line2').textContent='';
+    document.getElementById('line3').textContent='';
+    document.getElementById('line4').textContent='';
+    clear2nd();
+    return;
+  }
+}
+
+function kMode() {
+  if (S.is2nd) { closeMenu(); clear2nd(); return; }
+  const modes = ['DEG','RAD','GRAD'];
+  const idx = modes.indexOf(S.angleMode);
+  S.angleMode = modes[(idx+1)%3];
+  render();
+  clear2nd();
+}
+
+function kUp() {
+  if (S.menuActive) return;
+  if (S.history.length === 0) return;
+  S.histIdx = Math.min(S.histIdx + 1, S.history.length - 1);
+  const entry = S.history[S.history.length - 1 - S.histIdx];
+  S.input = entry.expr;
+  S.showResult = false;
+  render();
+}
+function kDown() {
+  if (S.menuActive) return;
+  S.histIdx = Math.max(S.histIdx - 1, -1);
+  if (S.histIdx === -1) { S.input = ''; render(); return; }
+  const entry = S.history[S.history.length - 1 - S.histIdx];
+  S.input = entry.expr;
+  render();
+}
+function kLeft()  { if (S.menuActive) return; if (S.input.length) { S.input = S.input.slice(0,-1); render(); } }
+function kRight() { /* future cursor support */ }
+
+// ─── MATH MENU ─────────────────────────────────────────────────────────────
+function kMath() {
+  if (S.is2nd) { kMatrixMenu(); clear2nd(); return; }
+  const tabs = [
+    { name:'MATHS', items:['n/d⇔Un/d','lcm(','gcd(','►Pfactor','sum(','prod(','nDeriv(','fnInt('] },
+    { name:'NUM',   items:['abs(','round(','iPart(','fPart(','int(','min(','max(','mod('] },
+    { name:'DMS',   items:['\xB0',"'",'\"','r','g','►DMS'] },
+    { name:'R⇔P',   items:['P▶Rx(','P▶Ry(','R▶Pr(','R▶Pθ('] },
+  ];
+  let activeTab = 0;
+  function renderMathMenu() {
+    const t = tabs[activeTab];
+    return `<div class="menu-tabs">${tabs.map((tab,i)=>`<span class="menu-tab${i===activeTab?' active':''}" onclick="mathTab(${i})">${tab.name}</span>`).join('')}</div>`
+      + t.items.map((it,i)=>`<div class="menu-item" onclick="mathSelect('${it}')">${i+1}:${it}</div>`).join('');
+  }
+  window.mathTab = (i) => {
+    activeTab = i;
+    document.getElementById('menuOverlay').innerHTML = renderMathMenu();
+  };
+  window.mathSelect = (item) => {
+    closeMenu();
+    if (item === '►DMS') { kConvertDMS(); return; }
+    if (item === '►Pfactor') { kPrimeFactor(); return; }
+    if (item === 'n/d⇔Un/d') { kFd(); return; }
+    appendInput(item);
+  };
+  showMenu(renderMathMenu(), (key) => {
+    const t = tabs[activeTab];
+    const idx = parseInt(key)-1;
+    if (idx>=0 && idx<t.items.length) { window.mathSelect(t.items[idx]); return; }
+    if (key==='enter') closeMenu();
+  });
+  clear2nd();
+}
+
+function kConvertDMS() {
+  if (S.lastResult !== null) {
+    const deg = S.lastResult;
+    const d = Math.floor(deg);
+    const m = Math.floor((deg-d)*60);
+    const s = ((deg-d)*3600 - m*60).toFixed(1);
+    document.getElementById('line4').textContent = `${d}\xB0${m}'${s}"`;
+    S.showResult = true;
+  }
+}
+
+function kPrimeFactor() {
+  let n = Math.round(S.lastResult || evalExpr(S.input));
+  const factors = [];
+  let d = 2;
+  while (d * d <= n) { while (n % d === 0) { factors.push(d); n /= d; } d++; }
+  if (n > 1) factors.push(n);
+  document.getElementById('line4').textContent = factors.join('×');
+  S.showResult = true;
+}
+
+// ─── MATRIX MENU ───────────────────────────────────────────────────────────
+const matrices = { A:[[0,0],[0,0]], B:[[0,0],[0,0]], C:[[0,0],[0,0]] };
+
+function kMatrixMenu() {
+  let selMat = 'A', rows=2, cols=2;
+  function renderMatRow(r,c) {
+    const m = matrices[selMat];
+    return `<div class="menu-title">MATRIX [${selMat}] ${rows}×${cols}</div>
+    <div style="display:grid;grid-template-columns:repeat(${c},1fr);gap:2px;margin-bottom:4px;">
+    ${m.slice(0,r).map(row=>row.slice(0,c).map(v=>`<input type="number" value="${v}" style="width:100%"/>`).join('')).join('')}
+    </div>
+    <div style="margin:3px 0 1px;font-size:7.5px;font-weight:700;">OPERATIONS</div>
+    <div class="menu-item" onclick="matOp('det')">1:det(A)</div>
+    <div class="menu-item" onclick="matOp('inv')">2:inv(A)</div>
+    <div class="menu-item" onclick="matOp('T')">3:A^T</div>
+    <div class="menu-item" onclick="matOp('A+B')">4:A+B</div>
+    <div class="menu-item" onclick="matOp('A*B')">5:A×B</div>
+    <div style="font-size:7px;margin-top:3px;">[clear] close</div>`;
+  }
+  window.matOp = (op) => {
+    const A = matrices.A, B = matrices.B;
+    let res = '';
+    if (op==='det') {
+      const d = A[0][0]*A[1][1]-A[0][1]*A[1][0];
+      res = 'det(A)='+fmtNum(d);
+    } else if (op==='T') {
+      const T = [[A[0][0],A[1][0]],[A[0][1],A[1][1]]];
+      res = `[[${T[0]}],[${T[1]}]]`;
+    } else if (op==='inv') {
+      const d = A[0][0]*A[1][1]-A[0][1]*A[1][0];
+      if (d===0) { res='SINGULAR'; }
+      else {
+        const inv = [[A[1][1]/d,-A[0][1]/d],[-A[1][0]/d,A[0][0]/d]];
+        res=`[[${inv[0].map(x=>fmtNum(x))}],[${inv[1].map(x=>fmtNum(x))}]]`;
+      }
+    } else if (op==='A+B') {
+      res=`[[${A[0][0]+B[0][0]},${A[0][1]+B[0][1]}],[${A[1][0]+B[1][0]},${A[1][1]+B[1][1]}]]`;
+    } else if (op==='A*B') {
+      const r00=A[0][0]*B[0][0]+A[0][1]*B[1][0], r01=A[0][0]*B[0][1]+A[0][1]*B[1][1];
+      const r10=A[1][0]*B[0][0]+A[1][1]*B[1][0], r11=A[1][0]*B[0][1]+A[1][1]*B[1][1];
+      res=`[[${fmtNum(r00)},${fmtNum(r01)}],[${fmtNum(r10)},${fmtNum(r11)}]]`;
+    }
+    document.getElementById('line4').textContent = res;
+    S.showResult = true;
+    closeMenu();
+  };
+  showMenu(renderMatRow(rows,cols), (key)=>{ if(key==='enter')closeMenu(); });
+  clear2nd();
+}
+
+// ─── DATA / STAT ────────────────────────────────────────────────────────────
+const dataLists = { L1: [1,2,3,4,5], L2: [2,4,6,8,10] };
+
+function kData() {
+  if (S.is2nd) { kStatMenu(); clear2nd(); return; }
+  showMenu(
+    `<div class="menu-title">DATA LISTS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px;">
+    <div><div style="font-weight:700;font-size:8px;">L1</div>
+    ${dataLists.L1.map((v,i)=>`<input type="number" value="${v}" style="width:100%;font-size:8px" onchange="dataLists.L1[${i}]=+this.value"/>`).join('')}
+    </div><div><div style="font-weight:700;font-size:8px;">L2</div>
+    ${dataLists.L2.map((v,i)=>`<input type="number" value="${v}" style="width:100%;font-size:8px" onchange="dataLists.L2[${i}]=+this.value"/>`).join('')}
+    </div></div>
+    <div class="menu-item" onclick="addDataRow()">+:Add row</div>
+    <div style="font-size:7px;margin-top:3px;">[clear] close</div>`,
+    (key)=>{ if(key==='enter'||key==='c')closeMenu(); }
+  );
+  window.addDataRow = () => { dataLists.L1.push(0); dataLists.L2.push(0); kData(); };
+}
+
+function kStatMenu() {
+  let activeTab = 0;
+  const tabs = ['STAT','REGR','DISTR'];
+  const statItems = ['1-Var Stats','2-Var Stats'];
+  const regrItems = ['LinReg(ax+b)','LinReg(a+bx)','QuadReg','CubicReg','ExpReg','LnReg','PowerReg'];
+  const distrItems = ['normalpdf(','normalcdf(','invNorm(','binompdf(','binomcdf(','poissonpdf(','poissoncdf('];
+
+  window.statTab = (i) => { activeTab = i; document.getElementById('menuOverlay').innerHTML = renderStatMenu(); };
+  window.statSelect = (item) => {
+    if (item === '1-Var Stats') { do1VarStats(); return; }
+    if (item === 'LinReg(ax+b)' || item === 'LinReg(a+bx)') { doLinReg(item); return; }
+    closeMenu(); appendInput(item);
+  };
+  function renderStatMenu() {
+    const items = activeTab===0?statItems:activeTab===1?regrItems:distrItems;
+    return `<div class="menu-tabs">${tabs.map((t,i)=>`<span class="menu-tab${i===activeTab?' active':''}" onclick="statTab(${i})">${t}</span>`).join('')}</div>`
+      + items.map((it,i)=>`<div class="menu-item" onclick="statSelect('${it}')">${i+1}:${it}</div>`).join('');
+  }
+  showMenu(renderStatMenu(), (key)=>{
+    const items = activeTab===0?statItems:activeTab===1?regrItems:distrItems;
+    const idx=parseInt(key)-1;
+    if(idx>=0&&idx<items.length){statSelect(items[idx]);return;}
+    if(key==='enter')closeMenu();
+  });
+}
+
+function do1VarStats() {
+  const data = dataLists.L1;
+  const n = data.length;
+  const sum = data.reduce((a,b)=>a+b,0);
+  const mean = sum/n;
+  const sum2 = data.reduce((a,b)=>a+b*b,0);
+  const sx = Math.sqrt((sum2-n*mean*mean)/(n-1));
+  const sigx = Math.sqrt((sum2-n*mean*mean)/n);
+  const sorted = [...data].sort((a,b)=>a-b);
+  const med = n%2===0?(sorted[n/2-1]+sorted[n/2])/2:sorted[Math.floor(n/2)];
+  closeMenu();
+  showMenu(
+    `<div class="menu-title">1-VAR STATS (L1)</div>
+    <div class="menu-item">n   = ${n}</div>
+    <div class="menu-item">x&#x0304;   = ${fmtNum(mean)}</div>
+    <div class="menu-item">Σx  = ${fmtNum(sum)}</div>
+    <div class="menu-item">Σx\xB2 = ${fmtNum(sum2)}</div>
+    <div class="menu-item">Sx  = ${fmtNum(sx)}</div>
+    <div class="menu-item">σx  = ${fmtNum(sigx)}</div>
+    <div class="menu-item">min = ${sorted[0]}</div>
+    <div class="menu-item">max = ${sorted[n-1]}</div>
+    <div class="menu-item">med = ${fmtNum(med)}</div>
+    <div style="font-size:7px;margin-top:3px;">[clear] close</div>`,
+    (k)=>{if(k==='enter')closeMenu();}
+  );
+}
+
+function doLinReg(type) {
+  const x = dataLists.L1, y = dataLists.L2;
+  const n = Math.min(x.length, y.length);
+  let sx=0,sy=0,sxy=0,sx2=0;
+  for(let i=0;i<n;i++){sx+=x[i];sy+=y[i];sxy+=x[i]*y[i];sx2+=x[i]*x[i];}
+  const xm=sx/n, ym=sy/n;
+  const b=(sxy-n*xm*ym)/(sx2-n*xm*xm);
+  const a=ym-b*xm;
+  const sy2 = y.slice(0,n).reduce((acc,v)=>acc+v*v,0);
+  const sst = sy2-n*ym*ym;
+  const sse = y.slice(0,n).reduce((acc,v,i)=>acc+(v-(a+b*x[i]))**2,0);
+  const r2 = sst>0?1-sse/sst:1;
+  const r = Math.sqrt(r2)*Math.sign(b);
+  closeMenu();
+  showMenu(
+    `<div class="menu-title">${type}</div>
+    <div class="menu-item">a = ${fmtNum(a)}</div>
+    <div class="menu-item">b = ${fmtNum(b)}</div>
+    <div class="menu-item">r = ${fmtNum(r)}</div>
+    <div class="menu-item">r\xB2= ${fmtNum(r2)}</div>
+    <div class="menu-tip">Tip: r\xB2 close to 1 = good fit</div>
+    <div style="font-size:7px;margin-top:3px;">[clear] close</div>`,
+    (k)=>{if(k==='enter')closeMenu();}
+  );
+}
+
+// ─── NUMERICAL SOLVER ──────────────────────────────────────────────────────
+function kNumSolv() {
+  if (S.is2nd) { S.complexMode = !S.complexMode; document.getElementById('stAngle').textContent = S.angleMode + (S.complexMode?'ℂ':''); clear2nd(); return; }
+  let fStr = '', guess = '0';
+  function renderNS(step, msg='') {
+    if (step===1) return `<div class="menu-title">NUM SOLVER</div>
+      <div class="menu-prompt">f(x) = 0 → enter f(x):</div>
+      <input type="text" id="ns_f" placeholder="e.g. x-cos(x)" value="${fStr}" onchange="fStr=this.value"/>
+      <div class="menu-prompt">Initial guess x =</div>
+      <input type="number" id="ns_g" value="${guess}" onchange="guess=this.value"/>
+      <div class="menu-item" onclick="runNumSolv()">[solve]</div>
+      ${msg?`<div class="menu-result">${msg}</div>`:''}
+      <div class="menu-tip">💡 NumSolv: great for transcendental equations (e.g. x=cos(x)). For polynomials ≤4\xB0, use PolySolv.</div>
+      <div style="font-size:7px;">[clear] close</div>`;
+    return '';
+  }
+  window.runNumSolv = () => {
+    fStr = document.getElementById('ns_f').value;
+    guess = document.getElementById('ns_g').value;
+    const t0 = Date.now();
+    let x = parseFloat(guess) || 0;
+    let result;
+    try {
+      for (let i=0;i<200;i++) {
+        const fx = evalExpr(fStr.replace(/\bx\b/g,`(${x})`));
+        const h = 1e-7;
+        const dfx = (evalExpr(fStr.replace(/\bx\b/g,`(${x+h})`)) - fx) / h;
+        if (Math.abs(dfx) < 1e-15) break;
+        const xn = x - fx/dfx;
+        if (Math.abs(xn-x) < 1e-10) { x=xn; break; }
+        x = xn;
+      }
+      result = x;
+      S.ans = result; S.lastResult = result;
+      document.getElementById('menuOverlay').innerHTML = renderNS(1, `x = ${fmtNum(result)}`);
+    } catch(e) {
+      document.getElementById('menuOverlay').innerHTML = renderNS(1, 'ERROR: '+e.message);
+    }
+  };
+  showMenu(renderNS(1), (key)=>{ if(key==='enter') { window.runNumSolv?.(); } });
+  clear2nd();
+}
+
+// ─── POLY SOLVER ───────────────────────────────────────────────────────────
+function kPolySolv() {
+  let deg = 2, coeffs = [1,0,-1];
+  function renderPS(msg='') {
+    const labels = ['a','b','c','d','e'].slice(0,deg+1);
+    return `<div class="menu-title">POLY SOLVER</div>
+      <div class="menu-prompt">Degree: <span onclick="polyDeg(2)">2</span> | <span onclick="polyDeg(3)">3</span> | <span onclick="polyDeg(4)">4</span></div>
+      ${labels.map((l,i)=>`<div style="display:flex;align-items:center;gap:4px"><span style="width:12px">${l}</span><input type="number" id="pc${i}" value="${coeffs[i]||0}" style="flex:1" onchange="coeffs[${i}]=+this.value"/></div>`).join('')}
+      <div class="menu-item" onclick="runPolySolv()">[solve]</div>
+      ${msg?`<div class="menu-result" style="white-space:pre-wrap">${msg}</div>`:''}
+      <div class="menu-tip">💡 PolySolv is faster than NumSolv for polynomial equations. Ideal for quadratics in exams!</div>
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.polyDeg = (d) => {
+    deg=d; coeffs=new Array(d+1).fill(0); coeffs[0]=1;
+    document.getElementById('menuOverlay').innerHTML=renderPS();
+  };
+  window.runPolySolv = () => {
+    for(let i=0;i<=deg;i++) coeffs[i]=+(document.getElementById('pc'+i)?.value||0);
+    let msg='';
+    if (deg===2) {
+      const [a,b,c]=coeffs;
+      const disc=b*b-4*a*c;
+      if(disc>=0){
+        const r1=(-b+Math.sqrt(disc))/(2*a), r2=(-b-Math.sqrt(disc))/(2*a);
+        msg=`x₁=${fmtNum(r1)}\nx₂=${fmtNum(r2)}`;
+      } else {
+        const re=-b/(2*a), im=Math.sqrt(-disc)/(2*a);
+        msg=`x₁=${fmtNum(re)}+${fmtNum(im)}i\nx₂=${fmtNum(re)}-${fmtNum(im)}i`;
+      }
+    } else {
+      const roots = durandKerner(coeffs);
+      msg = roots.map((r,i)=>`x${i+1}=${r}`).join('\n');
+    }
+    document.getElementById('menuOverlay').innerHTML=renderPS(msg);
+  };
+  showMenu(renderPS(), (key)=>{if(key==='enter')closeMenu();});
+  clear2nd();
+}
+
+function durandKerner(coeffs) {
+  const n = coeffs.length-1;
+  const a = coeffs[0];
+  const norm = coeffs.map(c=>c/a);
+  let roots = [];
+  for(let i=0;i<n;i++) {
+    const angle = 2*Math.PI*i/n;
+    roots.push({ re: Math.cos(angle)*0.4, im: Math.sin(angle)*0.4 });
+  }
+  function polyVal(z) {
+    let re=norm[0], im=0;
+    for(let i=1;i<norm.length;i++) {
+      const nr = re*z.re - im*z.im + norm[i];
+      const ni = re*z.im + im*z.re;
+      re=nr; im=ni;
+    }
+    return {re,im};
+  }
+  for(let iter=0;iter<80;iter++) {
+    for(let i=0;i<n;i++) {
+      const pz = polyVal(roots[i]);
+      let dre=1, dim=0;
+      for(let j=0;j<n;j++){
+        if(i===j) continue;
+        const dr = roots[i].re-roots[j].re, di = roots[i].im-roots[j].im;
+        const d2 = dr*dr+di*di;
+        if(d2<1e-20) continue;
+        const nr = (dre*dr+dim*di)/d2, ni = (dim*dr-dre*di)/d2;
+        dre=nr; dim=ni;
+      }
+      const d2=dre*dre+dim*dim;
+      if(d2<1e-30) continue;
+      const qre=(pz.re*dre+pz.im*dim)/d2, qim=(pz.im*dre-pz.re*dim)/d2;
+      roots[i]={re:roots[i].re-qre, im:roots[i].im-qim};
+    }
+  }
+  return roots.map(r=>{
+    const re=Math.round(r.re*1e8)/1e8, im=Math.round(r.im*1e8)/1e8;
+    if(Math.abs(im)<1e-6) return fmtNum(re);
+    return `${fmtNum(re)}${im>=0?'+':''}${fmtNum(im)}i`;
+  });
+}
+
+// ─── SYS SOLVER ────────────────────────────────────────────────────────────
+function kSysSolv() {
+  let size = 2;
+  let M = [[1,0,0],[0,1,0]];
+  function renderSS(msg='') {
+    const sz3 = size===3;
+    return `<div class="menu-title">SYSTEM SOLVER ${size}×${size}</div>
+      <div onclick="sysSize(2)" style="display:inline;font-size:8px;cursor:pointer">2×2</div> | <div onclick="sysSize(3)" style="display:inline;font-size:8px;cursor:pointer">3×3</div>
+      ${Array.from({length:size},(_,i)=>
+        `<div style="display:flex;gap:2px;align-items:center">` +
+        Array.from({length:size},(_,j)=>
+          `<input type="number" id="sm${i}_${j}" value="${M[i]?.[j]||0}" style="width:${sz3?'28px':'36px'};font-size:8px" onchange="M[${i}][${j}]=+this.value"/>`
+        ).join('<span style="font-size:8px">x</span>') +
+        `<span style="font-size:8px">=</span><input type="number" id="sm${i}_${size}" value="${M[i]?.[size]||0}" style="width:${sz3?'28px':'36px'};font-size:8px" onchange="M[${i}][${size}]=+this.value"/>` +
+        `</div>`
+      ).join('')}
+      <div class="menu-item" onclick="runSysSolv()">[solve]</div>
+      ${msg?`<div class="menu-result">${msg}</div>`:''}
+      <div class="menu-tip">💡 SysSolv useful in Statistik for regression coefficient calculations!</div>
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.sysSize=(s)=>{size=s;M=Array.from({length:s},(_,i)=>new Array(s+1).fill(0));document.getElementById('menuOverlay').innerHTML=renderSS();};
+  window.runSysSolv=()=>{
+    for(let i=0;i<size;i++) for(let j=0;j<=size;j++) M[i][j]=+(document.getElementById(`sm${i}_${j}`)?.value||0);
+    const A=M.map(r=>r.slice(0,size)), b=M.map(r=>r[size]);
+    const aug=A.map((r,i)=>[...r,b[i]]);
+    for(let col=0;col<size;col++){
+      let maxRow=col;
+      for(let r=col+1;r<size;r++) if(Math.abs(aug[r][col])>Math.abs(aug[maxRow][col])) maxRow=r;
+      [aug[col],aug[maxRow]]=[aug[maxRow],aug[col]];
+      if(Math.abs(aug[col][col])<1e-12){document.getElementById('menuOverlay').innerHTML=renderSS('No unique solution');return;}
+      for(let r=0;r<size;r++){
+        if(r===col) continue;
+        const f=aug[r][col]/aug[col][col];
+        for(let c=col;c<=size;c++) aug[r][c]-=f*aug[col][c];
+      }
+    }
+    const sol=aug.map((r,i)=>r[size]/r[i]);
+    const varNames=['x','y','z'];
+    const msg=sol.map((v,i)=>`${varNames[i]}=${fmtNum(v)}`).join(', ');
+    sol.forEach((v,i)=>{if(varNames[i]in S.vars)S.vars[varNames[i]]=v;});
+    document.getElementById('menuOverlay').innerHTML=renderSS(msg);
+  };
+  showMenu(renderSS(),(key)=>{if(key==='enter')closeMenu();});
+  clear2nd();
+}
+
+// ─── CONSTANTS ─────────────────────────────────────────────────────────────
+function kConstants() {
+  const consts = [
+    ['c','2.99792458E8','speed of light (m/s)'],
+    ['g','9.80665','gravity (m/s\xB2)'],
+    ['G','6.6743E-11','grav. constant'],
+    ['h','6.62607015E-34','Planck (J·s)'],
+    ['e','1.602176634E-19','electron charge (C)'],
+    ['mₑ','9.1093837015E-31','electron mass (kg)'],
+    ['Nₐ','6.02214076E23','Avogadro (mol⁻\xB9)'],
+    ['R','8.314462618','gas constant (J/mol·K)'],
+    ['k','1.380649E-23','Boltzmann (J/K)'],
+  ];
+  showMenu(
+    `<div class="menu-title">CONSTANTS</div>` +
+    consts.map((c,i)=>`<div class="menu-item" onclick="insertConst('${c[1]}')">${i+1}:${c[0]} = ${c[1]}</div>`).join('') +
+    `<div style="font-size:7px;margin-top:3px">[clear] close</div>`,
+    (key)=>{
+      const idx=parseInt(key)-1;
+      if(idx>=0&&idx<consts.length){closeMenu();appendInput(consts[idx][1]);}
+      else if(key==='enter')closeMenu();
+    }
+  );
+  window.insertConst=(v)=>{closeMenu();appendInput(v);};
+  clear2nd();
+}
+
+// ─── OP ────────────────────────────────────────────────────────────────────
+function kOp2() {
+  if (!S.storedOp) {
+    showMenu(
+      `<div class="menu-title">STORED OP</div><div class="menu-prompt">No stored op.</div><div style="font-size:7px">Evaluate expression first, then press [op] to store.</div>`,
+      (k)=>{if(k==='enter')closeMenu();}
+    );
+  } else {
+    showMenu(
+      `<div class="menu-title">STORED OP</div><div class="menu-item" onclick="replayOp()">1:Replay: ${truncate(S.storedOp.expr,15)}</div><div class="menu-item" onclick="clearStoOp()">2:Clear</div>`,
+      (key)=>{
+        if(key==='1'){window.replayOp();}
+        else if(key==='2'){window.clearStoOp();}
+        else if(key==='enter')closeMenu();
+      }
+    );
+    window.replayOp=()=>{closeMenu();S.input=S.storedOp.expr;render();};
+    window.clearStoOp=()=>{S.storedOp=null;closeMenu();};
+  }
+  clear2nd();
+}
+
+// ─── SET OP ────────────────────────────────────────────────────────────────
+function kSetOp() {
+  let setA='', setB='';
+  function parseSet(s){ return s.split(',').map(x=>x.trim()).filter(Boolean); }
+  function renderSO(msg=''){
+    return `<div class="menu-title">SET OPERATIONS</div>
+      <div class="menu-prompt">Set A (comma-sep):</div>
+      <input type="text" id="soA" value="${setA}" onchange="setA=this.value"/>
+      <div class="menu-prompt">Set B (comma-sep):</div>
+      <input type="text" id="soB" value="${setB}" onchange="setB=this.value"/>
+      <div class="menu-item" onclick="doSetOp('union')">1:A∪B Union</div>
+      <div class="menu-item" onclick="doSetOp('inter')">2:A∩B Intersect</div>
+      <div class="menu-item" onclick="doSetOp('diff')">3:A\\B Complement</div>
+      ${msg?`<div class="menu-result">${msg}</div>`:''}
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.doSetOp=(op)=>{
+    setA=document.getElementById('soA')?.value||setA;
+    setB=document.getElementById('soB')?.value||setB;
+    const A=parseSet(setA), B=parseSet(setB);
+    let res;
+    if(op==='union') res=[...new Set([...A,...B])];
+    else if(op==='inter') res=A.filter(x=>B.includes(x));
+    else res=A.filter(x=>!B.includes(x));
+    document.getElementById('menuOverlay').innerHTML=renderSO('{'+res.join(', ')+'}');
+  };
+  showMenu(renderSO(),(key)=>{if(key==='enter')closeMenu();});
+  clear2nd();
+}
+
+// ─── CONVERT ───────────────────────────────────────────────────────────────
+function kConvert() {
+  const cats = [
+    { name:'Length', units:['m','ft','cm','in','km','mi'],
+      toBase:{m:1,ft:0.3048,cm:0.01,in:0.0254,km:1000,mi:1609.344} },
+    { name:'Temp', units:['\xB0C','\xB0F','K'],
+      toBase:{} },
+    { name:'Mass', units:['kg','lb','g','oz'],
+      toBase:{kg:1,lb:0.45359237,g:0.001,oz:0.028349523} },
+    { name:'Speed', units:['km/h','m/s','mph'],
+      toBase:{'km/h':1/3.6,'m/s':1,'mph':0.44704} },
+    { name:'Pressure', units:['Pa','atm','bar'],
+      toBase:{Pa:1,atm:101325,bar:100000} },
+  ];
+  let selCat=0, fromU='', toU='', val='', result='';
+  function renderCV(){
+    const cat=cats[selCat];
+    return `<div class="menu-title">CONVERT</div>
+      <div class="menu-tabs">${cats.map((c,i)=>`<span class="menu-tab${i===selCat?' active':''}" onclick="cvCat(${i})">${c.name}</span>`).join('')}</div>
+      <input type="number" id="cvVal" placeholder="Value" value="${val}" onchange="val=this.value"/>
+      <div style="display:flex;gap:3px">
+      <select id="cvFrom" onchange="fromU=this.value" style="flex:1;font-size:8px;background:#c8d4a0;border:1px solid #6a7848">
+        ${cat.units.map(u=>`<option value="${u}"${u===fromU?' selected':''}>${u}</option>`).join('')}
+      </select>
+      <span style="font-size:10px">→</span>
+      <select id="cvTo" onchange="toU=this.value" style="flex:1;font-size:8px;background:#c8d4a0;border:1px solid #6a7848">
+        ${cat.units.map(u=>`<option value="${u}"${u===toU?' selected':''}>${u}</option>`).join('')}
+      </select>
+      </div>
+      <div class="menu-item" onclick="runConvert()">[convert]</div>
+      ${result?`<div class="menu-result">${result}</div>`:''}
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.cvCat=(i)=>{selCat=i;fromU='';toU='';document.getElementById('menuOverlay').innerHTML=renderCV();};
+  window.runConvert=()=>{
+    val=document.getElementById('cvVal')?.value||val;
+    fromU=document.getElementById('cvFrom')?.value||fromU;
+    toU=document.getElementById('cvTo')?.value||toU;
+    const v=parseFloat(val);
+    const cat=cats[selCat];
+    let res;
+    if(cat.name==='Temp'){
+      let celsius;
+      if(fromU==='\xB0C') celsius=v;
+      else if(fromU==='\xB0F') celsius=(v-32)*5/9;
+      else celsius=v-273.15;
+      if(toU==='\xB0C') res=celsius;
+      else if(toU==='\xB0F') res=celsius*9/5+32;
+      else res=celsius+273.15;
+    } else {
+      const base=v*cat.toBase[fromU];
+      res=base/cat.toBase[toU];
+    }
+    result=`${val} ${fromU} = ${fmtNum(res)} ${toU}`;
+    document.getElementById('menuOverlay').innerHTML=renderCV();
+  };
+  showMenu(renderCV(),(key)=>{if(key==='enter')closeMenu();});
+  clear2nd();
+}
+
+// ─── BASE-N ─────────────────────────────────────────────────────────────────
+function kBaseN() {
+  let val = Math.round(S.lastResult||0)||0;
+  function renderBN(msg=''){
+    return `<div class="menu-title">BASE-N (current: ${S.baseMode})</div>
+      <div class="menu-item" onclick="setBase('DEC')">1:DEC ${val}</div>
+      <div class="menu-item" onclick="setBase('HEX')">2:HEX ${val.toString(16).toUpperCase()}</div>
+      <div class="menu-item" onclick="setBase('BIN')">3:BIN ${val.toString(2)}</div>
+      <div class="menu-item" onclick="setBase('OCT')">4:OCT ${val.toString(8)}</div>
+      <div style="margin-top:3px;font-size:7.5px;font-weight:700">LOGIC OPS</div>
+      <div class="menu-item" onclick="boolOp('AND')">5:AND</div>
+      <div class="menu-item" onclick="boolOp('OR')">6:OR</div>
+      <div class="menu-item" onclick="boolOp('XOR')">7:XOR</div>
+      ${msg?`<div class="menu-result">${msg}</div>`:''}
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.setBase=(b)=>{S.baseMode=b;document.getElementById('menuOverlay').innerHTML=renderBN(`Mode: ${b}`);};
+  window.boolOp=(op)=>{
+    const a=val, b=prompt(op+' with:',0)|0;
+    let res;
+    if(op==='AND')res=a&b;
+    else if(op==='OR')res=a|b;
+    else res=a^b;
+    document.getElementById('menuOverlay').innerHTML=renderBN(`${a} ${op} ${b} = ${res}`);
+  };
+  showMenu(renderBN(),(key)=>{
+    const map={'1':'DEC','2':'HEX','3':'BIN','4':'OCT'};
+    if(map[key]){window.setBase(map[key]);}
+    else if(key==='enter')closeMenu();
+  });
+  clear2nd();
+}
+
+// ─── VECTOR MENU ───────────────────────────────────────────────────────────
+function kVectorMenu() {
+  let vA=[0,0,0], vB=[0,0,0];
+  function renderVec(msg=''){
+    return `<div class="menu-title">VECTORS</div>
+      <div style="display:flex;gap:4px">
+      <div style="flex:1"><div style="font-size:7.5px;font-weight:700">A</div>
+      ${['x','y','z'].map((l,i)=>`${l}:<input type="number" id="va${i}" value="${vA[i]}" onchange="vA[${i}]=+this.value" style="width:36px;font-size:8px"/>`).join('<br/>')}</div>
+      <div style="flex:1"><div style="font-size:7.5px;font-weight:700">B</div>
+      ${['x','y','z'].map((l,i)=>`${l}:<input type="number" id="vb${i}" value="${vB[i]}" onchange="vB[${i}]=+this.value" style="width:36px;font-size:8px"/>`).join('<br/>')}</div>
+      </div>
+      <div class="menu-item" onclick="vecOp('A+B')">1:A+B</div>
+      <div class="menu-item" onclick="vecOp('A-B')">2:A-B</div>
+      <div class="menu-item" onclick="vecOp('dot')">3:A·B (dot)</div>
+      <div class="menu-item" onclick="vecOp('cross')">4:A×B (cross)</div>
+      <div class="menu-item" onclick="vecOp('|A|')">5:|A| magnitude</div>
+      ${msg?`<div class="menu-result">${msg}</div>`:''}
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.vecOp=(op)=>{
+    for(let i=0;i<3;i++){vA[i]=+(document.getElementById('va'+i)?.value||0);vB[i]=+(document.getElementById('vb'+i)?.value||0);}
+    let msg;
+    if(op==='A+B')msg=`(${vA.map((v,i)=>fmtNum(v+vB[i])).join(',')})`;
+    else if(op==='A-B')msg=`(${vA.map((v,i)=>fmtNum(v-vB[i])).join(',')})`;
+    else if(op==='dot')msg=`${fmtNum(vA.reduce((s,v,i)=>s+v*vB[i],0))}`;
+    else if(op==='cross'){
+      const cx=vA[1]*vB[2]-vA[2]*vB[1], cy=vA[2]*vB[0]-vA[0]*vB[2], cz=vA[0]*vB[1]-vA[1]*vB[0];
+      msg=`(${fmtNum(cx)},${fmtNum(cy)},${fmtNum(cz)})`;
+    } else msg=fmtNum(Math.sqrt(vA.reduce((s,v)=>s+v*v,0)));
+    document.getElementById('menuOverlay').innerHTML=renderVec(msg);
+  };
+  showMenu(renderVec(),(key)=>{if(key==='enter')closeMenu();});
+}
+
+// ─── RANDOM MENU ───────────────────────────────────────────────────────────
+function kRandMenu() {
+  showMenu(
+    `<div class="menu-title">RANDOM</div>
+    <div class="menu-item" onclick="doRand(1)">1:rand (0-1)</div>
+    <div class="menu-item" onclick="doRand(2)">2:randInt(a,b)</div>
+    <div class="menu-item" onclick="doRand(3)">3:randBin(n,p)</div>
+    <div style="font-size:7px">[clear] close</div>`,
+    (key)=>{
+      const idx=parseInt(key);
+      if(idx>=1&&idx<=3){window.doRand(idx);}
+      else if(key==='enter')closeMenu();
+    }
+  );
+  window.doRand=(type)=>{
+    let res;
+    if(type===1){res=Math.random();}
+    else if(type===2){const a=+prompt('a=',0)||0,b=+prompt('b=',10)||10;res=Math.floor(Math.random()*(b-a+1))+a;}
+    else{const n=+prompt('n=',10)||10,p=+prompt('p=',0.5)||0.5;let s=0;for(let i=0;i<n;i++)if(Math.random()<p)s++;res=s;}
+    closeMenu();
+    S.ans=res;S.lastResult=res;
+    document.getElementById('line4').textContent=fmtNum(res);
+    S.showResult=true;
+  };
+}
+
+// ─── TABLE WIZARD ──────────────────────────────────────────────────────────
+function kTableWizard() {
+  let fexpr='x^2', start=0, step=1, count=8;
+  function renderTbl(rows=''){
+    return `<div class="menu-title">FUNCTION TABLE</div>
+      <div class="menu-prompt">f(x)=</div>
+      <input type="text" id="tf" value="${fexpr}" onchange="fexpr=this.value"/>
+      <div style="display:flex;gap:3px">
+      <div><div class="menu-prompt">start</div><input type="number" id="ts" value="${start}" onchange="start=+this.value" style="width:46px"/></div>
+      <div><div class="menu-prompt">step</div><input type="number" id="tstep" value="${step}" onchange="step=+this.value" style="width:46px"/></div>
+      </div>
+      <div class="menu-item" onclick="runTable()">[generate]</div>
+      ${rows?`<div style="font-size:8px;margin-top:3px;white-space:pre;background:#d0dc98;padding:2px">${rows}</div>`:''}
+      <div style="font-size:7px">[clear] close</div>`;
+  }
+  window.runTable=()=>{
+    fexpr=document.getElementById('tf')?.value||fexpr;
+    start=+(document.getElementById('ts')?.value)||start;
+    step=+(document.getElementById('tstep')?.value)||step;
+    let rows='  x    │ f(x)\n─────────────\n';
+    for(let i=0;i<8;i++){
+      const x=start+i*step;
+      let y;
+      try{y=evalExpr(fexpr.replace(/\bx\b/g,`(${x})`));}catch{y='ERR';}
+      rows+=`${String(x).padStart(5)} │ ${typeof y==='number'?fmtNum(y):'ERR'}\n`;
+    }
+    document.getElementById('menuOverlay').innerHTML=renderTbl(rows);
+  };
+  showMenu(renderTbl(),(key)=>{if(key==='enter')closeMenu();});
+  clear2nd();
+}
+
+// ─── EXPR EVAL ─────────────────────────────────────────────────────────────
+function kExprEval() {
+  showMenu(
+    `<div class="menu-title">EXPR EVAL</div>
+    <div class="menu-prompt">Expression:</div>
+    <input type="text" id="ev_expr" value="${S.input}" />
+    <div class="menu-prompt">x =</div>
+    <input type="number" id="ev_x" value="0"/>
+    <div class="menu-item" onclick="runExprEval()">[evaluate]</div>
+    <div style="font-size:7px">[clear] close</div>`,
+    (key)=>{if(key==='enter'){window.runExprEval?.();}else if(key==='c')closeMenu();}
+  );
+  window.runExprEval=()=>{
+    const expr=document.getElementById('ev_expr')?.value||'';
+    const xval=+(document.getElementById('ev_x')?.value)||0;
+    try{
+      const res=evalExpr(expr.replace(/\bx\b/g,`(${xval})`));
+      document.getElementById('menuOverlay').querySelector('.menu-result')?.remove();
+      const div=document.createElement('div');div.className='menu-result';div.textContent=fmtNum(res);
+      document.getElementById('menuOverlay').appendChild(div);
+      S.ans=res;S.lastResult=res;
+    }catch(e){alert('Error: '+e.message);}
+  };
+  clear2nd();
+}
+
+// ─── NDERIV WIZARD ─────────────────────────────────────────────────────────
+function showNumDerivWizard() {
+  showMenu(
+    `<div class="menu-title">NUMERICAL DERIV</div>
+    <div class="menu-prompt">nDeriv(f(x),x,val)</div>
+    <div class="menu-prompt">f(x) =</div>
+    <input type="text" id="nd_f" value="${S.input||'x^2'}"/>
+    <div class="menu-prompt">x =</div>
+    <input type="number" id="nd_x" value="1"/>
+    <div class="menu-item" onclick="runNDeriv()">[compute]</div>
+    <div style="font-size:7px">[clear] close</div>`,
+    (key)=>{if(key==='enter'){window.runNDeriv?.();}else if(key==='c')closeMenu();}
+  );
+  window.runNDeriv=()=>{
+    const f=document.getElementById('nd_f')?.value||'';
+    const x0=+(document.getElementById('nd_x')?.value)||0;
+    const h=1e-6;
+    try{
+      const fp=evalExpr(f.replace(/\bx\b/g,`(${x0+h})`));
+      const fm=evalExpr(f.replace(/\bx\b/g,`(${x0-h})`));
+      const deriv=(fp-fm)/(2*h);
+      const div=document.createElement('div');div.className='menu-result';div.textContent='d/dx = '+fmtNum(deriv);
+      document.getElementById('menuOverlay').appendChild(div);
+      S.ans=deriv;S.lastResult=deriv;
+    }catch(e){alert('Error: '+e.message);}
+  };
+}
+
+// ─── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (S.menuActive) {
+    if (e.key === 'Escape') { closeMenu(); return; }
+    if (e.key === 'Enter') { S.menuActive('enter'); return; }
+    if (/^\d$/.test(e.key)) { S.menuActive(e.key); }
+    return;
+  }
+  const key = e.key;
+  if (/^\d$/.test(key) || key === '.') { kDigit(key); return; }
+  if (key === '+') { kOp('+'); return; }
+  if (key === '-') { kOp('−'); return; }
+  if (key === '*') { kOp('×'); return; }
+  if (key === '/') { e.preventDefault(); kOp('÷'); return; }
+  if (key === '^') { kOp('^'); return; }
+  if (key === '(') { kParen('('); return; }
+  if (key === ')') { appendInput(')'); return; }
+  if (key === 'Enter' || key === '=') { kEnter(); return; }
+  if (key === 'Backspace') { kDel(); return; }
+  if (key === 'Escape') { kClear(); return; }
+  if (key === 'ArrowUp') { e.preventDefault(); kUp(); return; }
+  if (key === 'ArrowDown') { e.preventDefault(); kDown(); return; }
+  if (key.toLowerCase() === 's') { kTrig(); return; }
+  if (key.toLowerCase() === 'l') { kLn(); return; }
+  if (key.toLowerCase() === 'p') { appendInput('π'); return; }
+  if (key.toLowerCase() === 'e' && !e.ctrlKey) { appendInput('e'); return; }
+});
+
+// ─── TOUCH SUPPORT ─────────────────────────────────────────────────────────
+document.querySelectorAll('.key, .dpad-btn').forEach(btn => {
+  btn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    btn.classList.add('pressed');
+  }, { passive: false });
+  btn.addEventListener('touchend', e => {
+    e.preventDefault();
+    btn.classList.remove('pressed');
+    btn.click();
+  }, { passive: false });
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

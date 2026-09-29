@@ -1,0 +1,27 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-08-bundesfeier",
+  "kind": "month",
+  "name": "1. August",
+  "enabled": true,
+  "valid": {
+    "month": 8,
+    "from": "08-01",
+    "to": "08-07"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.violet.700}",
+    "component.appIcon.bgTo": "{primitive.color.cocoa.900}",
+    "component.appIcon.bgRim": "{primitive.color.cocoa.900}",
+    "component.splash.bg": "{primitive.color.cocoa.900}",
+    "component.splash.wordmark": "{primitive.color.white}",
+    "component.splash.wordmarkDepth": "{primitive.color.pink.600}"
+  },
+  "accessories": [
+    "swissFlag"
+  ],
+  "background": [
+    "fireworks"
+  ],
+  "note": "Schweizerfahne, Feuerwerk am Nachthimmel"
+}

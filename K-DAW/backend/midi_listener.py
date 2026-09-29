@@ -11,6 +11,7 @@ EXTEND: Attach handlers to mapper.handlers before calling start().
     mapper.handlers["crossfader"] = lambda val: engine.set_crossfader(val / 127)
 """
 
+from __future__ import annotations
 import threading
 
 try:

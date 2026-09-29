@@ -804,7 +804,11 @@
         </div>
 
         <div class="dl-url-row">
-          <input type="text" id="dl-url" placeholder="YouTube- oder SoundCloud-URL einfügen (einzeln oder Playlist)..." />
+          <input type="text" id="dl-url" placeholder="YouTube, SoundCloud, Bandcamp URL (einzeln oder Playlist)..." oninput="onDlUrlChange(this.value)" />
+        </div>
+
+        <div id="bc-info-banner" style="display:none;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.35);border-radius:6px;padding:10px 14px;font-size:12px;line-height:1.6;">
+          <span id="bc-info-text"></span>
         </div>
 
         <div class="fmt-row">
@@ -818,7 +822,28 @@
         <div class="dl-status-box" id="dl-status"></div>
 
         <div>
-          <div class="panel-title" style="margin-bottom:8px;">Heruntergeladene Tracks</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <div class="panel-title" style="margin-bottom:0;">Heruntergeladene Tracks</div>
+            <div id="usb-status" style="font-size:11px;color:var(--muted);display:none;">
+              💾 <span id="usb-label">K-DJ</span> · <span id="usb-free"></span> frei
+            </div>
+            <button id="usb-copy-btn" onclick="copyToUsb()" style="font-size:11px;padding:4px 12px;display:none;">→ K-DJ kopieren</button>
+            <div style="display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;">
+              <span style="font-size:11px;color:var(--muted);align-self:center;">Sortieren:</span>
+              <button class="fmt-btn active" id="sort-date"    onclick="setSort('date')">Datum</button>
+              <button class="fmt-btn"        id="sort-quality" onclick="setSort('quality')">Qualität</button>
+              <button class="fmt-btn"        id="sort-name"    onclick="setSort('name')">Name</button>
+              <button class="fmt-btn"        id="sort-size"    onclick="setSort('size')">Grösse</button>
+              <button class="fmt-btn"        id="sort-type"    onclick="setSort('type')">Format</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;">
+            <button class="fmt-btn active" id="filter-all"  onclick="setFilter('all')">Alle</button>
+            <button class="fmt-btn" id="filter-CLUB-READY"  onclick="setFilter('CLUB-READY')" style="color:var(--accent2);border-color:var(--accent2);">✅ Club</button>
+            <button class="fmt-btn" id="filter-GOOD"        onclick="setFilter('GOOD')" style="color:var(--warn);border-color:var(--warn);">🟡 Good</button>
+            <button class="fmt-btn" id="filter-MEDIUM"      onclick="setFilter('MEDIUM')" style="color:#ff9500;border-color:#ff9500;">🟠 Medium</button>
+            <button class="fmt-btn" id="filter-LOW"         onclick="setFilter('LOW')" style="color:var(--error);border-color:var(--error);">❌ Low</button>
+          </div>
           <div id="dl-file-list" class="dl-file-list">
             <div style="color:var(--muted);font-size:12px;padding:4px">Noch keine Downloads</div>
           </div>
@@ -1128,13 +1153,42 @@ function switchTab(name) {
   });
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${name}`).classList.add('active');
-  if (name === 'downloader') loadDownloads();
+  if (name === 'downloader') { loadDownloads(); checkUsbStatus(); }
   if (name === 'midi') { initMidi(); loadMappingsList(); }
 }
 
 // ─── Downloader ───
 let dlFmt = 'mp3';
 let dlPollTimer = null;
+let _bcInfoTimer = null;
+
+async function onDlUrlChange(val) {
+  const banner = document.getElementById('bc-info-banner');
+  const txt = document.getElementById('bc-info-text');
+  clearTimeout(_bcInfoTimer);
+  if (!val.includes('bandcamp.com')) { banner.style.display = 'none'; return; }
+  _bcInfoTimer = setTimeout(async () => {
+    try {
+      const res = await fetch('/api/bandcamp/info?url=' + encodeURIComponent(val));
+      const info = await res.json();
+      if (info.error) { banner.style.display = 'none'; return; }
+      const typeLabel = info.item_type === 'album'
+        ? `Album · ${info.track_count} Tracks`
+        : 'Track';
+      let statusHtml = '';
+      if (info.is_free) {
+        statusHtml = '<span style="color:var(--accent2);font-weight:700;">✓ Free Download</span> — FLAC/WAV verfügbar';
+      } else if (info.is_nyp) {
+        statusHtml = '<span style="color:var(--accent2);font-weight:700;">✓ Name Your Price ($0)</span> — FLAC/WAV verfügbar';
+      } else {
+        statusHtml = `<span style="color:var(--warn);">Kostenpflichtig</span> — Mindestpreis $${info.min_price} · versuche yt-dlp`;
+      }
+      txt.innerHTML = `<strong style="color:var(--accent2)">Bandcamp</strong> · ${typeLabel}<br>
+        <strong>${escHtml(info.artist)}</strong> — ${escHtml(info.title)}<br>${statusHtml}`;
+      banner.style.display = 'block';
+    } catch { banner.style.display = 'none'; }
+  }, 600);
+}
 
 function setFmt(fmt, btn) {
   dlFmt = fmt;
@@ -1192,11 +1246,30 @@ function showDlStatus(text, state) {
   el.className = 'dl-status-box visible' + (state ? ' ' + state : '');
 }
 
+let _dlSort = 'date';
+let _dlFilter = 'all';
+
+function setSort(s) {
+  _dlSort = s;
+  document.querySelectorAll('[id^="sort-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort-' + s)?.classList.add('active');
+  loadDownloads();
+}
+
+function setFilter(f) {
+  _dlFilter = f;
+  document.querySelectorAll('[id^="filter-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('filter-' + f)?.classList.add('active');
+  loadDownloads();
+}
+
 async function loadDownloads() {
   try {
-    const res = await fetch('/api/downloads');
+    const res = await fetch(`/api/downloads?sort=${_dlSort}&order=desc`);
     const data = await res.json();
-    renderDlList(data.files || []);
+    let files = data.files || [];
+    if (_dlFilter !== 'all') files = files.filter(f => f.quality === _dlFilter);
+    renderDlList(files);
   } catch {}
 }
 
@@ -1563,6 +1636,38 @@ async function deleteMappingFile(filename) {
     await fetch(`/api/midi/mappings/${encodeURIComponent(filename)}`, { method: 'DELETE' });
     loadMappingsList();
   } catch {}
+}
+
+// ─── USB Copy ───
+async function checkUsbStatus() {
+  try {
+    const r = await fetch('/api/usb/status');
+    const d = await r.json();
+    const btn = document.getElementById('usb-copy-btn');
+    const stat = document.getElementById('usb-status');
+    if (d.mounted) {
+      stat.style.display = '';
+      document.getElementById('usb-free').textContent = d.free_gb + ' GB';
+      btn.style.display = '';
+    } else {
+      stat.style.display = 'none';
+      btn.style.display = 'none';
+    }
+  } catch {}
+}
+
+async function copyToUsb() {
+  const btn = document.getElementById('usb-copy-btn');
+  btn.disabled = true;
+  btn.textContent = 'Kopiere...';
+  try {
+    const r = await fetch('/api/usb/copy', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+    const d = await r.json();
+    if (d.error) { showDlStatus(d.error, 'error'); }
+    else { showDlStatus(`✓ ${d.copied} kopiert, ${d.skipped} bereits vorhanden`, 'done'); checkUsbStatus(); }
+  } catch (e) { showDlStatus('USB Fehler: ' + e.message, 'error'); }
+  btn.disabled = false;
+  btn.textContent = '→ K-DJ kopieren';
 }
 
 // ─── Init ───

@@ -1,0 +1,25 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-04-ostern",
+  "kind": "month",
+  "name": "Ostern",
+  "enabled": true,
+  "valid": {
+    "month": 4,
+    "from": "04-01",
+    "to": "04-21"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.pink.50}",
+    "component.appIcon.bgTo": "{primitive.color.mint.300}",
+    "component.appIcon.bgRim": "{primitive.color.mint.500}"
+  },
+  "accessories": [
+    "bunnyEars",
+    "easterEgg"
+  ],
+  "background": [
+    "petals"
+  ],
+  "note": "Hasenohren, Osterei. Ostern ist beweglich — Fenster deckt die häufigsten Daten ab"
+}

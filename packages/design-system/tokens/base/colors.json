@@ -1,0 +1,54 @@
+{
+  "color": {
+    "bordeaux": {
+      "50":  { "$value": "#FBF0F2", "$type": "color" },
+      "100": { "$value": "#F5D6DC", "$type": "color" },
+      "200": { "$value": "#E8A8B4", "$type": "color" },
+      "300": { "$value": "#D4697B", "$type": "color" },
+      "400": { "$value": "#B83A50", "$type": "color" },
+      "500": { "$value": "#7A1C30", "$type": "color", "$description": "Haupt-Akzent K-Learning" },
+      "600": { "$value": "#62162A", "$type": "color" },
+      "700": { "$value": "#4A1020", "$type": "color" }
+    },
+    "kyanit": {
+      "50":  { "$value": "#EEF2F9", "$type": "color" },
+      "100": { "$value": "#D4DDEF", "$type": "color" },
+      "300": { "$value": "#6B8EC4", "$type": "color" },
+      "500": { "$value": "#2B4C7E", "$type": "color", "$description": "Akademisches Blau" },
+      "700": { "$value": "#1C3356", "$type": "color" }
+    },
+    "sage": {
+      "300": { "$value": "#8BAF97", "$type": "color" },
+      "500": { "$value": "#5B8266", "$type": "color", "$description": "Naturgrün" },
+      "700": { "$value": "#3E5C47", "$type": "color" }
+    },
+    "rust": {
+      "300": { "$value": "#D4957F", "$type": "color" },
+      "500": { "$value": "#B85D43", "$type": "color", "$description": "Warnton" },
+      "700": { "$value": "#8A4432", "$type": "color" }
+    },
+    "k-violet": {
+      "400": { "$value": "#9066FF", "$type": "color" },
+      "500": { "$value": "#6C47FF", "$type": "color", "$description": "K-Creative Studio Akzent" },
+      "600": { "$value": "#4F2ECC", "$type": "color" }
+    },
+    "neutral": {
+      "0":   { "$value": "#FFFFFF", "$type": "color" },
+      "50":  { "$value": "#FBF9F5", "$type": "color", "$description": "Eggshell Canvas" },
+      "100": { "$value": "#F2EDE6", "$type": "color" },
+      "200": { "$value": "#E4DDD4", "$type": "color" },
+      "300": { "$value": "#C8C0B4", "$type": "color" },
+      "500": { "$value": "#82807A", "$type": "color" },
+      "700": { "$value": "#3C3A36", "$type": "color" },
+      "900": { "$value": "#161618", "$type": "color", "$description": "Obsidian" },
+      "950": { "$value": "#111215", "$type": "color" },
+      "1000":{ "$value": "#09090F", "$type": "color" }
+    },
+    "semantic": {
+      "success": { "$value": "#3E7A52", "$type": "color" },
+      "warning": { "$value": "#FFB347", "$type": "color" },
+      "error":   { "$value": "#FF6B6B", "$type": "color" },
+      "info":    { "$value": "#60A5FA", "$type": "color" }
+    }
+  }
+}

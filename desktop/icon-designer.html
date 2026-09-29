@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K-Creative · Icon Designer</title>
+<style>
+:root {
+  --bg:     #08071a;
+  --panel:  #0f0d22;
+  --tb:     #060514;
+  --cbg:    #11102a;
+  --border: rgba(108,71,255,.18);
+  --bhi:    rgba(108,71,255,.35);
+  --a:      #6C47FF;
+  --a2:     #a855f7;
+  --a3:     #60A5FA;
+  --txt:    #e8e0ff;
+  --t2:     rgba(232,224,255,.55);
+  --t3:     rgba(232,224,255,.22);
+  --r:      7px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html,body { height:100%; overflow:hidden; background:var(--bg); color:var(--txt);
+  font-family:-apple-system,'SF Pro Text',system-ui,sans-serif;
+  font-size:13px; -webkit-font-smoothing:antialiased; user-select:none }
+
+/* ── Drag zone ── */
+.drag { height:44px; -webkit-app-region:drag; flex-shrink:0;
+  display:flex; align-items:center; padding:0 80px 0 16px;
+  font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--t3) }
+.drag span { -webkit-app-region:no-drag; color:var(--a2) }
+
+/* ── Layout ── */
+.app  { display:flex; flex-direction:column; height:100vh }
+.main { display:flex; flex:1; min-height:0 }
+
+/* ── Left toolbar ── */
+.ltb { width:48px; flex-shrink:0; background:var(--tb);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; align-items:center;
+  padding:6px 0; gap:1px; overflow-y:auto }
+.tool { width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+  border-radius:6px; cursor:pointer; font-size:14px; color:var(--t2);
+  transition:background .12s,color .12s; position:relative; flex-shrink:0 }
+.tool:hover { background:rgba(108,71,255,.15); color:var(--txt) }
+.tool.on { background:rgba(108,71,255,.28); color:var(--a2); outline:1px solid var(--a) }
+.tool[data-tip]:hover::after { content:attr(data-tip); position:absolute; left:calc(100% + 8px); top:50%;
+  transform:translateY(-50%); background:#1a1540; border:1px solid var(--border);
+  padding:4px 9px; border-radius:5px; white-space:nowrap; font-size:11px;
+  color:var(--txt); pointer-events:none; z-index:200 }
+.tsep { width:26px; height:1px; background:var(--border); margin:3px 0; flex-shrink:0 }
+.tcolor { width:22px; height:22px; border-radius:4px; cursor:pointer; flex-shrink:0;
+  border:2px solid rgba(255,255,255,.18); outline:none }
+.tlabel { font-size:8px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--t3); text-align:center; width:100%; padding-bottom:1px }
+
+/* ── Canvas area ── */
+.canvas-area { flex:1; display:flex; flex-direction:column; background:var(--cbg); min-width:0 }
+.mbar { height:34px; flex-shrink:0; background:var(--panel);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 10px; gap:3px; overflow-x:auto;
+  scrollbar-width:none }
+.mbar::-webkit-scrollbar { display:none }
+.mb { padding:3px 8px; border-radius:5px; border:1px solid transparent;
+  background:transparent; color:var(--t2); cursor:pointer; font-size:11.5px;
+  font-weight:600; font-family:inherit; transition:background .12s,color .12s;
+  white-space:nowrap; flex-shrink:0 }
+.mb:hover { background:rgba(108,71,255,.15); color:var(--txt); border-color:var(--border) }
+.mb.on  { color:var(--a2); border-color:rgba(108,71,255,.4) }
+.mb:disabled { opacity:.3; cursor:default }
+.msep { width:1px; height:16px; background:var(--border); flex-shrink:0; margin:0 3px }
+.mzoom { display:flex; align-items:center; gap:3px; margin-left:auto; flex-shrink:0 }
+.mzoom span { font-size:11px; color:var(--t2); min-width:40px; text-align:center }
+
+.cscroll { flex:1; overflow:auto; display:flex; align-items:center; justify-content:center;
+  cursor:crosshair; position:relative }
+.cscroll.sel { cursor:default }
+.cframe { position:relative; flex-shrink:0;
+  box-shadow:0 0 0 1px rgba(108,71,255,.25), 0 12px 48px rgba(0,0,0,.7) }
+.cgrid { position:absolute; top:0; left:0; pointer-events:none; z-index:2;
+  opacity:0; transition:opacity .2s }
+.cgrid.on { opacity:1 }
+
+.sbar { height:24px; flex-shrink:0; background:var(--panel);
+  border-top:1px solid var(--border);
+  display:flex; align-items:center; padding:0 12px; gap:18px;
+  font-size:11px; color:var(--t3) }
+.sbar .hi { color:var(--a2) }
+
+/* ── Right panel ── */
+.rp { width:218px; flex-shrink:0; background:var(--panel);
+  border-left:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden }
+.ptabs { display:flex; border-bottom:1px solid var(--border); flex-shrink:0 }
+.ptab { flex:1; padding:8px 2px; text-align:center; background:none; border:none;
+  color:var(--t2); cursor:pointer; font-size:11px; font-weight:600;
+  font-family:inherit; border-bottom:2px solid transparent; margin-bottom:-1px;
+  transition:color .12s,border-color .12s }
+.ptab.on { color:var(--txt); border-bottom-color:var(--a) }
+.pc { display:none; flex:1; overflow-y:auto; padding:12px; gap:12px; flex-direction:column }
+.pc.on { display:flex }
+
+/* ── Props ── */
+.ps { font-size:9.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--t3); margin-bottom:5px }
+.prow { display:flex; gap:6px; align-items:flex-end }
+.fi { background:rgba(108,71,255,.07); border:1px solid var(--border);
+  border-radius:5px; color:var(--txt); font-family:inherit; font-size:12px;
+  padding:5px 7px; outline:none; transition:border-color .12s; width:100%;
+  -moz-appearance:textfield }
+.fi::-webkit-outer-spin-button,.fi::-webkit-inner-spin-button { -webkit-appearance:none }
+.fi:focus { border-color:var(--a) }
+.fi.sm { width:64px }
+label { font-size:10px; color:var(--t2); display:block; margin-bottom:2px }
+input[type=color] { width:28px; height:28px; border:none; border-radius:5px;
+  cursor:pointer; padding:0; background:none; flex-shrink:0 }
+input[type=range] { accent-color:var(--a); width:100% }
+.nosel { font-size:12px; color:var(--t3); text-align:center; padding:24px 0 }
+
+/* ── Layers ── */
+.litem { display:flex; align-items:center; gap:6px; padding:5px 7px;
+  border-radius:5px; cursor:pointer; transition:background .1s;
+  font-size:11.5px; color:var(--t2) }
+.litem:hover { background:rgba(108,71,255,.1) }
+.litem.on { background:rgba(108,71,255,.2); color:var(--txt) }
+.lico { font-size:11px; flex-shrink:0; opacity:.7 }
+.lname { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.lvis { cursor:pointer; font-size:10px; flex-shrink:0; opacity:.6 }
+.lvis:hover { opacity:1 }
+
+/* ── Export ── */
+.esz { display:flex; align-items:center; gap:7px; padding:3px 0; font-size:12px }
+.esz input[type=checkbox] { accent-color:var(--a); cursor:pointer }
+.ebtn { display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:8px 12px; border-radius:6px; border:none; cursor:pointer;
+  font-size:12px; font-weight:600; font-family:inherit;
+  transition:opacity .12s; width:100% }
+.ebtn:hover { opacity:.85 }
+.ep  { background:linear-gradient(135deg,var(--a),var(--a2)); color:#fff }
+.eg  { background:linear-gradient(135deg,#059669,#10b981); color:#07060d; font-weight:700 }
+.eo  { background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--t2) }
+
+/* ── AI log ── */
+#ai-log { position:absolute; bottom:26px; right:226px; width:260px; max-height:100px;
+  background:rgba(8,7,26,.94); border:1px solid var(--border);
+  border-radius:8px; padding:6px 10px; font-size:11px; color:var(--t2);
+  overflow:hidden; display:none; backdrop-filter:blur(14px); z-index:80;
+  pointer-events:none }
+#ai-log.on { display:block }
+.ale { padding:2px 0; border-bottom:1px solid rgba(108,71,255,.1) }
+.ale:last-child { border:none }
+.aok { color:#4ade80 } .aer { color:#f87171 } .aw { color:#fbbf24 }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width:4px } ::-webkit-scrollbar-track { background:transparent }
+::-webkit-scrollbar-thumb { background:rgba(108,71,255,.3); border-radius:3px }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="drag">K-Creative · Icon Designer &nbsp;—&nbsp; <span>AI Native + Deterministic Render</span></div>
+
+  <div class="main">
+
+    <!-- ── Left toolbar ── -->
+    <div class="ltb" id="ltb">
+      <div class="tool on" id="t-select" data-tool="select" data-tip="Select (V)">↖</div>
+      <div class="tsep"></div>
+      <div class="tool" id="t-rect"    data-tool="rect"    data-tip="Rectangle (R)">⬜</div>
+      <div class="tool" id="t-circle"  data-tool="circle"  data-tip="Circle (C)">⭕</div>
+      <div class="tool" id="t-ellipse" data-tool="ellipse" data-tip="Ellipse (E)">◯</div>
+      <div class="tool" id="t-poly"    data-tool="poly"    data-tip="Polygon (P)">⬡</div>
+      <div class="tool" id="t-star"    data-tool="star"    data-tip="Star (★)">✦</div>
+      <div class="tool" id="t-line"    data-tool="line"    data-tip="Line (L)">╱</div>
+      <div class="tsep"></div>
+      <div class="tool" id="t-pen"     data-tool="pen"     data-tip="Pen / Path (B)">✏</div>
+      <div class="tool" id="t-text"    data-tool="text"    data-tip="Text (T)">T</div>
+      <div class="tsep"></div>
+      <div class="tlabel">Fill</div>
+      <input class="tcolor" type="color" id="tc-fill"   value="#6C47FF" oninput="applyFill(this.value)">
+      <div class="tlabel">Stroke</div>
+      <input class="tcolor" type="color" id="tc-stroke" value="#a855f7" oninput="applyStroke(this.value)">
+    </div>
+
+    <!-- ── Canvas area ── -->
+    <div class="canvas-area">
+
+      <div class="mbar">
+        <button class="mb" onclick="boolOp('unite')"     data-tip="⊕ Union">⊕ Union</button>
+        <button class="mb" onclick="boolOp('subtract')"  data-tip="⊖ Subtract">⊖ Sub</button>
+        <button class="mb" onclick="boolOp('intersect')" data-tip="⊗ Intersect">⊗ Isect</button>
+        <div class="msep"></div>
+        <button class="mb" onclick="groupSel()">⊞ Group</button>
+        <button class="mb" onclick="ungroupSel()">⊟ Ungroup</button>
+        <div class="msep"></div>
+        <button class="mb" onclick="canvas.bringForward(canvas.getActiveObject());canvas.requestRenderAll();pushH()">↑</button>
+        <button class="mb" onclick="canvas.sendBackwards(canvas.getActiveObject());canvas.requestRenderAll();pushH()">↓</button>
+        <div class="msep"></div>
+        <button class="mb" onclick="alignSel('left')">◧L</button>
+        <button class="mb" onclick="alignSel('ch')">⊕H</button>
+        <button class="mb" onclick="alignSel('right')">R◨</button>
+        <button class="mb" onclick="alignSel('top')">⬆T</button>
+        <button class="mb" onclick="alignSel('cv')">⊕V</button>
+        <button class="mb" onclick="alignSel('bottom')">⬇B</button>
+        <div class="msep"></div>
+        <button class="mb" onclick="doUndo()">↩ Undo</button>
+        <button class="mb" onclick="doRedo()">↪ Redo</button>
+        <div class="mzoom">
+          <button class="mb" style="width:24px;padding:3px" onclick="adjustZoom(-0.25)">−</button>
+          <span id="zlbl">56%</span>
+          <button class="mb" style="width:24px;padding:3px" onclick="adjustZoom(0.25)">+</button>
+          <button class="mb" onclick="fitZoom()">Fit</button>
+          <button class="mb" id="gbtn" onclick="toggleGrid()">⊞</button>
+        </div>
+      </div>
+
+      <div class="cscroll sel" id="cscroll">
+        <div class="cframe" id="cframe">
+          <canvas id="c"></canvas>
+          <canvas class="cgrid" id="cgrid"></canvas>
+        </div>
+      </div>
+
+      <div class="sbar">
+        <span id="spos">x:0 y:0</span>
+        <span id="ssel">No selection</span>
+        <span>1024 × 1024 px</span>
+      </div>
+
+      <div id="ai-log"></div>
+    </div>
+
+    <!-- ── Right panel ── -->
+    <div class="rp">
+      <div class="ptabs">
+        <button class="ptab on" onclick="setPTab('props',this)">Props</button>
+        <button class="ptab"    onclick="setPTab('layers',this)">Layers</button>
+        <button class="ptab"    onclick="setPTab('export',this)">Export</button>
+      </div>
+
+      <div class="pc on" id="pc-props">
+        <div class="nosel" id="nosel">Kein Objekt ausgewählt</div>
+        <div id="selprops" style="display:none;gap:10px;flex-direction:column;display:none">
+          <div>
+            <div class="ps">Farbe</div>
+            <div class="prow" style="margin-bottom:6px">
+              <div><label>Fill</label><input type="color" id="p-fill" oninput="setOF('fill',this.value)"></div>
+              <div style="flex:1"><label>Alpha</label>
+                <input class="fi" type="number" id="p-falpha" min="0" max="100" value="100"
+                  oninput="setOFAlpha(+this.value)"></div>
+              <div><label>Stroke</label><input type="color" id="p-stroke" oninput="setOF('stroke',this.value)"></div>
+              <div style="width:50px"><label>SW</label>
+                <input class="fi sm" type="number" id="p-sw" min="0" max="200" value="0"
+                  oninput="setOF('strokeWidth',+this.value)"></div>
+            </div>
+          </div>
+          <div>
+            <div class="ps">Transform</div>
+            <div class="prow" style="margin-bottom:5px">
+              <div style="flex:1"><label>X</label><input class="fi" type="number" id="p-x" oninput="setOP()"></div>
+              <div style="flex:1"><label>Y</label><input class="fi" type="number" id="p-y" oninput="setOP()"></div>
+            </div>
+            <div class="prow" style="margin-bottom:5px">
+              <div style="flex:1"><label>W</label><input class="fi" type="number" id="p-w" oninput="setOS()"></div>
+              <div style="flex:1"><label>H</label><input class="fi" type="number" id="p-h" oninput="setOS()"></div>
+            </div>
+            <div class="prow">
+              <div style="flex:1"><label>Rot °</label><input class="fi" type="number" id="p-rot" oninput="setOF('angle',+this.value)"></div>
+              <div style="flex:1"><label>Opacity</label><input class="fi" type="number" id="p-op" min="0" max="100" value="100"
+                oninput="setOF2('opacity',+this.value/100)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc" id="pc-layers"><div id="layerlist"></div></div>
+
+      <div class="pc" id="pc-export">
+        <div>
+          <div class="ps">PNG Sizes</div>
+          <div id="expsizes"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="ps" style="margin-bottom:2px">Export</div>
+          <button class="ebtn ep" onclick="expPNG()">↓ PNG (selected sizes)</button>
+          <button class="ebtn eg" onclick="expSVG()">↓ SVG Vector</button>
+          <button class="ebtn eo" onclick="expJSON()">↓ KCD JSON State</button>
+          <button class="ebtn eo" onclick="document.getElementById('fimp').click()">↑ Import JSON</button>
+        </div>
+        <div>
+          <div class="ps">Background</div>
+          <div style="display:flex;gap:5px">
+            <button class="ebtn eo" style="flex:1;font-size:11px" onclick="setBG('')">Trans</button>
+            <button class="ebtn eo" style="flex:1;font-size:11px" onclick="setBG('#07060d')">Dark</button>
+            <button class="ebtn eo" style="flex:1;font-size:11px" onclick="setBG('#fff')">White</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<input type="file" id="fimp" accept=".json" style="display:none" onchange="handleImp(event)">
+
+<!-- Fabric.js 5.3 + Paper.js (CDN — bundle locally for production) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+<script>
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+const CW = 1024, CH = 1024;        // Virtual canvas dimensions
+const GRID = 64;                    // Grid step at 1024
+const EXP_SIZES = [16,24,32,48,64,128,256,512,1024];
+const expSet = new Set([16,32,64,128,512,1024]);
+
+// =============================================================================
+// CANVAS SETUP
+// =============================================================================
+const canvas = new fabric.Canvas('c', {
+  width: CW, height: CH,
+  backgroundColor: '',
+  selection: true,
+  preserveObjectStacking: true,
+  stopContextMenu: true,
+});
+
+// Paper.js offscreen for boolean ops
+const paperEl = document.createElement('canvas');
+paperEl.width = CW; paperEl.height = CH;
+
+// Display zoom — fit to window
+let zoom = 0.56;
+applyZoom(zoom);
+
+// =============================================================================
+// STATE
+// =============================================================================
+let tool = 'select';
+let fillC = '#6C47FF', strokeC = '#a855f7', strokeW = 0;
+let drawing = false, dStart = null, dTmp = null;
+let penPts = [], penPrev = null;
+let hist = [], histIdx = -1;
+
+// =============================================================================
+// TOOL SWITCHING
+// =============================================================================
+document.querySelectorAll('.tool[data-tool]').forEach(el =>
+  el.addEventListener('click', () => setTool(el.dataset.tool)));
+
+function setTool(t) {
+  if (tool === 'pen' && t !== 'pen') cancelPen();
+  tool = t;
+  document.querySelectorAll('.tool[data-tool]').forEach(el =>
+    el.classList.toggle('on', el.dataset.tool === t));
+  canvas.isDrawingMode = false;
+  canvas.selection = t === 'select';
+  canvas.defaultCursor = t === 'select' ? 'default' : 'crosshair';
+  canvas.hoverCursor   = t === 'select' ? 'move'    : 'crosshair';
+  document.getElementById('cscroll').className = 'cscroll' + (t === 'select' ? ' sel' : '');
+}
+
+// =============================================================================
+// KEYBOARD SHORTCUTS
+// =============================================================================
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+  const M = e.metaKey || e.ctrlKey;
+  if (M) {
+    if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); doUndo(); return; }
+    if (e.key === 'z' && e.shiftKey)  { e.preventDefault(); doRedo(); return; }
+    if (e.key === 'y')                { e.preventDefault(); doRedo(); return; }
+    if (e.key === 'g' && !e.shiftKey) { e.preventDefault(); groupSel(); return; }
+    if (e.key === 'g' && e.shiftKey)  { e.preventDefault(); ungroupSel(); return; }
+    if (e.key === 'd')                { e.preventDefault(); dupSel(); return; }
+    if (e.key === 's')                { e.preventDefault(); expJSON(); return; }
+    if (e.key === 'a')                {
+      e.preventDefault();
+      canvas.getObjects().forEach(o => canvas.setActiveObject(o));
+      canvas.requestRenderAll(); return;
+    }
+  }
+  const k = e.key.toLowerCase();
+  const tools = { v:'select', r:'rect', c:'circle', e:'ellipse', p:'poly', b:'pen', t:'text', l:'line' };
+  if (tools[k] && !M) setTool(tools[k]);
+  if (k === 'g' && !M) toggleGrid();
+  if ((k === 'delete' || k === 'backspace') && !M) {
+    e.preventDefault();
+    canvas.getActiveObjects().forEach(o => canvas.remove(o));
+    canvas.discardActiveObject(); canvas.requestRenderAll(); pushH(); updateLayers();
+  }
+  if (k === 'escape') { cancelPen(); canvas.discardActiveObject(); canvas.requestRenderAll(); }
+});
+
+// =============================================================================
+// SHAPE DRAWING
+// =============================================================================
+function defProps(overrides = {}) {
+  return {
+    fill: fillC,
+    stroke: strokeW > 0 ? strokeC : null,
+    strokeWidth: strokeW,
+    strokeUniform: true,
+    cornerStyle: 'circle',
+    cornerSize: 7,
+    transparentCorners: false,
+    cornerColor: '#6C47FF',
+    borderColor: '#6C47FF',
+    ...overrides,
+  };
+}
+
+canvas.on('mouse:down', opt => {
+  const p = canvas.getPointer(opt.e);
+  if (tool === 'select') return;
+  if (tool === 'pen')    { penDown(p, opt.e); return; }
+
+  drawing = true; dStart = { x: p.x, y: p.y };
+
+  if (tool === 'text') {
+    const t = new fabric.IText('Text', { ...defProps({ stroke: null }), left: p.x, top: p.y,
+      fontSize: 80, fontFamily: '-apple-system,SF Pro Display,system-ui,sans-serif', fontWeight: 'bold' });
+    canvas.add(t); canvas.setActiveObject(t); t.enterEditing();
+    drawing = false; pushH(); updateLayers(); setTool('select');
+    return;
+  }
+
+  const P = defProps();
+  if      (tool === 'rect')    dTmp = new fabric.Rect({    ...P, left:p.x, top:p.y, width:0, height:0, originX:'left', originY:'top' });
+  else if (tool === 'circle')  dTmp = new fabric.Circle({  ...P, left:p.x, top:p.y, radius:0, originX:'left', originY:'top' });
+  else if (tool === 'ellipse') dTmp = new fabric.Ellipse({ ...P, left:p.x, top:p.y, rx:0, ry:0, originX:'left', originY:'top' });
+  else if (tool === 'line')    dTmp = new fabric.Line([p.x,p.y,p.x,p.y], { ...P, fill:null, stroke:fillC, strokeWidth:Math.max(strokeW,2) });
+  if (dTmp) canvas.add(dTmp);
+});
+
+canvas.on('mouse:move', opt => {
+  const p = canvas.getPointer(opt.e);
+  document.getElementById('spos').textContent = `x:${Math.round(p.x)} y:${Math.round(p.y)}`;
+  if (tool === 'pen' && penPts.length > 0) { penPreview(p); return; }
+  if (!drawing || !dStart) return;
+  const dx = p.x - dStart.x, dy = p.y - dStart.y;
+  const sq = opt.e.shiftKey;
+  if (tool === 'rect') {
+    dTmp.set({ left: dx<0?p.x:dStart.x, width: Math.abs(sq?Math.max(Math.abs(dx),Math.abs(dy)):dx),
+               top:  dy<0?p.y:dStart.y, height:Math.abs(sq?Math.max(Math.abs(dx),Math.abs(dy)):dy) });
+  } else if (tool === 'circle') {
+    const r = Math.hypot(dx,dy)/2;
+    dTmp.set({ left:dStart.x-r, top:dStart.y-r, radius:r });
+  } else if (tool === 'ellipse') {
+    dTmp.set({ left:Math.min(dStart.x,p.x), top:Math.min(dStart.y,p.y), rx:Math.abs(dx)/2, ry:Math.abs(dy)/2 });
+  } else if (tool === 'line') {
+    dTmp.set({ x2:p.x, y2:p.y });
+  }
+  canvas.requestRenderAll();
+});
+
+canvas.on('mouse:up', opt => {
+  if (!drawing || !dStart) return;
+  drawing = false;
+  const p  = canvas.getPointer(opt.e);
+  const dx = p.x - dStart.x, dy = p.y - dStart.y;
+  if (Math.abs(dx) < 4 && Math.abs(dy) < 4) {
+    if (dTmp) canvas.remove(dTmp);
+    dTmp = null; dStart = null; return;
+  }
+  const cx  = (dStart.x + p.x) / 2, cy = (dStart.y + p.y) / 2;
+  const rad = Math.hypot(dx, dy) / 2;
+
+  if (tool === 'poly') {
+    const n = 6, pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = (2*Math.PI*i/n) - Math.PI/2;
+      pts.push({ x: cx + rad*Math.cos(a), y: cy + rad*Math.sin(a) });
+    }
+    dTmp = new fabric.Polygon(pts, defProps());
+    canvas.add(dTmp);
+  } else if (tool === 'star') {
+    const ri = rad * 0.42, pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = (Math.PI*i/5) - Math.PI/2;
+      const r = i%2===0 ? rad : ri;
+      pts.push({ x: cx + r*Math.cos(a), y: cy + r*Math.sin(a) });
+    }
+    dTmp = new fabric.Polygon(pts, defProps());
+    canvas.add(dTmp);
+  }
+
+  if (dTmp) { canvas.setActiveObject(dTmp); pushH(); updateLayers(); updateProps(); }
+  dTmp = null; dStart = null;
+  setTool('select');
+});
+
+canvas.on('mouse:dblclick', opt => {
+  if (tool === 'pen' && penPts.length >= 2) closePen();
+});
+
+// =============================================================================
+// PEN TOOL  (straight-segment path, dblclick / Esc to close)
+// =============================================================================
+function penDown(p, e) {
+  if (e.altKey && penPts.length > 0) { closePen(); return; }
+  penPts.push({ x: p.x, y: p.y });
+  penPreview(p);
+}
+
+function penPreview(cur) {
+  if (penPrev) canvas.remove(penPrev);
+  if (penPts.length === 0) return;
+  let d = `M ${penPts[0].x} ${penPts[0].y}`;
+  for (let i = 1; i < penPts.length; i++) d += ` L ${penPts[i].x} ${penPts[i].y}`;
+  d += ` L ${cur.x} ${cur.y}`;
+  penPrev = new fabric.Path(d, {
+    fill: 'transparent', stroke: fillC, strokeWidth: Math.max(strokeW,1.5),
+    selectable: false, evented: false, strokeDashArray: [5,4],
+  });
+  canvas.add(penPrev);
+  canvas.requestRenderAll();
+}
+
+function closePen() {
+  if (penPrev) { canvas.remove(penPrev); penPrev = null; }
+  if (penPts.length < 2) { penPts = []; return; }
+  let d = `M ${penPts[0].x} ${penPts[0].y}`;
+  for (let i = 1; i < penPts.length; i++) d += ` L ${penPts[i].x} ${penPts[i].y}`;
+  d += ' Z';
+  const path = new fabric.Path(d, defProps());
+  canvas.add(path); canvas.setActiveObject(path); canvas.requestRenderAll();
+  penPts = []; pushH(); updateLayers(); setTool('select');
+}
+
+function cancelPen() {
+  if (penPrev) { canvas.remove(penPrev); penPrev = null; }
+  penPts = []; canvas.requestRenderAll();
+}
+
+// =============================================================================
+// BOOLEAN OPERATIONS via Paper.js
+// =============================================================================
+async function boolOp(op) {
+  const objs = canvas.getActiveObjects();
+  if (objs.length < 2) { aiLog('⚠ Min. 2 Objekte auswählen', 'aw'); return; }
+
+  try {
+    // Create an isolated Fabric static canvas to render selected objects
+    const tmpEl = document.createElement('canvas');
+    tmpEl.width = CW; tmpEl.height = CH;
+    const tmpC = new fabric.StaticCanvas(tmpEl);
+    tmpC.setDimensions({ width: CW, height: CH });
+
+    await Promise.all(objs.map(o => new Promise(res => o.clone(cl => {
+      tmpC.add(cl); res();
+    }))));
+    tmpC.renderAll();
+    const svgStr = tmpC.toSVG();
+    tmpC.dispose();
+
+    // Paper.js — parse SVG, run boolean op
+    paper.setup(paperEl);
+    paper.project.clear();
+    paper.project.importSVG(svgStr, { expandShapes: true, insert: true });
+
+    const items = [];
+    paper.project.getItems({ type: 'path' }).forEach(i => items.push(i));
+    paper.project.getItems({ type: 'compoundpath' }).forEach(i => items.push(i));
+
+    if (items.length < 2) throw new Error('Paper.js konnte Pfade nicht parsen');
+
+    let res = items[0];
+    for (let i = 1; i < items.length; i++) {
+      if      (op === 'unite')     res = res.unite(items[i]);
+      else if (op === 'subtract')  res = res.subtract(items[i]);
+      else if (op === 'intersect') res = res.intersect(items[i]);
+    }
+
+    const svgEl = res.exportSVG({ asString: false });
+    const d = svgEl.getAttribute('d');
+    if (!d) throw new Error('Kein Pfad-Ergebnis');
+
+    const newPath = new fabric.Path(d, {
+      ...defProps(),
+      fill:        objs[0].fill || fillC,
+      stroke:      objs[0].stroke,
+      strokeWidth: objs[0].strokeWidth || 0,
+    });
+
+    objs.forEach(o => canvas.remove(o));
+    canvas.add(newPath);
+    canvas.setActiveObject(newPath);
+    canvas.requestRenderAll();
+    pushH(); updateLayers();
+    aiLog(`✓ ${op}: Pfade kombiniert`, 'ok');
+  } catch (err) {
+    aiLog(`✗ ${op}: ${err.message}`, 'er');
+    console.error('boolOp:', err);
+  }
+}
+
+// =============================================================================
+// OBJECT HELPERS
+// =============================================================================
+function applyFill(v)   { fillC = v;   canvas.getActiveObjects().forEach(o => o.set('fill', v));        canvas.requestRenderAll(); }
+function applyStroke(v) { strokeC = v; canvas.getActiveObjects().forEach(o => o.set('stroke', v));      canvas.requestRenderAll(); }
+
+function groupSel() {
+  const os = canvas.getActiveObjects();
+  if (os.length < 2) return;
+  canvas.discardActiveObject();
+  const g = new fabric.Group(os, { cornerStyle:'circle', cornerSize:7, borderColor:'#6C47FF', cornerColor:'#6C47FF' });
+  os.forEach(o => canvas.remove(o));
+  canvas.add(g); canvas.setActiveObject(g); canvas.requestRenderAll();
+  pushH(); updateLayers();
+}
+
+function ungroupSel() {
+  const g = canvas.getActiveObject();
+  if (!g || g.type !== 'group') return;
+  g._objects.slice().forEach(o => { canvas.add(o); });
+  canvas.remove(g); canvas.requestRenderAll();
+  pushH(); updateLayers();
+}
+
+function dupSel() {
+  canvas.getActiveObjects().forEach(o => o.clone(cl => {
+    cl.set({ left: o.left + 18, top: o.top + 18 });
+    canvas.add(cl);
+  }));
+  canvas.requestRenderAll(); pushH(); updateLayers();
+}
+
+function alignSel(dir) {
+  const os = canvas.getActiveObjects();
+  if (!os.length) return;
+  const l = Math.min(...os.map(o=>o.left));
+  const t = Math.min(...os.map(o=>o.top));
+  const r = Math.max(...os.map(o=>o.left+o.getScaledWidth()));
+  const b = Math.max(...os.map(o=>o.top+o.getScaledHeight()));
+  os.forEach(o => {
+    if      (dir==='left')   o.set({left:l});
+    else if (dir==='right')  o.set({left:r-o.getScaledWidth()});
+    else if (dir==='top')    o.set({top:t});
+    else if (dir==='bottom') o.set({top:b-o.getScaledHeight()});
+    else if (dir==='ch')     o.set({left:(l+r)/2-o.getScaledWidth()/2});
+    else if (dir==='cv')     o.set({top:(t+b)/2-o.getScaledHeight()/2});
+    o.setCoords();
+  });
+  canvas.requestRenderAll(); pushH();
+}
+
+// =============================================================================
+// PROPERTIES PANEL
+// =============================================================================
+canvas.on('selection:created', updateProps);
+canvas.on('selection:updated', updateProps);
+canvas.on('selection:cleared', () => {
+  document.getElementById('nosel').style.display = '';
+  document.getElementById('selprops').style.display = 'none';
+  document.getElementById('ssel').textContent = 'No selection';
+});
+canvas.on('object:modified', () => { pushH(); updateLayers(); updateProps(); });
+
+function updateProps() {
+  const os = canvas.getActiveObjects();
+  if (!os.length) return;
+  const o = os[0];
+  document.getElementById('nosel').style.display    = 'none';
+  document.getElementById('selprops').style.display = 'flex';
+  document.getElementById('ssel').textContent = os.length === 1 ? '1 object' : `${os.length} objects`;
+
+  const fill   = o.fill   || '#6C47FF';
+  const stroke = o.stroke || '#a855f7';
+  document.getElementById('p-fill').value   = fill.startsWith('#')   ? fill   : '#6C47FF';
+  document.getElementById('p-stroke').value = stroke.startsWith('#') ? stroke : '#a855f7';
+  document.getElementById('p-sw').value     = Math.round(o.strokeWidth || 0);
+  document.getElementById('p-x').value      = Math.round(o.left || 0);
+  document.getElementById('p-y').value      = Math.round(o.top  || 0);
+  document.getElementById('p-w').value      = Math.round(o.getScaledWidth()  || 0);
+  document.getElementById('p-h').value      = Math.round(o.getScaledHeight() || 0);
+  document.getElementById('p-rot').value    = Math.round(o.angle   || 0);
+  document.getElementById('p-op').value     = Math.round((o.opacity ?? 1) * 100);
+  document.getElementById('p-falpha').value = 100;
+}
+
+function setOF(prop, val) {
+  canvas.getActiveObjects().forEach(o => { o.set(prop, val); });
+  canvas.requestRenderAll();
+}
+function setOF2(prop, val) { setOF(prop, val); }
+function setOFAlpha(pct) {
+  canvas.getActiveObjects().forEach(o => {
+    const hex = document.getElementById('p-fill').value;
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    o.set('fill', `rgba(${r},${g},${b},${pct/100})`);
+  });
+  canvas.requestRenderAll();
+}
+function setOP() {
+  const x = +document.getElementById('p-x').value, y = +document.getElementById('p-y').value;
+  canvas.getActiveObjects().forEach(o => { o.set({left:x, top:y}); o.setCoords(); });
+  canvas.requestRenderAll();
+}
+function setOS() {
+  const o = canvas.getActiveObject(); if (!o) return;
+  const w = +document.getElementById('p-w').value, h = +document.getElementById('p-h').value;
+  o.set({ scaleX: (o.scaleX||1) * w/o.getScaledWidth(), scaleY: (o.scaleY||1) * h/o.getScaledHeight() });
+  o.setCoords(); canvas.requestRenderAll();
+}
+
+// =============================================================================
+// LAYERS PANEL
+// =============================================================================
+function updateLayers() {
+  const list = document.getElementById('layerlist');
+  const objs = canvas.getObjects().slice().reverse();
+  const sel  = canvas.getActiveObjects();
+  const icons = { rect:'⬜', circle:'⭕', ellipse:'◯', polygon:'⬡', path:'✏',
+    group:'⊞', 'i-text':'T', text:'T', line:'╱' };
+  list.innerHTML = '';
+  objs.forEach((o, i) => {
+    const el = document.createElement('div');
+    el.className = `litem${sel.includes(o)?' on':''}`;
+    const n = objs.length - i;
+    el.innerHTML = `<span class="lico">${icons[o.type]||'◻'}</span>
+      <span class="lname">${o.name||o.type+' '+n}</span>
+      <span class="lvis" onclick="toggleVis(event,${canvas.getObjects().indexOf(o)})">${o.visible===false?'○':'●'}</span>`;
+    el.onclick = () => { canvas.setActiveObject(o); canvas.requestRenderAll(); updateLayers(); updateProps(); };
+    list.appendChild(el);
+  });
+}
+
+function toggleVis(e, idx) {
+  e.stopPropagation();
+  const o = canvas.getObjects()[idx];
+  o.set('visible', !o.visible);
+  canvas.requestRenderAll(); updateLayers();
+}
+
+// =============================================================================
+// GRID
+// =============================================================================
+let gridOn = false;
+function toggleGrid() {
+  gridOn = !gridOn;
+  const g = document.getElementById('cgrid');
+  document.getElementById('gbtn').classList.toggle('on', gridOn);
+  g.classList.toggle('on', gridOn);
+  if (gridOn) renderGrid();
+}
+
+function renderGrid() {
+  const g = document.getElementById('cgrid');
+  const dispW = parseInt(document.getElementById('cframe').style.width);
+  const dispH = parseInt(document.getElementById('cframe').style.height);
+  g.width = dispW; g.height = dispH;
+  const cx = g.getContext('2d');
+  const step = GRID * (dispW / CW);
+  cx.clearRect(0, 0, dispW, dispH);
+  cx.strokeStyle = 'rgba(108,71,255,0.13)';
+  cx.lineWidth = 0.5;
+  for (let x = 0; x <= dispW; x += step) { cx.beginPath(); cx.moveTo(x,0); cx.lineTo(x,dispH); cx.stroke(); }
+  for (let y = 0; y <= dispH; y += step) { cx.beginPath(); cx.moveTo(0,y); cx.lineTo(dispW,y); cx.stroke(); }
+}
+
+// =============================================================================
+// ZOOM
+// =============================================================================
+function applyZoom(z) {
+  zoom = z;
+  const w = Math.round(CW * z), h = Math.round(CH * z);
+  canvas.setZoom(w / CW);
+  canvas.setDimensions({ width: w, height: h });
+  const f = document.getElementById('cframe');
+  f.style.width = w + 'px'; f.style.height = h + 'px';
+  document.getElementById('zlbl').textContent = Math.round(z * 100) + '%';
+  if (gridOn) renderGrid();
+}
+
+function adjustZoom(d) { applyZoom(Math.min(4, Math.max(0.1, zoom + d))); }
+
+function fitZoom() {
+  const scroll = document.getElementById('cscroll');
+  const z = Math.min((scroll.clientWidth-48)/CW, (scroll.clientHeight-48)/CH);
+  applyZoom(Math.max(0.1, z));
+}
+
+document.getElementById('cscroll').addEventListener('wheel', e => {
+  e.preventDefault();
+  adjustZoom(e.deltaY < 0 ? 0.08 : -0.08);
+}, { passive: false });
+
+// =============================================================================
+// UNDO / REDO
+// =============================================================================
+function pushH() {
+  const json = canvas.toJSON(['name','id']);
+  if (histIdx < hist.length - 1) hist = hist.slice(0, histIdx + 1);
+  hist.push(json);
+  if (hist.length > 60) { hist.shift(); } else { histIdx++; }
+}
+
+function doUndo() {
+  if (histIdx < 1) return;
+  histIdx--;
+  canvas.loadFromJSON(hist[histIdx], () => { canvas.requestRenderAll(); updateLayers(); });
+}
+
+function doRedo() {
+  if (histIdx >= hist.length - 1) return;
+  histIdx++;
+  canvas.loadFromJSON(hist[histIdx], () => { canvas.requestRenderAll(); updateLayers(); });
+}
+
+// =============================================================================
+// BACKGROUND
+// =============================================================================
+let bgColor = '';
+function setBG(c) {
+  bgColor = c;
+  canvas.setBackgroundColor(c, canvas.renderAll.bind(canvas));
+}
+
+// =============================================================================
+// EXPORT
+// =============================================================================
+function initExpPanel() {
+  const el = document.getElementById('expsizes');
+  el.innerHTML = '';
+  EXP_SIZES.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'esz';
+    row.innerHTML = `<input type="checkbox" id="es-${s}" ${expSet.has(s)?'checked':''} onchange="expSet.has(${s})?expSet.delete(${s}):expSet.add(${s})">
+      <label for="es-${s}" style="margin:0;cursor:pointer;font-size:12px">${s}×${s}</label>`;
+    el.appendChild(row);
+  });
+}
+
+async function expPNG() {
+  const sizes = EXP_SIZES.filter(s => expSet.has(s));
+  const files = await Promise.all(sizes.map(size => new Promise(res => {
+    const el = document.createElement('canvas');
+    const tc = new fabric.StaticCanvas(el);
+    tc.setDimensions({ width: size, height: size });
+    tc.setZoom(size / CW);
+    if (bgColor) tc.setBackgroundColor(bgColor, () => {});
+    tc.loadFromJSON(canvas.toJSON(), () => {
+      tc.renderAll();
+      res({ size, dataUrl: el.toDataURL('image/png'), name: `icon-${size}x${size}.png` });
+    });
+  })));
+
+  if (window.electronBridge?.exportIcons) {
+    await window.electronBridge.exportIcons(files, 'icon-designer');
+    aiLog(`✓ ${files.length} PNGs exportiert`, 'ok');
+  } else {
+    files.forEach(({ dataUrl, name }) => { const a = document.createElement('a'); a.href=dataUrl; a.download=name; a.click(); });
+  }
+}
+
+function expSVG() {
+  const svg  = canvas.toSVG({ width: CW, height: CH });
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const a    = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'icon.svg' });
+  a.click(); URL.revokeObjectURL(a.href);
+  aiLog('✓ SVG exportiert', 'ok');
+}
+
+function expJSON() {
+  const state = kcdState();
+  const json  = JSON.stringify(state, null, 2);
+  if (window.electronBridge?.saveFile) {
+    window.electronBridge.saveFile('data:application/json;base64,' + btoa(unescape(encodeURIComponent(json))), 'icon.kcd.json');
+  } else {
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([json], {type:'application/json'})),
+      download: 'icon.kcd.json'
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+  aiLog('✓ JSON gespeichert', 'ok');
+}
+
+function handleImp(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data   = JSON.parse(ev.target.result);
+      const fJSON  = data.canvas || data;
+      canvas.loadFromJSON(fJSON, () => { canvas.requestRenderAll(); pushH(); updateLayers(); aiLog('✓ Importiert', 'ok'); });
+    } catch { aiLog('✗ Ungültiges JSON', 'er'); }
+  };
+  r.readAsText(file);
+  e.target.value = '';
+}
+
+// =============================================================================
+// KCD STATE SCHEMA
+// =============================================================================
+function kcdState() {
+  return {
+    kcd_version: 1,
+    meta: { name:'untitled', width:CW, height:CH, background:bgColor, updated:Date.now() },
+    canvas:      canvas.toJSON(['name','id']),
+    palette:     [fillC, strokeC],
+    exportSizes: [...expSet],
+  };
+}
+
+// =============================================================================
+// AI COMMAND API — window.canvasAPI (IPC + WebSocket)
+// =============================================================================
+window.canvasAPI = {
+  exec:      (cmd)   => { try { execCmd(cmd); aiLog(`✓ ${cmd.action}`, 'ok'); } catch(e) { aiLog(`✗ ${cmd.action}: ${e.message}`, 'er'); } },
+  getState:  ()      => kcdState(),
+  loadState: (state) => canvas.loadFromJSON(state.canvas || state, () => { canvas.requestRenderAll(); pushH(); updateLayers(); }),
+};
+
+function execCmd(cmd) {
+  switch (cmd.action) {
+    case 'add': {
+      const p = { ...defProps(), ...(cmd.props||{}) };
+      let o;
+      if      (cmd.type === 'rect')    o = new fabric.Rect({ width:100, height:100, ...p });
+      else if (cmd.type === 'circle')  o = new fabric.Circle({ radius:50, ...p });
+      else if (cmd.type === 'ellipse') o = new fabric.Ellipse({ rx:60, ry:40, ...p });
+      else if (cmd.type === 'path')    o = new fabric.Path(p.d||p.path||'M0,0', p);
+      else if (cmd.type === 'text')    o = new fabric.IText(p.text||'Text', { fontSize:80, fontWeight:'bold', ...p });
+      else if (cmd.type === 'polygon') o = new fabric.Polygon(p.points||[], p);
+      else throw new Error('Unknown type: ' + cmd.type);
+      if (cmd.name) o.set('name', cmd.name);
+      canvas.add(o); canvas.setActiveObject(o); canvas.requestRenderAll();
+      pushH(); updateLayers(); break;
+    }
+    case 'modify': {
+      const o = findObj(cmd.id);
+      if (!o) throw new Error('Object not found: ' + cmd.id);
+      o.set(cmd.props||{}); o.setCoords(); canvas.requestRenderAll(); pushH(); break;
+    }
+    case 'delete': {
+      const o = findObj(cmd.id) || canvas.getActiveObject();
+      if (o) { canvas.remove(o); canvas.requestRenderAll(); pushH(); updateLayers(); } break;
+    }
+    case 'clear':     canvas.clear(); pushH(); updateLayers(); break;
+    case 'undo':      doUndo(); break;
+    case 'redo':      doRedo(); break;
+    case 'unite':     case 'union':     boolOp('unite'); break;
+    case 'subtract':  boolOp('subtract'); break;
+    case 'intersect': boolOp('intersect'); break;
+    case 'export':    if (cmd.format==='svg') expSVG(); else if (cmd.format==='png') expPNG(); else expJSON(); break;
+    case 'setBackground': setBG(cmd.color||''); break;
+    case 'load':      canvas.loadFromJSON(cmd.state?.canvas||cmd.state, () => { canvas.requestRenderAll(); pushH(); updateLayers(); }); break;
+    default: throw new Error('Unknown action: ' + cmd.action);
+  }
+}
+
+function findObj(id) {
+  return id ? canvas.getObjects().find(o => o.id===id||o.name===id) : null;
+}
+
+// WebSocket — connects to FastAPI /ws/canvas
+let ws = null;
+function connectWS() {
+  try {
+    ws = new WebSocket('ws://localhost:47200/ws/canvas');
+    ws.onmessage = e => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'exec') {
+          const cmd = msg.cmd || msg;
+          execCmd(cmd);
+          ws.send(JSON.stringify({ type: 'ack', result: { status: 'ok', action: cmd.action } }));
+        } else if (msg.type === 'get-state') {
+          ws.send(JSON.stringify({ type: 'state', state: kcdState() }));
+        }
+      } catch (err) {
+        ws.send(JSON.stringify({ type: 'ack', result: { status: 'error', message: err.message } }));
+      }
+    };
+    ws.onopen  = () => aiLog('✓ Backend WebSocket verbunden', 'ok');
+    ws.onclose = () => setTimeout(connectWS, 5000); // auto-reconnect
+    ws.onerror = () => {};
+  } catch {}
+}
+setTimeout(connectWS, 800);
+
+// =============================================================================
+// AI LOG
+// =============================================================================
+let logTimer = null;
+function aiLog(msg, type = '') {
+  const log = document.getElementById('ai-log');
+  const el  = document.createElement('div');
+  el.className = 'ale ' + { ok:'aok', er:'aer', aw:'aw' }[type||''];
+  el.textContent = msg;
+  log.prepend(el);
+  log.classList.add('on');
+  if (log.children.length > 8) log.lastChild.remove();
+  clearTimeout(logTimer);
+  logTimer = setTimeout(() => log.classList.remove('on'), 3500);
+}
+
+// =============================================================================
+// PANEL SWITCHING
+// =============================================================================
+function setPTab(id, btn) {
+  document.querySelectorAll('.pc').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('on'));
+  document.getElementById(`pc-${id}`)?.classList.add('on');
+  btn?.classList.add('on');
+}
+
+// =============================================================================
+// INIT
+// =============================================================================
+window.addEventListener('load', () => {
+  initExpPanel();
+
+  // Starter shape
+  const k = new fabric.Text('K', {
+    left: 180, top: 62, fontSize: 820,
+    fontFamily: '-apple-system,SF Pro Display,system-ui,sans-serif',
+    fontWeight: '900', fill: '#6C47FF', name: 'starter',
+  });
+  canvas.add(k); canvas.requestRenderAll();
+  pushH(); updateLayers();
+
+  // Fit canvas on load
+  setTimeout(fitZoom, 80);
+
+  // Signal to Electron main process
+  window.dispatchEvent(new CustomEvent('designer-ready'));
+});
+</script>
+</body>
+</html>

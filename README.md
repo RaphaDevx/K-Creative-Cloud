@@ -51,8 +51,46 @@ claude   # alle 6 MCP-Server laden automatisch
 ### Inkscape, Kdenlive, LMMS
 Direkt per Claude-Befehl steuerbar — kein manueller Setup nötig.
 
+## K-Creative Studio (Web UI)
+
+```bash
+# Studio starten (Port 7000):
+~/K-Creative-Cloud/studio/start-studio.sh
+# → http://localhost:7000
+
+# Blender VNC parallel:
+~/K-Creative-Cloud/Blender/scripts/start-blender-studio.sh
+# → http://localhost:6080/vnc_lite.html
+```
+
+Studio = Browser-UI mit Viewer (Blender VNC embed, GIMP/Inkscape Preview) + Chat-Panel.
+Claude Code Terminal bleibt parallel offen — der "Double Layer".
+
+## Security Audit (2026-08-14)
+
+| Tool | Status | Fixes |
+|------|--------|-------|
+| Inkscape | ✅ SAFE | — |
+| LMMS | ✅ SAFE | — |
+| Blender | ⚠️ FIXED | Prompt-Injection entfernt (2 Stellen), Telemetry deaktiviert |
+| Kdenlive | ⚠️ CAUTION | Filename-Sanitization fehlt (eigener Code, akzeptabel) |
+| Video-Shorts | ⚠️ CAUTION | Hardcoded venv-Pfad |
+| Remotion | ⚠️ CAUTION | Supabase-URL hardcoded |
+| GIMP | ⚠️ NOTE | eval/exec = GIMP Python-Fu by design, isoliert in GIMP-Kontext |
+| FreeCAD | ⚠️ NOTE | exec = FreeCAD Scripting by design, isoliert in FreeCAD-Kontext |
+
 ## Etappen
 
 - **Etappe 1** ✅ Programme installiert, Repo angelegt, GitHub bereinigt
 - **Etappe 2** ✅ Blender-MCP (v1.5.5) + GIMP-MCP (56 Tools, GIMP 3.2.4)
 - **Etappe 3** ✅ Inkscape-MCP + FreeCAD-MCP + Kdenlive-MCP (custom) + LMMS-MCP (custom)
+- **Etappe 4** ✅ K-Creative Studio (Web UI), Security Audit + Fixes, Brand/Designer System
+
+## TODO
+
+### Kokoro TTS (`kokoro-tts/`)
+Kokoro TTS + Video-Renderer für Stats/Shorts — noch nicht als MCP integriert.
+- `generate_audio.py` — Kokoro ONNX TTS (Stimme `af_heart`, Speed 1.15x)
+- `render_video.sh` — Kombination Audio + Background-Video → MP4
+- Modelle: `kokoro-v1.0.int8.onnx` + `voices-v1.0.bin` (grosse Binaries, nicht committen)
+- **Nächster Schritt:** Als MCP-Server wrappen (Python stdio MCP) damit Claude direkt Audio/Videos generieren kann

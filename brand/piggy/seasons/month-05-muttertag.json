@@ -1,0 +1,24 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-05-muttertag",
+  "kind": "month",
+  "name": "Muttertag",
+  "enabled": true,
+  "valid": {
+    "month": 5,
+    "from": "05-01",
+    "to": "05-14"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.pink.50}",
+    "component.appIcon.bgTo": "{primitive.color.pink.200}",
+    "component.appIcon.bgRim": "{primitive.color.pink.300}"
+  },
+  "accessories": [
+    "heartBalloon"
+  ],
+  "background": [
+    "hearts"
+  ],
+  "note": "Herzballon, Herzen"
+}

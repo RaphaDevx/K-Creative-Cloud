@@ -1,6 +1,6 @@
 {
   "name": "k-creative-desktop",
-  "version": "0.1.8",
+  "version": "0.3.0",
   "description": "K-Creative Studio — Open-Source Creative Cloud",
   "homepage": "https://github.com/RaphaDevx/K-Creative-Cloud",
   "author": "RaphaDevx",
@@ -24,9 +24,9 @@
     },
     "publish": [
       {
-        "provider": "github",
-        "owner": "RaphaDevx",
-        "repo": "K-Creative-Cloud"
+        "provider": "generic",
+        "url": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-creative",
+        "channel": "latest"
       }
     ],
     "linux": {
@@ -42,13 +42,7 @@
       "gatekeeperAssess": false,
       "notarize": false,
       "entitlements": "entitlements.mac.plist",
-      "entitlementsInherit": "entitlements.mac.plist",
-      "extraResources": [
-        {
-          "from": "../studio/dist/k-creative-server",
-          "to": "k-creative-server"
-        }
-      ]
+      "entitlementsInherit": "entitlements.mac.plist"
     },
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
@@ -64,6 +58,10 @@
     "files": [
       "main.js",
       "preload.js",
+      "loading.html",
+      "dashboard.html",
+      "icon-designer.html",
+      "logo-creator.html",
       "!node_modules/.cache"
     ],
     "extraFiles": [
@@ -76,6 +74,30 @@
       {
         "from": "../feature_flags.json",
         "to": "feature_flags.json"
+      },
+      {
+        "from": "../studio/dist/k-creative-server",
+        "to": "k-creative-server"
+      },
+      {
+        "from": "../studio/live.html",
+        "to": "live.html"
+      },
+      {
+        "from": "../studio/index.html",
+        "to": "index.html"
+      },
+      {
+        "from": "../studio/static",
+        "to": "static"
+      },
+      {
+        "from": "../studio/workers",
+        "to": "workers"
+      },
+      {
+        "from": "../studio/headless",
+        "to": "headless"
       }
     ]
   },

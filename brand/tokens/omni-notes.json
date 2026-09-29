@@ -1,0 +1,43 @@
+{
+  "brand": "omni-notes",
+  "colors": {
+    "primary": "#4A90E2",
+    "background": "#121316",
+    "surface": "#1B1D22",
+    "highlight_yellow": "rgba(255, 235, 59, 0.35)",
+    "highlight_blue": "rgba(33, 150, 243, 0.35)",
+    "highlight_green": "rgba(76, 175, 80, 0.35)",
+    "highlight_pink": "rgba(233, 30, 99, 0.35)",
+    "text": "#F5F5F7",
+    "text_muted": "#8A8A9A",
+    "border": "#2C2E35",
+    "ink_stroke": "#E0E0E8"
+  },
+  "typography": {
+    "font_family": "Inter, -apple-system, sans-serif",
+    "font_mono": "JetBrains Mono, Menlo, monospace",
+    "scale": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem"
+    }
+  },
+  "spacing": {
+    "unit": 8,
+    "grid": "8pt"
+  },
+  "radius": {
+    "sm": "4px",
+    "md": "8px",
+    "lg": "12px",
+    "xl": "16px"
+  },
+  "shadows": {
+    "card": "0 2px 8px rgba(0,0,0,0.4)",
+    "modal": "0 8px 32px rgba(0,0,0,0.6)"
+  }
+}

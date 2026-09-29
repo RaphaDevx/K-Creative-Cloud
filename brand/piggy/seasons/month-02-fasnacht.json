@@ -1,0 +1,24 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-02-fasnacht",
+  "kind": "month",
+  "name": "Fasnacht",
+  "enabled": true,
+  "valid": {
+    "month": 2,
+    "from": "02-10",
+    "to": "02-28"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.pink.200}",
+    "component.appIcon.bgTo": "{primitive.color.violet.400}",
+    "component.appIcon.bgRim": "{primitive.color.violet.700}"
+  },
+  "accessories": [
+    "dominoMask"
+  ],
+  "background": [
+    "confetti"
+  ],
+  "note": "Larve/Maske, Räppli. Fasnachtsdaten variieren jährlich (Luzern/Basel) — Fenster jährlich prüfen"
+}

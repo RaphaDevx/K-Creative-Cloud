@@ -1,6 +1,6 @@
 """
 Spectral quality analyzer for DJ tracks.
-Detects frequency ceiling via FFT and writes quality tags to ID3 metadata.
+Detects frequency ceiling via FFT — supports MP3, FLAC, WAV, OGG.
 
 Quality grades:
   CLUB-READY  — ceiling > 19 kHz  (genuine 320kbps / WAV / lossless)
@@ -9,15 +9,27 @@ Quality grades:
   LOW         — ceiling < 15 kHz  (128kbps, YouTube rip, transcoded)
 """
 
+import json
 import sys
 import numpy as np
 import librosa
 from pathlib import Path
-from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TXXX, COMM, error as ID3Error
 
 
 DOWNLOADS_DIR = Path(__file__).parent.parent / "downloads"
+CACHE_FILE    = DOWNLOADS_DIR / ".quality_cache.json"
+
+
+def _load_cache() -> dict:
+    try:
+        return json.loads(CACHE_FILE.read_text())
+    except Exception:
+        return {}
+
+
+def _save_cache(cache: dict):
+    CACHE_FILE.write_text(json.dumps(cache, indent=2))
 
 GRADES = [
     (19_000, "CLUB-READY", "Frequenzdecke >19 kHz — clubtauglich"),
@@ -66,26 +78,46 @@ def grade_ceiling(ceiling_hz: float) -> tuple[str, str]:
 
 
 def write_tags(path: Path, ceiling_hz: float, grade: str, comment: str):
+    """Write quality tags to MP3 ID3 or WAV ID3. FLAC/OGG only use cache."""
+    ext = path.suffix.lower()
+    if ext not in (".mp3", ".wav"):
+        return
     try:
-        tags = ID3(str(path))
-    except ID3Error:
-        tags = ID3()
+        try:
+            tags = ID3(str(path))
+        except ID3Error:
+            tags = ID3()
+        tags.add(TXXX(encoding=3, desc="QUALITY",      text=grade))
+        tags.add(TXXX(encoding=3, desc="FREQ_CEILING", text=f"{ceiling_hz/1000:.1f} kHz"))
+        tags.add(COMM(encoding=3, lang="deu", desc="", text=f"[{grade}] {ceiling_hz/1000:.1f} kHz"))
+        tags.save(str(path))
+    except Exception:
+        pass
 
-    tags.add(TXXX(encoding=3, desc="QUALITY",       text=grade))
-    tags.add(TXXX(encoding=3, desc="FREQ_CEILING",  text=f"{ceiling_hz/1000:.1f} kHz"))
-    tags.add(TXXX(encoding=3, desc="QUALITY_NOTE",  text=comment))
-    tags.add(COMM(encoding=3, lang="deu", desc="", text=f"[{grade}] {ceiling_hz/1000:.1f} kHz — {comment}"))
-    tags.save(str(path))
 
+def analyze_file(path: Path, force: bool = False) -> dict:
+    # Check cache first (skip re-analysis unless forced)
+    cache = _load_cache()
+    key = path.name
+    if not force and key in cache:
+        return cache[key]
 
-def analyze_file(path: Path) -> dict:
     print(f"  Analysiere: {path.name} ...", end=" ", flush=True)
     ceiling_hz = detect_freq_ceiling(path)
     grade, comment = grade_ceiling(ceiling_hz)
     write_tags(path, ceiling_hz, grade, comment)
     emoji = GRADE_EMOJI[grade]
     print(f"{emoji} {grade}  ({ceiling_hz/1000:.1f} kHz)")
-    return {"file": path.name, "ceiling_khz": round(ceiling_hz / 1000, 1), "grade": grade}
+
+    result = {"file": path.name, "ceiling_khz": round(ceiling_hz / 1000, 1), "grade": grade}
+    cache[key] = result
+    _save_cache(cache)
+    return result
+
+
+def get_cached(filename: str) -> dict | None:
+    """Return cached quality result for a filename, or None."""
+    return _load_cache().get(filename)
 
 
 def main():

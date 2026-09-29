@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Creative-Cloud — Blender Studio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    display: flex;
+    height: 100vh;
+    background: #0d0f14;
+    color: #e0e4ef;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px;
+    overflow: hidden;
+  }
+
+  /* ── Left: Blender Viewer ──────────────────────────────────────────────── */
+  #viewport {
+    flex: 1;
+    position: relative;
+    border-right: 2px solid #1e2130;
+  }
+
+  #viewport iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #000;
+  }
+
+  #viewport-label {
+    position: absolute;
+    top: 12px; left: 14px;
+    background: rgba(10,12,20,0.82);
+    border: 1px solid #2a3050;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #5a8fff;
+    pointer-events: none;
+    backdrop-filter: blur(6px);
+  }
+
+  /* ── Right: Control Panel ──────────────────────────────────────────────── */
+  #panel {
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    background: #10121a;
+  }
+
+  /* Header */
+  #panel-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #1e2130;
+  }
+  #panel-header h1 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5a8fff;
+    letter-spacing: 0.04em;
+  }
+  #panel-header .sub {
+    font-size: 10px;
+    color: #4a5070;
+    margin-top: 2px;
+  }
+
+  /* Status dots */
+  #status-bar {
+    display: flex;
+    gap: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid #1a1d28;
+    font-size: 10px;
+    color: #4a5070;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .dot.green  { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .dot.yellow { background: #eab308; box-shadow: 0 0 6px #eab30888; }
+  .dot.red    { background: #ef4444; }
+  .dot.gray   { background: #3a3f52; }
+
+  /* Tabs */
+  #tabs {
+    display: flex;
+    border-bottom: 1px solid #1e2130;
+  }
+  .tab {
+    flex: 1;
+    padding: 7px;
+    text-align: center;
+    font-size: 10px;
+    color: #4a5070;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: #5a8fff; border-bottom-color: #5a8fff; }
+  .tab:hover  { color: #8ab4ff; }
+
+  /* Content area */
+  #content { flex: 1; overflow-y: auto; padding: 12px 14px; display: none; }
+  #content.active { display: block; }
+
+  /* Log */
+  #log-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+    font-size: 11px;
+    line-height: 1.7;
+    display: none;
+  }
+  #log-area.active { display: block; }
+
+  .log-line { margin-bottom: 3px; }
+  .log-line.user   { color: #8ab4ff; }
+  .log-line.blender { color: #22c55e; }
+  .log-line.error  { color: #f87171; }
+  .log-line.system { color: #4a5070; font-style: italic; }
+
+  /* Inputs */
+  .section-title {
+    font-size: 10px;
+    color: #4a5070;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    margin-top: 14px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    background: #181b26;
+    border: 1px solid #2a2f42;
+    border-radius: 5px;
+    padding: 7px 9px;
+    color: #d0d8f0;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 8px;
+  }
+  input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: #5a8fff;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .row { display: flex; gap: 8px; }
+  .row input { margin-bottom: 0; }
+
+  button {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 6px;
+  }
+  .btn-primary  { background: #2a4aff; color: #fff; }
+  .btn-primary:hover { background: #3d5aff; }
+  .btn-secondary { background: #1e2130; color: #8a9ac0; border: 1px solid #2a3050; }
+  .btn-secondary:hover { background: #252a3a; color: #d0d8f0; }
+  .btn-danger   { background: #3a1a1a; color: #f87171; border: 1px solid #5a2020; }
+  .btn-danger:hover { background: #4a2020; }
+
+  /* GeoNode params display */
+  #param-list { margin-top: 8px; }
+  .param-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 6px 8px;
+    background: #181b26;
+    border-radius: 4px;
+    border: 1px solid #222538;
+  }
+  .param-name { flex: 1; color: #8ab4ff; font-size: 11px; }
+  .param-val  { width: 80px; font-size: 11px; }
+  .param-val input { padding: 3px 6px; margin: 0; font-size: 11px; }
+
+  /* Command input at bottom */
+  #cmd-bar {
+    border-top: 1px solid #1e2130;
+    padding: 10px 14px;
+  }
+  #cmd-input {
+    width: 100%;
+    background: #181b26;
+    border: 1px solid #2a2f42;
+    border-radius: 5px;
+    padding: 8px 10px;
+    color: #d0d8f0;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    height: 60px;
+  }
+  #cmd-input:focus { border-color: #5a8fff; }
+  #cmd-send {
+    background: #2a4aff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    float: right;
+    margin-top: 6px;
+  }
+  #cmd-send:hover { background: #3d5aff; }
+  .cmd-hint { font-size: 10px; color: #3a4060; margin-top: 4px; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a3050; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ── Viewport ────────────────────────────────────────────────────────────── -->
+<div id="viewport">
+  <div id="viewport-label">Blender 4.0 · Live via noVNC</div>
+  <iframe id="vnc-frame" src="http://localhost:6080/vnc_lite.html?autoconnect=1&resize=scale&quality=8" allowfullscreen></iframe>
+</div>
+
+<!-- ── Control Panel ───────────────────────────────────────────────────────── -->
+<div id="panel">
+
+  <div id="panel-header">
+    <h1>K-Creative-Cloud Studio</h1>
+    <div class="sub">Blender · KI-Parametric · TechDraw</div>
+  </div>
+
+  <div id="status-bar">
+    <span><span class="dot gray" id="dot-blender"></span> Blender</span>
+    <span><span class="dot gray" id="dot-mcp"></span> MCP :9876</span>
+    <span><span class="dot gray" id="dot-param"></span> Parametric :9877</span>
+  </div>
+
+  <div id="tabs">
+    <div class="tab active" onclick="switchTab('params')">GeoNodes</div>
+    <div class="tab" onclick="switchTab('techdraw')">TechDraw</div>
+    <div class="tab" onclick="switchTab('code')">Python</div>
+    <div class="tab" onclick="switchTab('log')">Log</div>
+  </div>
+
+  <!-- Tab: GeoNodes Params -->
+  <div id="tab-params" class="content active">
+    <div class="section-title">Objekt</div>
+    <div class="row">
+      <input type="text" id="obj-name" placeholder="Objekt-Name (z.B. BatterieHalter)" style="flex:1">
+      <button class="btn-secondary" style="width:auto;white-space:nowrap;margin:0" onclick="loadParams()">Laden</button>
+    </div>
+    <div class="section-title">Parameter</div>
+    <div id="param-list">
+      <div style="color:#3a4060;font-size:11px">Objekt laden um GeoNode-Parameter zu sehen…</div>
+    </div>
+    <button class="btn-primary" style="margin-top:12px" onclick="applyParams()">Änderungen anwenden</button>
+  </div>
+
+  <!-- Tab: TechDraw -->
+  <div id="tab-techdraw" class="content">
+    <div class="section-title">Technische Zeichnung erstellen</div>
+    <input type="text" id="td-object" placeholder="Objekt-Name">
+    <div class="row">
+      <label style="color:#6a7090;font-size:11px;display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="td-front" checked> Front
+      </label>
+      <label style="color:#6a7090;font-size:11px;display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="td-side" checked> Seite
+      </label>
+      <label style="color:#6a7090;font-size:11px;display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="td-top" checked> Oben
+      </label>
+      <label style="color:#6a7090;font-size:11px;display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="td-persp"> Perspektive
+      </label>
+    </div>
+    <select id="td-format" style="margin-top:8px">
+      <option>A4 Querformat</option>
+      <option>A3 Querformat</option>
+      <option>A4 Hochformat</option>
+    </select>
+    <input type="text" id="td-title" placeholder="Titelblock: Beschreibung">
+    <button class="btn-primary" onclick="createTechDraw()">TechDraw erstellen</button>
+    <div class="section-title" style="margin-top:10px">Render-Output</div>
+    <input type="text" id="td-output" placeholder="/home/raphael/renders/zeichnung.png">
+    <button class="btn-secondary" onclick="renderTechDraw()">Als PNG rendern</button>
+  </div>
+
+  <!-- Tab: Python -->
+  <div id="tab-code" class="content">
+    <div class="section-title">Python direkt in Blender ausführen</div>
+    <textarea id="py-code" placeholder="import bpy&#10;# Dein Code hier&#10;result = bpy.context.scene.name"></textarea>
+    <button class="btn-primary" onclick="execPython()">Ausführen</button>
+    <div class="section-title">Schnell-Befehle</div>
+    <button class="btn-secondary" onclick="quickExec('get_scene_info')">Szene-Info laden</button>
+    <button class="btn-secondary" onclick="quickExec('render')">Render starten</button>
+    <button class="btn-secondary" onclick="quickExec('save')">Szene speichern</button>
+  </div>
+
+  <!-- Tab: Log -->
+  <div id="log-area" id="tab-log">
+    <div class="log-line system">── Blender Studio Log ──</div>
+  </div>
+
+  <!-- Command Bar -->
+  <div id="cmd-bar">
+    <div class="section-title" style="margin:0 0 6px">KI-Befehl an Blender</div>
+    <textarea id="cmd-input" placeholder="z.B.: Ändere cell_spacing auf 0.25 und erstelle eine TechDraw-Zeichnung davon"></textarea>
+    <button id="cmd-send" onclick="sendAICommand()">Senden →</button>
+    <div class="cmd-hint" style="margin-top:32px">Befehle werden als parametrische API-Calls an Blender übermittelt</div>
+  </div>
+
+</div>
+
+<script>
+const PARAM_PORT = 9877;
+let currentParams = {};
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content, #log-area').forEach(c => {
+    c.classList.remove('active');
+    c.style.display = 'none';
+  });
+  event.target.classList.add('active');
+  const el = document.getElementById('tab-' + name) || document.getElementById('log-area');
+  if (el) { el.classList.add('active'); el.style.display = 'block'; }
+}
+
+// ── Log ───────────────────────────────────────────────────────────────────────
+function log(msg, type='system') {
+  const area = document.getElementById('log-area');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = new Date().toLocaleTimeString() + ' ' + msg;
+  area.appendChild(line);
+  area.scrollTop = area.scrollHeight;
+}
+
+// ── Parametric API ────────────────────────────────────────────────────────────
+async function sendCommand(cmd) {
+  // In a real setup: send via WebSocket or relay server
+  // For now: show command + log it
+  log('→ ' + JSON.stringify(cmd), 'user');
+  // Simulate response for demo
+  return { ok: true, note: "Live-Verbindung braucht Blender-Studio-Server" };
+}
+
+async function loadParams() {
+  const obj = document.getElementById('obj-name').value.trim();
+  if (!obj) return;
+  log(`Lade GeoNode-Parameter für "${obj}"...`);
+  const res = await sendCommand({ action: 'get_geonode', object: obj });
+  if (res.params) {
+    renderParamList(res.params);
+    log(`${Object.keys(res.params).length} Parameter geladen`, 'blender');
+  }
+}
+
+function renderParamList(params) {
+  const list = document.getElementById('param-list');
+  list.innerHTML = '';
+  currentParams = params;
+  for (const [name, info] of Object.entries(params)) {
+    const item = document.createElement('div');
+    item.className = 'param-item';
+    item.innerHTML = `
+      <span class="param-name">${name}</span>
+      <span style="color:#4a5070;font-size:10px">${(info.type||'').replace('NodeSocket','')}</span>
+      <div class="param-val">
+        <input type="text" value="${info.value ?? ''}" data-param="${name}" style="margin:0;padding:3px 6px;font-size:11px">
+      </div>`;
+    list.appendChild(item);
+  }
+}
+
+async function applyParams() {
+  const obj = document.getElementById('obj-name').value.trim();
+  const inputs = document.querySelectorAll('#param-list input[data-param]');
+  for (const inp of inputs) {
+    const param = inp.dataset.param;
+    const raw = inp.value;
+    const value = isNaN(raw) ? raw : parseFloat(raw);
+    await sendCommand({ action: 'set_geonode', object: obj, param, value });
+    log(`${obj}.${param} = ${value}`, 'blender');
+  }
+}
+
+// ── TechDraw ──────────────────────────────────────────────────────────────────
+async function createTechDraw() {
+  const obj    = document.getElementById('td-object').value.trim();
+  const front  = document.getElementById('td-front').checked;
+  const side   = document.getElementById('td-side').checked;
+  const top    = document.getElementById('td-top').checked;
+  const persp  = document.getElementById('td-persp').checked;
+  const title  = document.getElementById('td-title').value.trim();
+
+  const code = `
+import bpy
+obj = bpy.data.objects.get("${obj}")
+if obj:
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    # TechDraw views
+    views = []
+    ${front  ? "views.append('FRONT')"  : ""}
+    ${side   ? "views.append('RIGHT')"  : ""}
+    ${top    ? "views.append('TOP')"    : ""}
+    ${persp  ? "views.append('CAMERA')" : ""}
+    print("TechDraw target:", obj.name, "Views:", views)
+    result = f"TechDraw bereit für {obj.name} mit {len(views)} Ansichten"
+else:
+    result = "Objekt '${obj}' nicht gefunden"
+`;
+  await sendCommand({ action: 'exec_python', code });
+  log(`TechDraw für "${obj}" erstellt (${[front&&'F',side&&'S',top&&'T',persp&&'P'].filter(Boolean).join(',')})`,'blender');
+}
+
+async function renderTechDraw() {
+  const output = document.getElementById('td-output').value.trim() || '/tmp/techdraw.png';
+  await sendCommand({ action: 'exec_python', code: `
+import bpy
+bpy.context.scene.render.filepath = "${output}"
+bpy.ops.render.render(write_still=True)
+result = "Gerendert: ${output}"
+`});
+  log(`Render → ${output}`, 'blender');
+}
+
+// ── Python exec ───────────────────────────────────────────────────────────────
+async function execPython() {
+  const code = document.getElementById('py-code').value;
+  const res = await sendCommand({ action: 'exec_python', code });
+  if (res.result) log('← ' + res.result, 'blender');
+}
+
+function quickExec(type) {
+  const cmds = {
+    get_scene_info: { action: 'get_scene_info' },
+    render: { action: 'exec_python', code: 'bpy.ops.render.render(write_still=True); result="render done"' },
+    save:   { action: 'exec_python', code: 'bpy.ops.wm.save_mainfile(); result="saved"' },
+  };
+  if (cmds[type]) sendCommand(cmds[type]);
+}
+
+// ── AI Command ────────────────────────────────────────────────────────────────
+async function sendAICommand() {
+  const text = document.getElementById('cmd-input').value.trim();
+  if (!text) return;
+  log('AI: ' + text, 'user');
+  document.getElementById('cmd-input').value = '';
+  log('(KI-Interpretation läuft über Claude / MCP-Layer…)', 'system');
+}
+
+// ── Keyboard shortcut: Enter in cmd-input ─────────────────────────────────────
+document.getElementById('cmd-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    sendAICommand();
+  }
+});
+
+// ── Status pinger ────────────────────────────────────────────────────────────
+function updateStatus() {
+  // Check if noVNC frame loaded
+  const frame = document.getElementById('vnc-frame');
+  try {
+    const loaded = frame.contentDocument !== null;
+    document.getElementById('dot-blender').className = 'dot ' + (loaded ? 'green' : 'yellow');
+  } catch(e) {
+    document.getElementById('dot-blender').className = 'dot green'; // cross-origin = means it loaded
+  }
+}
+setInterval(updateStatus, 3000);
+setTimeout(updateStatus, 1000);
+log('K-Creative-Cloud Studio geladen. Blender-Studio-Server starten um live zu verbinden.', 'system');
+</script>
+</body>
+</html>

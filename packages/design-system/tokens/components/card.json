@@ -1,0 +1,23 @@
+{
+  "card": {
+    "default": {
+      "bg":           { "$value": "{semantic.bg.surface}",  "$type": "color" },
+      "border":       { "$value": "{semantic.border.default}", "$type": "color" },
+      "border-width": { "$value": "1px",                   "$type": "dimension" },
+      "radius":       { "$value": "{radius.lg}",            "$type": "dimension" },
+      "padding":      { "$value": "{spacing.lg}",           "$type": "dimension" },
+      "shadow":       { "$value": "0 1px 3px rgba(0,0,0,.04)", "$type": "shadow" }
+    },
+    "elevated": {
+      "bg":           { "$value": "{semantic.bg.surface}",  "$type": "color" },
+      "border":       { "$value": "{semantic.border.default}", "$type": "color" },
+      "shadow":       { "$value": "0 2px 10px rgba(0,0,0,.07)", "$type": "shadow" },
+      "radius":       { "$value": "{radius.xl}",            "$type": "dimension" },
+      "padding":      { "$value": "{spacing.lg}",           "$type": "dimension" }
+    },
+    "accent-border": {
+      "border-left-width": { "$value": "3px",              "$type": "dimension" },
+      "border-left-color": { "$value": "{semantic.accent.default}", "$type": "color" }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+Two groups. One question — are they actually different? That is what two-sample hypothesis tests answer.
+
+First decision: independent or paired? Independent means two separate groups, like a drug trial where one group gets treatment and the other gets a placebo. Paired means the same subjects measured twice — before and after. Paired tests reduce to a simple one-sample t-test on the differences.
+
+For independent samples, it comes down to what you know about the variances. Variances known? Use the z-test. Variances unknown but assumed equal? Pool them. That is the pooled variance t-test, with n1 plus n2 minus 2 degrees of freedom. Variances unknown and unequal? That is Welch's t-test — it corrects the degrees of freedom based on the actual sample variances.
+
+Large samples with any distribution? Central Limit Theorem kicks in. Z-test works regardless.
+
+Comparing proportions? Same five-step logic, but use the pooled proportion estimate as your standard error.
+
+Not sure if variances are even equal? Test that first — with the F-test. The ratio of two sample variances follows an F-distribution under the null hypothesis of equal variances.
+
+Every two-sample problem comes down to four questions. Independent or paired? Variances known or unknown? Equal or unequal? Sample large enough for the Central Limit Theorem?
+
+Answer those four, and you always know exactly which test to run.

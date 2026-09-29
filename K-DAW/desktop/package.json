@@ -9,6 +9,9 @@
     "build": "electron-builder",
     "build:mac": "electron-builder --mac dmg"
   },
+  "dependencies": {
+    "electron-updater": "^6.1.0"
+  },
   "devDependencies": {
     "electron": "^31.0.0",
     "electron-builder": "^24.13.3",
@@ -18,6 +21,7 @@
     "appId": "io.k-creative.kdaw",
     "productName": "K-DAW",
     "copyright": "Copyright © 2026 RaphaDevx",
+    "afterPack": "scripts/presign-python.js",
     "afterSign": "scripts/notarize.js",
     "directories": {
       "output": "release"
@@ -38,7 +42,13 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "entitlements.mac.plist",
-      "entitlementsInherit": "entitlements.mac.plist"
+      "entitlementsInherit": "entitlements.mac.plist",
+      "type": "distribution",
+      "notarize": false
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-daw"
     },
     "dmg": {
       "title": "K-DAW ${version}",

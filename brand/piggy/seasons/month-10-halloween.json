@@ -1,0 +1,24 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-10-halloween",
+  "kind": "month",
+  "name": "Halloween",
+  "enabled": true,
+  "valid": {
+    "month": 10,
+    "from": "10-24",
+    "to": "10-31"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.leaf.400}",
+    "component.appIcon.bgTo": "{primitive.color.violet.700}",
+    "component.appIcon.bgRim": "{primitive.color.cocoa.900}"
+  },
+  "accessories": [
+    "witchHat"
+  ],
+  "background": [
+    "bats"
+  ],
+  "note": "Hexenhut, Fledermäuse, Mond"
+}

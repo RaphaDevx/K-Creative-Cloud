@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K-Creative Studio</title>
+<style>
+:root {
+  --bg:     #07060d;
+  --sb:     rgba(108,71,255,0.04);
+  --card:   rgba(108,71,255,0.06);
+  --card2:  rgba(108,71,255,0.10);
+  --a:      #6C47FF;
+  --a2:     #a855f7;
+  --a3:     #60A5FA;
+  --ag:     #00c872;
+  --txt:    #e8e0ff;
+  --t2:     rgba(232,224,255,0.55);
+  --t3:     rgba(232,224,255,0.22);
+  --border: rgba(108,71,255,0.2);
+  --blight: rgba(108,71,255,0.10);
+  --r:      12px;
+  --r2:     8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+
+/* ── Layout ─────────────────────────────────────────── */
+.layout{display:flex;height:100vh;overflow:hidden}
+
+/* ── Sidebar ────────────────────────────────────────── */
+.sb{width:216px;flex-shrink:0;background:var(--sb);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:20px 0;overflow-y:auto}
+.sb-logo{padding:0 20px 24px;font-size:11px;font-weight:900;letter-spacing:.14em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,var(--a),var(--a2),var(--a3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sb-logo em{display:block;font-style:normal;font-size:9px;font-weight:400;
+  letter-spacing:.05em;margin-top:2px;
+  -webkit-text-fill-color:var(--t3);background:none}
+.nav-sec{padding:0 12px 12px}
+.nav-lbl{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--t3);padding:0 8px 6px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:9px;
+  cursor:pointer;color:var(--t2);font-size:13.5px;font-weight:500;
+  transition:background .15s,color .15s;user-select:none}
+.ni:hover{background:var(--card2);color:var(--txt)}
+.ni.on{background:rgba(108,71,255,0.18);color:var(--txt)}
+.ni .ico{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sb-foot{margin-top:auto;padding:16px 20px 0;
+  border-top:1px solid var(--blight);font-size:11px;color:var(--t3)}
+
+/* ── Main ───────────────────────────────────────────── */
+.main{flex:1;overflow-y:auto;padding:28px 32px}
+.tab{display:none}.tab.on{display:block}
+
+/* ── Cards ──────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+
+/* ── Buttons ────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;
+  border-radius:var(--r2);border:none;cursor:pointer;
+  font-size:13px;font-weight:600;font-family:inherit;
+  transition:opacity .15s,transform .08s;white-space:nowrap}
+.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
+.btn-p{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff}
+.btn-b{background:linear-gradient(135deg,#2563eb,var(--a3));color:#fff}
+.btn-g{background:linear-gradient(135deg,#059669,var(--ag));color:#07060d;font-weight:700}
+.btn-gh{background:transparent;color:var(--t2);border:1px solid var(--border)}
+.btn-gh:hover{color:var(--txt);background:var(--card)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-xs{padding:5px 10px;font-size:11px}
+
+/* ── Grid ───────────────────────────────────────────── */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+
+/* ── Form ───────────────────────────────────────────── */
+label{font-size:12px;color:var(--t2);font-weight:500;display:block;margin-bottom:5px}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:rgba(108,71,255,0.06);
+  border:1px solid var(--border);border-radius:var(--r2);
+  color:var(--txt);font-family:inherit;font-size:13px;
+  padding:8px 12px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--a)}
+select{cursor:pointer}
+select option{background:#1a1530}
+input[type=color]{width:40px;height:32px;border-radius:6px;border:1px solid var(--border);
+  background:none;cursor:pointer;padding:2px}
+input[type=range]{width:100%;accent-color:var(--a)}
+input[type=checkbox]{accent-color:var(--a);cursor:pointer}
+.fg{margin-bottom:14px}
+.frow{display:flex;gap:12px;align-items:flex-end;margin-bottom:14px}
+.frow .fg{flex:1;margin:0}
+
+/* ── Toggle group ───────────────────────────────────── */
+.tg{display:flex;gap:4px}
+.tb{flex:1;padding:7px 6px;text-align:center;background:transparent;
+  border:1px solid var(--border);border-radius:7px;color:var(--t2);cursor:pointer;
+  font-size:12px;font-family:inherit;font-weight:500;
+  transition:background .15s,color .15s,border-color .15s}
+.tb.on{background:rgba(108,71,255,0.2);color:var(--txt);border-color:var(--a)}
+
+/* ── Inner tabs ─────────────────────────────────────── */
+.tabstrip{display:flex;gap:2px;margin-bottom:18px;
+  border-bottom:1px solid var(--border);padding-bottom:0}
+.tstb{padding:9px 16px;font-size:13px;font-weight:600;color:var(--t2);
+  background:none;border:none;cursor:pointer;font-family:inherit;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .15s,border-color .15s}
+.tstb.on{color:var(--txt);border-bottom-color:var(--a)}
+.tstb:hover{color:var(--txt)}
+
+/* ── Section header ─────────────────────────────────── */
+.sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.st{font-size:16px;font-weight:700}
+.st2{font-size:14px;font-weight:700}
+
+/* ── Page header ────────────────────────────────────── */
+.ph{margin-bottom:24px}
+.pt{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.ps{font-size:13.5px;color:var(--t2);margin-top:3px}
+
+/* ── Gradient text ──────────────────────────────────── */
+.gt{background:linear-gradient(135deg,var(--a),var(--a2),var(--a3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ── Stat card ──────────────────────────────────────── */
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.sl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--t3);margin-bottom:6px}
+.sv{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.ssub{font-size:12px;color:var(--t2);margin-top:4px}
+
+/* ── Dot / Badge ────────────────────────────────────── */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dg{background:var(--ag);box-shadow:0 0 6px var(--ag)}
+.dr{background:#ff6b6b}
+.dy{background:#fbbf24}
+.dp{background:var(--a2);animation:dotpulse 1.2s ease-in-out infinite}
+@keyframes dotpulse{0%,100%{opacity:.4}50%{opacity:1}}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;
+  border-radius:99px;font-size:11px;font-weight:600}
+.bg{background:rgba(0,200,114,.15);color:var(--ag)}
+.bp{background:rgba(108,71,255,.2);color:var(--a2)}
+
+/* ── Separator ──────────────────────────────────────── */
+.sep{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* ── Swatch ─────────────────────────────────────────── */
+.sw{width:28px;height:28px;border-radius:6px;flex-shrink:0}
+
+/* ── Canvas workspace ───────────────────────────────── */
+.design-layout{display:flex;gap:18px;height:calc(100vh - 200px);min-height:500px}
+.dt{width:210px;flex-shrink:0;overflow-y:auto;padding-right:2px}
+.dc{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;overflow-y:auto}
+.dsz{width:230px;flex-shrink:0;overflow-y:auto}
+
+.canvas-wrap{
+  position:relative;width:368px;height:368px;flex-shrink:0;
+  background:repeating-conic-gradient(rgba(108,71,255,0.05) 0% 25%,transparent 0% 50%)
+    0 0/20px 20px;
+  border-radius:var(--r);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+#cv{display:block;border-radius:0}
+
+/* ── Size grid ──────────────────────────────────────── */
+.szg{display:flex;flex-wrap:wrap;gap:8px}
+.szi{display:flex;flex-direction:column;align-items:center;gap:3px}
+.szp{border-radius:5px;overflow:hidden;border:1px solid var(--blight);
+  background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center}
+.szl{font-size:9px;color:var(--t3)}
+
+/* ── Brand card ─────────────────────────────────────── */
+.bc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;cursor:pointer;transition:border-color .2s,background .2s}
+.bc:hover{border-color:var(--a);background:var(--card2)}
+.bc.on{border-color:var(--a)}
+
+/* ── Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(108,71,255,.3);border-radius:3px}
+
+/* ── Tool section header ────────────────────────────── */
+.ts{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--t3);margin:14px 0 8px}
+.ts:first-child{margin-top:0}
+
+/* ── Platform selector ──────────────────────────────── */
+.platform-info{font-size:11px;color:var(--t3);margin-bottom:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em}
+
+/* ── Theme presets ───────────────────────────────────── */
+.theme-swatch{
+  width:36px;height:36px;border-radius:7px;cursor:pointer;
+  border:2px solid transparent;transition:transform .1s,border-color .15s;
+  flex-shrink:0;position:relative;overflow:hidden}
+.theme-swatch:hover{transform:scale(1.1);border-color:rgba(255,255,255,.35)}
+.theme-swatch.on{border-color:#fff}
+.theme-swatch span{
+  position:absolute;bottom:0;left:0;right:0;font-size:7px;font-weight:700;
+  text-align:center;padding:2px 1px;background:rgba(0,0,0,.45);color:#fff;
+  letter-spacing:.03em;white-space:nowrap;overflow:hidden}
+
+/* ── Logo canvas ─────────────────────────────────────── */
+.logo-wrap{
+  background:repeating-conic-gradient(rgba(108,71,255,0.05) 0% 25%,transparent 0% 50%)
+    0 0/20px 20px;
+  border-radius:var(--r2);border:1px solid var(--border);
+  padding:16px 24px;display:flex;align-items:center;justify-content:center}
+
+/* ── Toast ───────────────────────────────────────────── */
+#kc-toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:rgba(7,6,13,.97);border:1px solid var(--border);border-radius:9px;
+  padding:9px 20px;font-size:12.5px;font-weight:500;z-index:9999;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
+  backdrop-filter:blur(16px);white-space:nowrap}
+#kc-toast.show{transform:translateX(-50%) translateY(0)}
+#kc-toast.ok  {border-color:rgba(0,200,114,.4);color:var(--ag)}
+#kc-toast.err {border-color:rgba(239,68,68,.4);color:#f87171}
+
+/* ── Sidebar drag zone (traffic-light safe area) ─────── */
+.sb-drag{height:44px;-webkit-app-region:drag;flex-shrink:0;
+  display:flex;align-items:center;justify-content:flex-end;padding:0 16px;
+  font-size:8px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--t3);user-select:none;cursor:default}
+
+/* ── Project cards ───────────────────────────────────── */
+.proj-card{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);cursor:pointer;
+  transition:border-color .2s,background .2s,transform .12s;overflow:hidden}
+.proj-card:hover{border-color:var(--a);background:var(--card2);transform:translateY(-2px)}
+.proj-thumb{height:72px;position:relative;overflow:hidden}
+.proj-info{padding:11px 14px 14px}
+.proj-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.proj-meta{font-size:11px;color:var(--t2)}
+.proj-type{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;
+  font-size:10px;font-weight:600;margin-bottom:5px;
+  background:rgba(108,71,255,.18);color:var(--a2)}
+.proj-new{border-style:dashed!important;opacity:.45}
+.proj-new:hover{opacity:.8;transform:none!important}
+
+/* ── Modal ───────────────────────────────────────────── */
+.modal-ov{position:fixed;inset:0;background:rgba(7,6,13,.88);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;backdrop-filter:blur(12px);animation:fdin .15s ease}
+.modal-ov.hide{display:none}
+.mbox{background:#111028;border:1px solid rgba(108,71,255,.4);
+  border-radius:16px;padding:28px 28px 22px;width:440px;max-width:92vw}
+.mbox h3{font-size:17px;font-weight:800;margin-bottom:20px}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+@keyframes fdin{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+/* ── Project type grid ───────────────────────────────── */
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.type-opt{padding:10px 12px;border-radius:9px;border:1px solid var(--border);
+  cursor:pointer;transition:border-color .15s,background .15s;
+  background:transparent;font-family:inherit;color:var(--t2);text-align:left;width:100%}
+.type-opt:hover{border-color:rgba(108,71,255,.5);color:var(--txt)}
+.type-opt.on{border-color:var(--a);background:rgba(108,71,255,.14);color:var(--txt)}
+.to-ico{font-size:18px;display:block;margin-bottom:4px}
+.to-name{font-size:12px;font-weight:700;display:block}
+.to-sub{font-size:10px;color:var(--t3);display:block}
+
+/* ── Color Token System ──────────────────────────────────────── */
+.ct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.ct-token{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;
+  cursor:pointer;transition:border-color .2s;
+  position:relative;overflow:hidden
+}
+.ct-token:hover{border-color:rgba(108,71,255,.45)}
+.ct-token.on{border-color:var(--a);background:rgba(108,71,255,.1)}
+.ct-swatch{
+  height:48px;border-radius:7px;margin-bottom:10px;
+  background:var(--ct-primary,#6C47FF);
+  position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)
+}
+.ct-swatch::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.08) 0%,transparent 60%);
+  pointer-events:none
+}
+.ct-role{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:3px}
+.ct-hex{font-size:12.5px;font-weight:600;font-family:'SF Mono',monospace;color:var(--txt)}
+.ct-wcag{
+  display:inline-flex;align-items:center;padding:1px 6px;
+  border-radius:4px;font-size:9px;font-weight:700;margin-top:6px;
+  letter-spacing:.05em
+}
+.ct-wcag.aaa{background:rgba(0,200,114,.15);color:#00c872}
+.ct-wcag.aa {background:rgba(96,165,250,.15);color:#60A5FA}
+.ct-wcag.fail{background:rgba(239,68,68,.12);color:#f87171}
+
+/* Harmony strip */
+.harm-strip{
+  display:flex;gap:0;border-radius:10px;overflow:hidden;
+  margin-bottom:20px;height:52px;
+  box-shadow:0 2px 12px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.04)
+}
+.harm-swatch{flex:1;position:relative;cursor:pointer;transition:flex .2s}
+.harm-swatch:hover{flex:2}
+.harm-swatch span{
+  position:absolute;bottom:5px;left:0;right:0;text-align:center;
+  font-size:8.5px;font-weight:700;color:rgba(255,255,255,.7);
+  letter-spacing:.04em;pointer-events:none
+}
+
+/* AI Vibe cards */
+.vibe-cards{display:flex;flex-direction:column;gap:10px}
+.vibe-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(108,71,255,.15);
+  border-radius:10px;padding:12px 14px;
+  cursor:pointer;transition:border-color .2s,background .2s
+}
+.vibe-card:hover{border-color:rgba(108,71,255,.4);background:rgba(108,71,255,.06)}
+.vibe-card-swatches{display:flex;gap:5px;margin-bottom:8px}
+.vcs{width:28px;height:28px;border-radius:5px;flex-shrink:0}
+.vibe-card-name{font-size:12.5px;font-weight:700;margin-bottom:2px}
+.vibe-card-why{font-size:11px;color:var(--t2);line-height:1.45}
+
+/* Live Preview Matrix */
+.prev-matrix{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;margin-top:24px
+}
+.prev-cell{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden
+}
+.prev-label{
+  font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--t3);
+  padding:7px 12px 0
+}
+.prev-body{padding:12px}
+
+/* Preview components use ct-* CSS variables */
+.pv-icon-wrap{
+  display:flex;gap:12px;align-items:center;justify-content:center;
+  padding:8px 0
+}
+.pv-icon{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0
+}
+.pv-social{
+  border-radius:8px;padding:14px;
+  display:flex;flex-direction:column;gap:8px
+}
+.pv-social-head{font-weight:800;font-size:13px}
+.pv-social-sub{font-size:11px;opacity:.65}
+.pv-social-badge{
+  display:inline-flex;align-items:center;padding:3px 9px;
+  border-radius:99px;font-size:10px;font-weight:700;margin-top:4px
+}
+.pv-ui{display:flex;flex-direction:column;gap:8px;padding:4px 0}
+.pv-btn{
+  padding:8px 16px;border-radius:7px;border:none;
+  font-size:12px;font-weight:700;font-family:inherit;
+  cursor:default;text-align:center
+}
+.pv-badge{
+  display:inline-flex;align-items:center;padding:2px 8px;
+  border-radius:99px;font-size:10px;font-weight:600
+}
+.pv-tab-row{display:flex;gap:2px}
+.pv-tab{
+  flex:1;padding:5px 8px;border-radius:6px;
+  font-size:10px;font-weight:600;text-align:center;cursor:default
+}
+.pv-typo{display:flex;flex-direction:column;gap:4px;padding:4px 0}
+.pv-typo-h{font-size:16px;font-weight:800}
+.pv-typo-b{font-size:12px;line-height:1.5;opacity:.72}
+
+/* ── Workspace column (wraps activity-bar + main + vibe-dock) ─ */
+.workspace{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative}
+/* Override .main inside workspace */
+.workspace .main{flex:1;overflow-y:auto;padding:28px 32px;position:relative}
+/* When designer/iframe tab active: zero padding, no scroll */
+body.studio-mode .main{padding:0;overflow:hidden}
+body.studio-mode .main .tab.on{height:100%;display:flex;flex-direction:column}
+
+/* ── Activity Bar ─────────────────────────────────────── */
+.activity-bar{
+  height:34px;flex-shrink:0;
+  background:rgba(11,9,20,.96);
+  border-bottom:1px solid rgba(108,71,255,.1);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;
+  -webkit-app-region:drag;
+  backdrop-filter:blur(8px);
+}
+.activity-bar>*{-webkit-app-region:no-drag}
+.ab-items{display:flex;align-items:center;gap:0;overflow:hidden;flex:1}
+.ab-item{
+  font-size:10.5px;color:rgba(232,224,255,.28);
+  display:flex;align-items:center;gap:4px;
+  padding:0 10px;height:34px;
+  border-right:1px solid rgba(108,71,255,.08);
+  white-space:nowrap;transition:color .2s;
+  cursor:default;user-select:none
+}
+.ab-item:first-child{padding-left:0}
+.ab-item.active{color:rgba(108,71,255,.85)}
+.ab-item .ab-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(232,224,255,.2);flex-shrink:0;
+  transition:background .2s
+}
+.ab-item.active .ab-dot{background:var(--a);box-shadow:0 0 5px var(--a)}
+.ab-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ab-btn{
+  padding:3px 9px;font-size:10.5px;font-weight:600;font-family:inherit;
+  background:transparent;border:1px solid rgba(108,71,255,.15);
+  border-radius:5px;color:rgba(232,224,255,.4);cursor:pointer;
+  transition:all .15s;white-space:nowrap
+}
+.ab-btn:hover{background:rgba(108,71,255,.1);color:var(--txt);border-color:rgba(108,71,255,.35)}
+.ab-btn.on{background:rgba(108,71,255,.16);color:var(--a2);border-color:rgba(108,71,255,.4)}
+
+/* ── Iframe studio tab ────────────────────────────────── */
+#tab-designer{height:100%;display:none;flex-direction:column}
+#tab-designer.on{display:flex}
+#designer-frame{flex:1;width:100%;border:none;background:#0f0d1a}
+#tab-logo{height:100%;display:none;flex-direction:column}
+#tab-logo.on{display:flex}
+#logo-frame{flex:1;width:100%;border:none;background:#08071a}
+
+/* ── Vibe-Chat Dock ───────────────────────────────────── */
+.vibe-dock{
+  flex-shrink:0;position:relative;z-index:10;
+  background:rgba(11,9,20,.97);
+  border-top:1px solid rgba(108,71,255,.14);
+  backdrop-filter:blur(20px);
+  height:220px;
+  transition:height .25s cubic-bezier(.4,0,.2,1),
+             border-color .25s;
+  overflow:hidden;
+}
+.vibe-dock.mini{height:38px;border-top-color:rgba(108,71,255,.08)}
+.vd-header{
+  height:38px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 14px;
+  cursor:pointer;user-select:none;
+  flex-shrink:0;
+}
+.vd-header:hover .vd-title{opacity:.85}
+.vd-title{
+  font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--a2),var(--a3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:flex;align-items:center;gap:7px;
+}
+.vd-title::before{
+  content:'';display:inline-block;width:6px;height:6px;
+  border-radius:50%;background:var(--a);flex-shrink:0;
+  box-shadow:0 0 7px var(--a);animation:pulse 2s infinite;
+  -webkit-text-fill-color:initial;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.vd-controls{display:flex;align-items:center;gap:10px}
+.vd-status-txt{font-size:10px;color:rgba(232,224,255,.25);font-family:monospace}
+.vd-tog{
+  background:none;border:none;cursor:pointer;
+  color:rgba(232,224,255,.3);font-size:13px;
+  padding:2px 4px;line-height:1;
+  transition:color .15s,transform .25s cubic-bezier(.4,0,.2,1);
+  border-radius:4px;
+}
+.vd-tog:hover{color:var(--txt);background:rgba(108,71,255,.1)}
+.vibe-dock.mini .vd-tog{transform:rotate(180deg)}
+.vd-body{
+  display:flex;flex-direction:column;
+  height:calc(220px - 38px);
+}
+.vd-msgs{
+  flex:1;overflow-y:auto;padding:8px 14px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.vd-msg{
+  font-size:12.5px;line-height:1.55;max-width:78%;
+  padding:7px 11px;border-radius:9px;
+  animation:fadein .15s ease;word-break:break-word;
+}
+.vd-msg.user{
+  background:rgba(108,71,255,.14);
+  border:1px solid rgba(108,71,255,.2);
+  color:var(--txt);align-self:flex-end;
+}
+.vd-msg.ai{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+  color:rgba(232,224,255,.78);align-self:flex-start;
+}
+.vd-msg.sys{
+  font-size:11px;color:rgba(232,224,255,.3);
+  align-self:center;background:none;border:none;padding:2px 0;
+}
+.vd-input-row{
+  display:flex;gap:8px;padding:6px 10px 8px;
+  border-top:1px solid rgba(108,71,255,.07);
+  flex-shrink:0;align-items:center;
+}
+.vd-input{
+  flex:1;background:rgba(108,71,255,.06)!important;
+  border:1px solid rgba(108,71,255,.14)!important;
+  border-radius:8px!important;padding:7px 11px!important;
+  font-size:13px;color:var(--txt);
+  outline:none!important;transition:border-color .15s!important;
+}
+.vd-input:focus{border-color:rgba(108,71,255,.35)!important}
+.vd-input::placeholder{color:rgba(232,224,255,.18)!important}
+
+/* Floating pill */
+.vibe-pill{
+  position:fixed;bottom:16px;right:20px;z-index:500;
+  display:none;
+  padding:7px 16px 7px 12px;
+  border-radius:99px;cursor:pointer;
+  font-size:11.5px;font-weight:700;letter-spacing:.04em;
+  backdrop-filter:blur(20px);
+  background:linear-gradient(135deg,rgba(15,10,30,.95),rgba(25,15,55,.95));
+  border:1px solid rgba(108,71,255,.3);
+  box-shadow:0 4px 24px rgba(108,71,255,.2),0 0 0 1px rgba(108,71,255,.04);
+  color:rgba(232,224,255,.55);
+  transition:opacity .2s,transform .2s,box-shadow .2s;
+  align-items:center;gap:7px;
+}
+.vibe-pill:hover{
+  opacity:.9;transform:translateY(-1px);color:var(--txt);
+  box-shadow:0 6px 30px rgba(108,71,255,.3),0 0 0 1px rgba(108,71,255,.08);
+}
+.vibe-pill.visible{display:flex}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <nav class="sb" style="padding-top:0">
+    <!-- Traffic-light safe zone — draggable, no buttons here -->
+    <div class="sb-drag">K-Creative</div>
+
+    <div class="nav-sec">
+      <div class="nav-lbl">Workspace</div>
+      <div class="ni on" id="ni-projects" onclick="nav('projects')">
+        <span class="ico">◫</span> Projekte
+      </div>
+      <div class="ni" id="ni-brand" onclick="nav('brand')">
+        <span class="ico">✦</span> Brand System
+      </div>
+      <div class="ni" id="ni-design" onclick="nav('design')">
+        <span class="ico">🎨</span> Designer
+      </div>
+      <div class="ni" id="ni-colors" onclick="nav('colors')">
+        <span class="ico">◉</span> Color Tokens
+      </div>
+      <div class="ni" id="ni-designer" onclick="nav('designer')">
+        <span class="ico">✏</span> Icon Designer
+      </div>
+      <div class="ni" id="ni-logo" onclick="nav('logo')">
+        <span class="ico">⬙</span> Logo Creator
+      </div>
+    </div>
+
+    <div class="nav-sec">
+      <div class="nav-lbl">Studio</div>
+      <div class="ni" onclick="openLive()">
+        <span class="ico">🎛</span> Live Interface
+      </div>
+    </div>
+
+    <div class="nav-sec" style="margin-top:auto">
+      <div class="ni" id="ni-settings" onclick="nav('settings')">
+        <span class="ico">⚙</span> Einstellungen
+      </div>
+    </div>
+
+    <div class="sb-foot">
+      <div id="sb-ver" style="margin-bottom:4px">v—</div>
+      <div id="sb-status" style="display:flex;align-items:center;gap:6px">
+        <span class="dot dy"></span> Initialisierung
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Workspace column ─────────────────────────────────────────────────── -->
+  <div class="workspace">
+
+  <!-- ── Activity Bar ──────────────────────────────────────────────────────── -->
+  <div class="activity-bar" id="activity-bar">
+    <div class="ab-items">
+      <div class="ab-item" id="ab-renderer"><span class="ab-dot"></span>Renderer: idle</div>
+      <div class="ab-item" id="ab-ai"><span class="ab-dot"></span>AI: idle</div>
+      <div class="ab-item" id="ab-backend"><span class="ab-dot"></span>Backend: —</div>
+      <div class="ab-item" id="ab-ffmpeg" style="display:none"><span class="ab-dot"></span>FFmpeg: idle</div>
+    </div>
+    <div class="ab-actions">
+      <button class="ab-btn" id="ai-cursor-btn" onclick="toggleAiCursor()" title="Zeigt welche Canvas-Elemente von Claude gerade editiert werden">⊕ AI Cursor</button>
+    </div>
+  </div>
+
+  <!-- ── Main ────────────────────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- ══════════════════ WORKSPACE / PROJEKTE ══════════════════ -->
+    <div class="tab on" id="tab-projects">
+      <div class="ph">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h1 class="pt gt">Workspace</h1>
+            <p class="ps">Projekte, Brand Identities &amp; Design Assets</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div id="h-backend" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)">
+              <span class="dot dy"></span><span id="h-backend-txt">Backend…</span>
+            </div>
+            <button class="btn btn-p btn-sm" onclick="showNewProjectModal()">+ Neues Projekt</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="g3" style="margin-bottom:22px">
+        <div class="sc">
+          <div class="sl">Version</div>
+          <div class="sv" id="h-ver">—</div>
+          <div class="ssub"><button class="btn btn-gh btn-xs" style="padding:3px 9px;margin-top:2px" onclick="doCheckUpdate()">↻ Update prüfen</button></div>
+        </div>
+        <div class="sc">
+          <div class="sl">Projekte</div>
+          <div class="sv" id="proj-count">0</div>
+          <div class="ssub" id="proj-last">Noch kein Projekt</div>
+        </div>
+        <div class="sc">
+          <div class="sl">Brand Profiles</div>
+          <div class="sv" id="h-count">0</div>
+          <div class="ssub" id="h-bname">Kein aktives Branding</div>
+        </div>
+      </div>
+
+      <!-- Project cards -->
+      <div class="sh" style="margin-bottom:14px"><span class="st">Projekte</span></div>
+      <div id="proj-grid" class="g3" style="margin-bottom:28px"></div>
+
+      <!-- Brand profiles -->
+      <div class="sh">
+        <span class="st">Brand Profile</span>
+        <button class="btn btn-gh btn-sm" onclick="nav('brand')">Alle anzeigen →</button>
+      </div>
+      <div class="g3" id="h-brands">
+        <div class="bc" style="border-style:dashed;opacity:.5" onclick="newBrand();nav('brand')">
+          <div style="text-align:center;padding:14px 0;color:var(--t3)">
+            <div style="font-size:22px;margin-bottom:4px">+</div>
+            <div style="font-size:12px">Neues Brand</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ DESIGN STUDIO ══════════════════ -->
+    <div class="tab" id="tab-design">
+      <div class="ph" style="margin-bottom:14px">
+        <h1 class="pt">Design Studio</h1>
+        <p class="ps">App Icons, Logos und Brand Assets — exportfertig für jede Plattform</p>
+      </div>
+
+      <!-- Platform tabs -->
+      <div class="tabstrip" id="plt-strip">
+        <button class="tstb on" onclick="setPlatform('ios',this)">iOS</button>
+        <button class="tstb" onclick="setPlatform('macos',this)">macOS</button>
+        <button class="tstb" onclick="setPlatform('android',this)">Android</button>
+        <button class="tstb" onclick="setPlatform('web',this)">Web / PWA</button>
+      </div>
+
+      <div class="design-layout">
+
+        <!-- Tools -->
+        <div class="dt">
+          <div class="ts">Form</div>
+          <div class="tg" id="shape-tg">
+            <button class="tb on" data-v="ios" onclick="setShape('ios',this)">iOS</button>
+            <button class="tb" data-v="round" onclick="setShape('round',this)">Rund</button>
+            <button class="tb" data-v="square" onclick="setShape('square',this)">Quad</button>
+            <button class="tb" data-v="circle" onclick="setShape('circle',this)">⬤</button>
+          </div>
+
+          <div class="ts">Schnell-Themes</div>
+          <div id="theme-presets" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"></div>
+
+          <div class="ts">Hintergrund</div>
+          <div class="fg">
+            <label>Farbe A</label>
+            <input type="color" id="c1" value="#6C47FF" oninput="redraw();syncThemeSel()">
+          </div>
+          <div class="fg">
+            <label>Farbe B</label>
+            <input type="color" id="c2" value="#a855f7" oninput="redraw();syncThemeSel()">
+          </div>
+          <div class="fg" style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="use-grad" checked onchange="redraw()">
+            <label style="margin:0;cursor:pointer">Verlauf</label>
+            <input type="range" id="grad-angle" min="0" max="360" value="135"
+              style="flex:1" oninput="redraw()">
+          </div>
+
+          <div class="ts">Text / Symbol</div>
+          <div class="fg">
+            <label>Buchstabe / Emoji</label>
+            <input type="text" id="ico-txt" placeholder="K …" maxlength="3" oninput="redraw()">
+          </div>
+          <div class="fg" style="display:flex;gap:10px;align-items:flex-start">
+            <div>
+              <label>Farbe</label>
+              <input type="color" id="txt-col" value="#ffffff" oninput="redraw()">
+            </div>
+            <div style="flex:1">
+              <label>Größe <span id="ts-val">45</span>%</label>
+              <input type="range" id="txt-sz" min="8" max="80" value="45"
+                oninput="document.getElementById('ts-val').textContent=this.value;redraw()">
+            </div>
+          </div>
+          <div class="fg">
+            <label>Font</label>
+            <select id="ico-font" onchange="redraw()">
+              <option value="-apple-system,system-ui">SF Pro (System)</option>
+              <option value="Georgia,serif">Georgia</option>
+              <option value="Impact,sans-serif">Impact</option>
+              <option value="'Courier New',monospace">Mono</option>
+              <option value="Arial Black,sans-serif">Arial Black</option>
+            </select>
+          </div>
+
+          <div class="ts">Effekte</div>
+          <div class="fg" style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="fx-shadow" onchange="redraw()">
+            <label style="margin:0;cursor:pointer">Text-Schatten</label>
+          </div>
+          <div class="fg" style="display:flex;align-items:center;gap:8px;margin-bottom:0">
+            <input type="checkbox" id="fx-inset" onchange="redraw()">
+            <label style="margin:0;cursor:pointer">Inset Highlight</label>
+          </div>
+
+          <hr class="sep">
+
+          <button class="btn btn-p btn-sm" style="width:100%;justify-content:center;margin-bottom:8px"
+            onclick="exportAll()">↓ Alle Größen exportieren</button>
+          <button class="btn btn-gh btn-sm" style="width:100%;justify-content:center;margin-bottom:8px"
+            onclick="openInkscape()">↗ In Inkscape öffnen</button>
+          <button class="btn btn-gh btn-xs" style="width:100%;justify-content:center"
+            onclick="saveToBrand()">✦ In Brand speichern</button>
+        </div>
+
+        <!-- Canvas Preview -->
+        <div class="dc">
+          <div class="canvas-wrap">
+            <canvas id="cv" width="368" height="368"></canvas>
+          </div>
+          <div style="font-size:11.5px;color:var(--t2);text-align:center">
+            Vorschau · Export in 1024 × 1024 px
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-gh btn-xs" onclick="copyCanvas()">📋 Kopieren</button>
+            <button class="btn btn-gh btn-xs" onclick="downloadSingle()">↓ 1024px PNG</button>
+          </div>
+
+          <!-- Logo Composer -->
+          <div style="width:100%;margin-top:20px">
+            <div class="ts" style="margin-top:0;display:flex;align-items:center;justify-content:space-between">
+              <span>Logo Vorschau</span>
+              <div style="display:flex;gap:4px">
+                <button class="tb on" id="logo-dark-btn"  style="padding:3px 8px;font-size:10px" onclick="setLogoBg('dark',this)">Dark</button>
+                <button class="tb"    id="logo-light-btn" style="padding:3px 8px;font-size:10px" onclick="setLogoBg('light',this)">Light</button>
+                <button class="tb"    id="logo-trans-btn" style="padding:3px 8px;font-size:10px" onclick="setLogoBg('trans',this)">Trans.</button>
+              </div>
+            </div>
+            <div class="fg" style="margin-bottom:8px">
+              <input type="text" id="logo-name" placeholder="App-Name…" oninput="renderLogo()" style="font-size:12px">
+            </div>
+            <div class="fg" style="margin-bottom:10px">
+              <input type="text" id="logo-tagline" placeholder="Tagline (optional)…" oninput="renderLogo()" style="font-size:11px">
+            </div>
+            <div class="logo-wrap" id="logo-bg-wrap">
+              <canvas id="logo-cv"></canvas>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px;justify-content:center">
+              <button class="btn btn-gh btn-xs" onclick="downloadLogo('h')">↓ Horizontal</button>
+              <button class="btn btn-gh btn-xs" onclick="downloadLogo('v')">↓ Vertikal</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sizes -->
+        <div class="dsz">
+          <div class="platform-info" id="plt-lbl">iOS — Exportgrößen</div>
+          <div class="szg" id="sz-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ BRAND ══════════════════ -->
+    <div class="tab" id="tab-brand">
+      <div class="ph">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <h1 class="pt">Brand System</h1>
+            <p class="ps">Farben, Typografie und Design-DNA deiner Projekte</p>
+          </div>
+          <button class="btn btn-p" onclick="newBrand()">+ Neues Brand</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:22px">
+
+        <!-- Brand list -->
+        <div>
+          <div class="nav-lbl" style="padding:0 0 8px">Profile</div>
+          <div id="brand-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <!-- Brand editor -->
+        <div>
+          <div id="be-empty" class="card" style="text-align:center;padding:52px;color:var(--t3)">
+            Wähle ein Brand-Profil oder erstelle ein neues
+          </div>
+          <div id="be-form" style="display:none">
+
+            <div class="card" style="margin-bottom:14px">
+              <div class="frow" style="margin-bottom:0">
+                <div class="fg" style="flex:2;margin:0">
+                  <label>Brand Name</label>
+                  <input type="text" id="be-name" placeholder="z.B. K-Learning">
+                </div>
+                <div>
+                  <label>Erstellt</label>
+                  <div id="be-date" style="font-size:12px;color:var(--t2);padding:9px 0">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Colors -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="sh" style="margin-bottom:14px">
+                <span class="st2">Farben</span>
+                <button class="btn btn-gh btn-xs" onclick="genHarmony()" title="Harmonische Palette aus Primary generieren">🎨 Palette generieren</button>
+              </div>
+              <div style="margin-bottom:12px">
+                <div class="nav-lbl" style="padding:0 0 6px">Schnell-Themes</div>
+                <div id="brand-theme-presets" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
+                <div><label>Primary</label><input type="color" id="be-c1" value="#6C47FF" oninput="updPrev()"></div>
+                <div><label>Secondary</label><input type="color" id="be-c2" value="#a855f7" oninput="updPrev()"></div>
+                <div><label>Accent</label><input type="color" id="be-c3" value="#60A5FA" oninput="updPrev()"></div>
+                <div><label>Background</label><input type="color" id="be-c4" value="#07060d" oninput="updPrev()"></div>
+                <div><label>Text</label><input type="color" id="be-c5" value="#e8e0ff" oninput="updPrev()"></div>
+              </div>
+              <div id="be-swatches" style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"></div>
+            </div>
+
+            <!-- Traits -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="sh" style="margin-bottom:14px"><span class="st2">Design-DNA</span></div>
+              <div class="fg">
+                <label>Form / Rundung</label>
+                <div class="tg" id="tr-roundness">
+                  <button class="tb on" data-v="angular" onclick="setTrait('roundness','angular',this)">Eckig</button>
+                  <button class="tb" data-v="rounded" onclick="setTrait('roundness','rounded',this)">Gerundet</button>
+                  <button class="tb" data-v="pill" onclick="setTrait('roundness','pill',this)">Pill</button>
+                </div>
+              </div>
+              <div class="fg">
+                <label>Visueller Stil</label>
+                <div class="tg" id="tr-style">
+                  <button class="tb on" data-v="minimal" onclick="setTrait('style','minimal',this)">Minimal</button>
+                  <button class="tb" data-v="balanced" onclick="setTrait('style','balanced',this)">Balanced</button>
+                  <button class="tb" data-v="expressive" onclick="setTrait('style','expressive',this)">Expressiv</button>
+                </div>
+              </div>
+              <div class="fg">
+                <label>Stimmung</label>
+                <div class="tg" id="tr-mood">
+                  <button class="tb on" data-v="dark" onclick="setTrait('mood','dark',this)">Dark</button>
+                  <button class="tb" data-v="light" onclick="setTrait('mood','light',this)">Light</button>
+                  <button class="tb" data-v="colorful" onclick="setTrait('mood','colorful',this)">Colorful</button>
+                </div>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label>Gewicht / Boldness</label>
+                <div class="tg" id="tr-weight">
+                  <button class="tb on" data-v="light" onclick="setTrait('weight','light',this)">Leicht</button>
+                  <button class="tb" data-v="medium" onclick="setTrait('weight','medium',this)">Medium</button>
+                  <button class="tb" data-v="bold" onclick="setTrait('weight','bold',this)">Bold</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Typography -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="sh" style="margin-bottom:14px"><span class="st2">Typografie</span></div>
+              <div class="g2">
+                <div>
+                  <label>Display Font</label>
+                  <select id="be-fd">
+                    <option>SF Pro Display</option><option>Helvetica Neue</option>
+                    <option>Inter</option><option>Roboto</option>
+                    <option>Montserrat</option><option>Poppins</option>
+                    <option>DM Sans</option><option>Plus Jakarta Sans</option>
+                  </select>
+                </div>
+                <div>
+                  <label>UI Font</label>
+                  <select id="be-fu">
+                    <option>SF Pro Text</option><option>Helvetica Neue</option>
+                    <option>Inter</option><option>Roboto</option>
+                    <option>DM Sans</option><option>Geist</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card" style="margin-bottom:14px">
+              <label>Vision & Notizen</label>
+              <textarea id="be-notes" rows="3"
+                placeholder="Zielgruppe, Merkmale, Inspiration, was macht dieses Brand einzigartig…"
+                style="resize:vertical"></textarea>
+            </div>
+
+            <!-- History log -->
+            <div class="card" style="margin-bottom:14px">
+              <div class="sh" style="margin-bottom:10px">
+                <span class="st2">Änderungslog</span>
+              </div>
+              <div id="be-log" style="font-size:12px;color:var(--t2);line-height:2"></div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn btn-p btn-sm" onclick="saveBrand()">Speichern</button>
+              <button class="btn btn-g btn-sm" onclick="applyToIcon()">→ Im Design Studio öffnen</button>
+              <button class="btn btn-gh btn-xs" style="margin-left:auto" onclick="delBrand()">Löschen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ EINSTELLUNGEN ══════════════════ -->
+    <div class="tab" id="tab-settings">
+      <div class="ph">
+        <h1 class="pt">Einstellungen</h1>
+        <p class="ps">KI-Integration, Updates und App-Konfiguration</p>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="sh" style="margin-bottom:12px"><span class="st2">🤖 KI-Integration — Claude API</span></div>
+        <p style="font-size:12.5px;color:var(--t2);margin-bottom:14px;line-height:1.7">
+          Verbinde K-Creative Studio mit der Anthropic Claude API für KI-gestützte Design-Hilfe
+          und automatische Farbpaletten-Generierung. API-Keys unter
+          <span style="color:var(--a2)">console.anthropic.com</span> erstellen —
+          Abrechnung per Token (Pay-as-you-go, kein Abo nötig).
+        </p>
+        <div class="frow">
+          <div class="fg" style="flex:1;margin:0">
+            <label>Anthropic API Key</label>
+            <input type="password" id="ai-key" placeholder="sk-ant-api03-…" autocomplete="off">
+          </div>
+          <button class="btn btn-gh btn-sm" onclick="testAiKey()">Testen</button>
+          <button class="btn btn-p btn-sm" onclick="saveAiKey()">Speichern</button>
+        </div>
+        <div id="ai-status" style="font-size:12px;color:var(--t2);margin-top:6px;min-height:18px"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="sh" style="margin-bottom:14px"><span class="st2">App</span></div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--t2)">Version</span>
+            <span id="set-ver">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--t2)">Backend FastAPI</span>
+            <span id="set-backend" style="color:var(--t2)">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="color:var(--t2)">Platform</span>
+            <span>K-Creative Studio · macOS</span>
+          </div>
+        </div>
+        <hr class="sep">
+        <button class="btn btn-gh btn-sm" onclick="doCheckUpdate()">↻ Nach Updates suchen</button>
+      </div>
+
+      <div class="card">
+        <div class="sh" style="margin-bottom:8px"><span class="st2">About</span></div>
+        <p style="font-size:12.5px;color:var(--t2);line-height:1.7">
+          K-Creative Studio ist eine Open-Source Creative Suite. Icons, Brand System,
+          Logo Composer und KI-Integration in einer Desktop-App.
+        </p>
+        <p style="font-size:11px;color:var(--t3);margin-top:8px">© 2025 RaphaDevx · MIT License</p>
+      </div>
+    </div>
+
+    <!-- ══════════════════ COLOR TOKEN SYSTEM ══════════════════ -->
+    <div class="tab" id="tab-colors">
+      <style id="ct-vars">
+        :root {
+          --ct-primary:#6C47FF; --ct-secondary:#a855f7; --ct-surface:#1a1230;
+          --ct-background:#07060d; --ct-text-primary:#e8e0ff;
+          --ct-text-secondary:rgba(232,224,255,0.55); --ct-highlight:#00c872;
+        }
+      </style>
+
+      <div class="ph">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h1 class="pt gt">Color Tokens</h1>
+            <p class="ps">Semantische Farbrollen — ein Farbwechsel aktualisiert alle Elemente synchron</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-gh btn-sm" onclick="ctExportCSS()">↓ CSS Vars</button>
+            <button class="btn btn-gh btn-sm" onclick="ctExportTailwind()">↓ Tailwind</button>
+            <button class="btn btn-gh btn-sm" onclick="ctExportJSON()">↓ tokens.json</button>
+            <button class="btn btn-p btn-sm" onclick="ctSaveToBrand()">✦ In Brand speichern</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:22px">
+
+        <!-- LEFT: Token grid + Harmony + Preview -->
+        <div>
+          <!-- Token Grid -->
+          <div class="sh" style="margin-bottom:12px">
+            <span class="st2">Semantische Farb-Rollen</span>
+          </div>
+          <div class="ct-grid" id="ct-grid"></div>
+
+          <!-- Harmony Engine -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="sh" style="margin-bottom:14px">
+              <span class="st2">Harmony Engine</span>
+              <div style="display:flex;gap:6px;align-items:center">
+                <select id="ct-harm-type" style="font-size:12px;padding:5px 8px;width:auto"
+                  onchange="ctApplyHarmony()">
+                  <option value="complementary">Komplementär</option>
+                  <option value="analogous">Analog</option>
+                  <option value="triadic">Triadisch</option>
+                  <option value="split">Split-Komplementär</option>
+                  <option value="mono">Monochromatisch</option>
+                </select>
+                <button class="btn btn-p btn-sm" onclick="ctApplyHarmony()">Anwenden</button>
+              </div>
+            </div>
+            <div class="harm-strip" id="harm-strip"></div>
+            <div id="wcag-row" style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--t2)"></div>
+          </div>
+
+          <!-- Live Preview Matrix -->
+          <div class="sh" style="margin-bottom:12px">
+            <span class="st2">Live Multi-Design Preview</span>
+          </div>
+          <div class="prev-matrix" id="prev-matrix">
+            <!-- App Icon -->
+            <div class="prev-cell">
+              <div class="prev-label">App Icon</div>
+              <div class="prev-body">
+                <div class="pv-icon-wrap">
+                  <div>
+                    <div style="text-align:center;font-size:9px;color:var(--t3);margin-bottom:4px">Dark</div>
+                    <div class="pv-icon" id="pv-icon-dark"
+                      style="background:var(--ct-background)">🎨</div>
+                    <div style="font-size:8px;color:var(--t3);text-align:center;margin-top:3px">background</div>
+                  </div>
+                  <div>
+                    <div style="text-align:center;font-size:9px;color:var(--t3);margin-bottom:4px">Light</div>
+                    <div class="pv-icon" id="pv-icon-light"
+                      style="background:#f0eeff">🎨</div>
+                    <div style="font-size:8px;color:var(--t3);text-align:center;margin-top:3px">light surface</div>
+                  </div>
+                  <div>
+                    <div style="text-align:center;font-size:9px;color:var(--t3);margin-bottom:4px">Brand</div>
+                    <div class="pv-icon" id="pv-icon-brand"
+                      style="background:linear-gradient(135deg,var(--ct-primary),var(--ct-secondary))">🎨</div>
+                    <div style="font-size:8px;color:var(--t3);text-align:center;margin-top:3px">primary → secondary</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Card -->
+            <div class="prev-cell">
+              <div class="prev-label">Social Media Card</div>
+              <div class="prev-body">
+                <div class="pv-social"
+                  style="background:var(--ct-surface)">
+                  <div class="pv-social-head" style="color:var(--ct-text-primary)" id="pv-soc-head">Brand Name</div>
+                  <div class="pv-social-sub" style="color:var(--ct-text-secondary)">New release · Visual Identity</div>
+                  <div class="pv-social-badge"
+                    style="background:var(--ct-primary);color:#fff">Primary: <span id="pv-soc-badge">—</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Typography -->
+            <div class="prev-cell">
+              <div class="prev-label">Typografie auf Surface</div>
+              <div class="prev-body">
+                <div class="pv-typo" style="background:var(--ct-surface);border-radius:8px;padding:14px">
+                  <div class="pv-typo-h" style="color:var(--ct-text-primary)">Headline — Brand Name</div>
+                  <div class="pv-typo-b" style="color:var(--ct-text-secondary)">
+                    Fließtext auf Surface-Hintergrund. Kontrast-Check via WCAG.
+                  </div>
+                  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+                    <span class="ct-wcag" id="pv-typo-wcag-p">—</span>
+                    <span style="font-size:10px;color:var(--t2)" id="pv-typo-cr-p"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- UI Components -->
+            <div class="prev-cell">
+              <div class="prev-label">UI-Komponenten</div>
+              <div class="prev-body">
+                <div class="pv-ui">
+                  <button class="pv-btn"
+                    style="background:var(--ct-primary);color:var(--ct-text-primary)">
+                    Primary Button · <span id="pv-ui-p">—</span>
+                  </button>
+                  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                    <span class="pv-badge" style="background:var(--ct-highlight);color:#07060d">
+                      highlight
+                    </span>
+                    <span class="pv-badge"
+                      style="background:rgba(108,71,255,.18);color:var(--ct-secondary)">
+                      secondary
+                    </span>
+                    <span class="pv-badge"
+                      style="background:var(--ct-surface);color:var(--ct-text-secondary)">
+                      surface
+                    </span>
+                  </div>
+                  <div class="pv-tab-row">
+                    <div class="pv-tab" style="background:var(--ct-primary);color:#fff">Active</div>
+                    <div class="pv-tab" style="background:var(--ct-surface);color:var(--ct-text-secondary)">Inactive</div>
+                    <div class="pv-tab" style="background:var(--ct-surface);color:var(--ct-text-secondary)">Inactive</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Color picker + AI Vibe -->
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="sh" style="margin-bottom:14px">
+              <span class="st2">Token bearbeiten</span>
+            </div>
+            <div class="fg">
+              <label>Aktive Rolle</label>
+              <select id="ct-role-sel" style="font-size:13px" onchange="ctSelectRole()">
+                <option value="primary">primary — Hauptmarkenfarbe</option>
+                <option value="secondary">secondary — Akzentfarbe</option>
+                <option value="surface">surface — Panel-Hintergründe</option>
+                <option value="background">background — App-Hintergrund</option>
+                <option value="text-primary">text-primary — Lesbarkeit</option>
+                <option value="text-secondary">text-secondary — Untertexte</option>
+                <option value="highlight">highlight — CTA &amp; Glows</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Farbe (Hex)</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="color" id="ct-picker" style="width:48px;height:40px;border-radius:8px;flex-shrink:0"
+                  oninput="ctPickerInput()">
+                <input type="text" id="ct-hex-input" placeholder="#6C47FF" maxlength="9"
+                  style="font-family:monospace;flex:1"
+                  oninput="ctHexInput()" onblur="ctHexInput()">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+              <div class="fg" style="margin:0">
+                <label>H°</label>
+                <input type="number" id="ct-hue" min="0" max="360" oninput="ctHslInput()">
+              </div>
+              <div class="fg" style="margin:0">
+                <label>S%</label>
+                <input type="number" id="ct-sat" min="0" max="100" oninput="ctHslInput()">
+              </div>
+              <div class="fg" style="margin:0">
+                <label>L%</label>
+                <input type="number" id="ct-lig" min="0" max="100" oninput="ctHslInput()">
+              </div>
+            </div>
+            <div id="ct-wcag-info" style="font-size:11.5px;color:var(--t2);min-height:18px"></div>
+          </div>
+
+          <!-- AI Vibe -->
+          <div class="card">
+            <div class="sh" style="margin-bottom:12px">
+              <span class="st2">✦ Vibe &amp; Mood</span>
+            </div>
+            <p style="font-size:11.5px;color:var(--t2);margin-bottom:12px;line-height:1.6">
+              Beschreibe einen Vibe — Claude generiert eine passende Farbpalette mit Begründung.
+            </p>
+            <div class="fg">
+              <input type="text" id="ct-vibe-input"
+                placeholder="z.B. &quot;Dark Cyberpunk Neon&quot; oder &quot;Minimal Coffee Brand&quot;"
+                onkeydown="if(event.key==='Enter')ctVibeGenerate()">
+            </div>
+            <button class="btn btn-p btn-sm" style="width:100%;justify-content:center"
+              onclick="ctVibeGenerate()">✦ Palette generieren</button>
+            <div id="ct-vibe-status" style="font-size:11px;color:var(--t2);margin-top:8px;min-height:16px"></div>
+            <div class="vibe-cards" id="ct-vibe-cards" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ ICON DESIGNER (iframe) ══════════════════ -->
+    <div class="tab" id="tab-designer">
+      <iframe id="designer-frame" title="Icon Designer" allow="clipboard-write"></iframe>
+    </div>
+
+    <!-- ══════════════════ LOGO CREATOR (iframe) ══════════════════ -->
+    <div class="tab" id="tab-logo">
+      <iframe id="logo-frame" title="Logo Creator" allow="clipboard-write"></iframe>
+    </div>
+
+  </main>
+
+  <!-- ── Vibe-Chat Dock ──────────────────────────────────────────────────── -->
+  <div class="vibe-dock" id="vibe-dock">
+    <div class="vd-header" onclick="toggleVibeDock()">
+      <span class="vd-title">Vibe Chat</span>
+      <div class="vd-controls">
+        <span class="vd-status-txt" id="vd-status-txt"></span>
+        <button class="vd-tog" id="vd-tog" onclick="event.stopPropagation();toggleVibeDock()" title="Minimieren / Maximieren">⌄</button>
+      </div>
+    </div>
+    <div class="vd-body">
+      <div class="vd-msgs" id="vd-msgs">
+        <div class="vd-msg sys">Vibe Chat bereit — beschreibe was du erschaffen möchtest</div>
+      </div>
+      <div class="vd-input-row">
+        <input class="vd-input" id="vd-input" type="text"
+          placeholder="z.B. &quot;Erstelle ein 24px Zahnrad-Icon mit 2px Stroke&quot; oder &quot;Dark Cyberpunk Neon Palette&quot;"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendVibe()}">
+        <button class="btn btn-p btn-sm" onclick="sendVibe()">→</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /.workspace -->
+</div><!-- /.layout -->
+
+<!-- ── Floating Vibe Pill (shown when dock is minimized + studio mode active) ── -->
+<div class="vibe-pill" id="vibe-pill" onclick="expandVibeDock()">
+  <span style="font-size:14px;line-height:1">✦</span>
+  <span>Vibe</span>
+</div>
+
+<!-- ══════════════════ NEW PROJECT MODAL ══════════════════ -->
+<div class="modal-ov hide" id="proj-modal" onclick="if(event.target===this)closeProjectModal()">
+  <div class="mbox">
+    <h3>Neues Projekt</h3>
+    <div class="fg">
+      <label>Projektname</label>
+      <input type="text" id="pm-name" placeholder="z.B. K-Learning, MeinBrand…" autocomplete="off"
+        onkeydown="if(event.key==='Enter')createProject()">
+    </div>
+    <div class="fg" style="margin-bottom:6px"><label>Typ</label></div>
+    <div class="type-grid">
+      <button class="type-opt on" data-t="brand" onclick="selProjType('brand',this)">
+        <span class="to-ico">✦</span>
+        <span class="to-name">Brand Identity</span>
+        <span class="to-sub">Farben, Logo, Typografie</span>
+      </button>
+      <button class="type-opt" data-t="icons" onclick="selProjType('icons',this)">
+        <span class="to-ico">🎨</span>
+        <span class="to-name">Icon Set</span>
+        <span class="to-sub">App Icons &amp; Assets</span>
+      </button>
+      <button class="type-opt" data-t="ui" onclick="selProjType('ui',this)">
+        <span class="to-ico">⬜</span>
+        <span class="to-name">UI Theme</span>
+        <span class="to-sub">Design System &amp; Tokens</span>
+      </button>
+      <button class="type-opt" data-t="sound" onclick="selProjType('sound',this)">
+        <span class="to-ico">🎵</span>
+        <span class="to-name">Sound Identity</span>
+        <span class="to-sub">Audio-Branding &amp; Sounds</span>
+      </button>
+    </div>
+    <div class="fg">
+      <label>Brand Profil verknüpfen (optional)</label>
+      <select id="pm-brand">
+        <option value="">— Kein Brand —</option>
+      </select>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-sm" onclick="closeProjectModal()">Abbrechen</button>
+      <button class="btn btn-p btn-sm" onclick="createProject()">Erstellen →</button>
+    </div>
+  </div>
+</div>
+
+<div id="kc-toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+const S = {
+  shape: 'ios',
+  platform: 'ios',
+  brands: [],
+  active: -1,
+  traits: { roundness:'angular', style:'minimal', mood:'dark', weight:'light' },
+  projects: [],
+  activeProject: null,
+};
+let _newProjType = 'brand';
+
+const PLT = {
+  ios:     { sizes:[20,29,40,58,60,76,80,87,120,152,167,180,1024], label:'iOS — Exportgrößen' },
+  macos:   { sizes:[16,32,64,128,256,512,1024],                     label:'macOS — Exportgrößen' },
+  android: { sizes:[36,48,72,96,144,192,512],                      label:'Android — Exportgrößen' },
+  web:     { sizes:[16,32,48,96,144,192,512],                      label:'Web / PWA — Exportgrößen' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const ver = await electronAPI?.getVersion?.().catch(()=>'—') || '—';
+  document.getElementById('h-ver').textContent = `v${ver}`;
+  document.getElementById('sb-ver').textContent = `v${ver}`;
+  const sv = document.getElementById('set-ver');
+  if (sv) sv.textContent = `v${ver}`;
+
+  // Restore saved AI key
+  const savedKey = localStorage.getItem('kc-ai-key');
+  if (savedKey) { const el = document.getElementById('ai-key'); if (el) el.value = savedKey; }
+
+  checkBackend();
+  setInterval(checkBackend, 6000);
+
+  await loadBrands();
+  loadProjects();
+  redraw();
+  renderSizes();
+  renderThemes();
+  renderLogo();
+});
+
+let _backendWasReady = false;
+let _backendCheckCount = 0;
+
+async function checkBackend() {
+  _backendCheckCount++;
+  let ok = false;
+  try {
+    const r = await fetch('http://localhost:47200/api/check',
+      { signal: AbortSignal.timeout(2000) });
+    ok = r.ok;
+  } catch {}
+
+  if (ok) _backendWasReady = true;
+
+  // While still starting up (first ~30 checks = ~3 min), show "startet…" not "offline"
+  const starting = !ok && !_backendWasReady && _backendCheckCount < 30;
+  const dot   = `<span class="dot ${ok ? 'dg' : starting ? 'dp' : 'dy'}"></span>`;
+  const label = ok ? 'Backend aktiv' : starting ? 'Backend startet…' : 'Backend offline';
+
+  document.getElementById('h-backend').innerHTML = `${dot}<span id="h-backend-txt">${label}</span>`;
+  document.getElementById('sb-status').innerHTML = `${dot} ${ok ? 'Bereit' : starting ? 'Startet…' : 'Backend offline'}`;
+  const sb = document.getElementById('set-backend');
+  if (sb) sb.textContent = ok ? '✓ Port 47200 aktiv' : starting ? '⏳ Startet…' : '✗ Nicht erreichbar';
+  const abEl = document.getElementById('ab-backend');
+  if (abEl) {
+    abEl.childNodes[abEl.childNodes.length - 1].textContent = `Backend: ${ok ? 'aktiv' : starting ? 'startet…' : 'offline'}`;
+    abEl.classList.toggle('active', ok);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Navigation
+// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Navigation (single-window, all tabs inline)
+// ─────────────────────────────────────────────────────────────────────────────
+const STUDIO_TABS = new Set(['designer', 'logo']); // tabs that need full-height iframe mode
+
+function nav(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.ni[id]').forEach(n => n.classList.remove('on'));
+  document.getElementById(`tab-${id}`)?.classList.add('on');
+  document.getElementById(`ni-${id}`)?.classList.add('on');
+
+  if (STUDIO_TABS.has(id)) {
+    document.body.classList.add('studio-mode');
+    if (id === 'designer') lazyLoadDesigner();
+    if (id === 'logo')     lazyLoadLogo();
+  } else {
+    document.body.classList.remove('studio-mode');
+  }
+
+  if (id === 'design')   { redraw(); setTimeout(renderSizes, 20); }
+  if (id === 'colors')   ctInit();
+  if (id === 'settings') checkBackend();
+}
+
+function lazyLoadDesigner() {
+  const fr = document.getElementById('designer-frame');
+  if (fr && !fr.src) {
+    fr.src = 'icon-designer.html';
+    setActivity('renderer', 'Icon Designer laden…', true);
+    fr.onload = () => setActivity('renderer', 'idle');
+  }
+}
+
+function lazyLoadLogo() {
+  const fr = document.getElementById('logo-frame');
+  if (fr && !fr.src) {
+    fr.src = 'logo-creator.html';
+    setActivity('renderer', 'Logo Creator laden…', true);
+    fr.onload = () => setActivity('renderer', 'idle');
+  }
+}
+
+function openLive() {
+  window.electronBridge?.navigateToLive?.() ||
+    (window.location.href = 'http://localhost:47200/live');
+}
+
+function doCheckUpdate() {
+  window.electronBridge?.checkForUpdate?.()
+    ?.then(r => {
+      if (r === 'dev') showToast('Dev-Modus — Update-Check deaktiviert', 'ok');
+    })
+    ?.catch(() => {});
+  showToast('Suche nach Updates…', 'ok');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Activity Bar
+// ─────────────────────────────────────────────────────────────────────────────
+function setActivity(slot, text, active = false) {
+  const el = document.getElementById(`ab-${slot}`);
+  if (!el) return;
+  const dot = el.querySelector('.ab-dot');
+  el.childNodes[el.childNodes.length - 1].textContent =
+    slot.charAt(0).toUpperCase() + slot.slice(1) + ': ' + text;
+  el.classList.toggle('active', active);
+}
+
+let _aiCursor = false;
+function toggleAiCursor() {
+  _aiCursor = !_aiCursor;
+  const btn = document.getElementById('ai-cursor-btn');
+  btn?.classList.toggle('on', _aiCursor);
+  btn.textContent = _aiCursor ? '⊕ AI Cursor: ON' : '⊕ AI Cursor';
+  // Forward to iframe
+  const fr = document.getElementById('designer-frame');
+  try { fr?.contentWindow?.postMessage({ type: 'ai-cursor', enabled: _aiCursor }, '*'); } catch {}
+  showToast(_aiCursor ? 'AI Cursor aktiviert' : 'AI Cursor deaktiviert', 'ok');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Vibe Chat Dock
+// ─────────────────────────────────────────────────────────────────────────────
+let _dockMini = false;
+
+function toggleVibeDock() {
+  _dockMini = !_dockMini;
+  document.getElementById('vibe-dock').classList.toggle('mini', _dockMini);
+  document.getElementById('vibe-pill').classList.toggle('visible', _dockMini);
+}
+
+function expandVibeDock() {
+  _dockMini = false;
+  document.getElementById('vibe-dock').classList.remove('mini');
+  document.getElementById('vibe-pill').classList.remove('visible');
+  setTimeout(() => document.getElementById('vd-input')?.focus(), 260);
+}
+
+function addVibeMsg(text, role = 'ai') {
+  const msgs = document.getElementById('vd-msgs');
+  const el = document.createElement('div');
+  el.className = `vd-msg ${role}`;
+  el.textContent = text;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+async function sendVibe() {
+  const input = document.getElementById('vd-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  addVibeMsg(text, 'user');
+
+  const apiKey = localStorage.getItem('kc-ai-key');
+  if (!apiKey) {
+    addVibeMsg('⚠ Kein API-Key — bitte in Einstellungen hinterlegen.', 'sys');
+    return;
+  }
+
+  const thinking = addVibeMsg('…', 'ai');
+  setActivity('ai', 'verarbeitet Prompt', true);
+  document.getElementById('vd-status-txt').textContent = 'AI verarbeitet…';
+
+  // Build context: if designer tab is active, attach canvas state
+  let ctx = '';
+  const fr = document.getElementById('designer-frame');
+  if (fr?.contentWindow?.canvasAPI) {
+    try {
+      const state = fr.contentWindow.canvasAPI.getState();
+      ctx = `\n\nAktueller Canvas-Zustand (KCD JSON):\n${JSON.stringify(state, null, 2).substring(0, 1200)}`;
+    } catch {}
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 1024,
+        system: `Du bist der KI-Assistent von K-Creative Studio — einer Open-Source Creative Suite.
+Du hilfst beim Erstellen von Icons, Brand-Identities und Design-Assets.
+Wenn der Nutzer ein Icon oder Canvas-Objekt möchte, antworte MIT einem JSON-Befehl im Format:
+<canvas_cmd>{"action":"add","type":"...","options":{...}}</canvas_cmd>
+Antworte auf Deutsch, kurz und präzise.${ctx}`,
+        messages: [{ role: 'user', content: text }],
+      }),
+    });
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Keine Antwort';
+
+    thinking.textContent = reply.replace(/<canvas_cmd>[\s\S]*?<\/canvas_cmd>/g, '').trim();
+
+    // Execute any canvas commands if designer is open
+    const cmdMatch = reply.match(/<canvas_cmd>([\s\S]*?)<\/canvas_cmd>/);
+    if (cmdMatch && fr?.contentWindow?.canvasAPI) {
+      try {
+        const cmd = JSON.parse(cmdMatch[1].trim());
+        fr.contentWindow.canvasAPI.exec(cmd);
+        setActivity('renderer', `${cmd.action} ${cmd.type ?? ''}`.trim(), true);
+        setTimeout(() => setActivity('renderer', 'idle'), 1500);
+      } catch {}
+    }
+  } catch (err) {
+    thinking.textContent = `Fehler: ${err.message}`;
+  } finally {
+    setActivity('ai', 'idle');
+    document.getElementById('vd-status-txt').textContent = '';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Platform / Shape
+// ─────────────────────────────────────────────────────────────────────────────
+function setPlatform(p, btn) {
+  S.platform = p;
+  document.querySelectorAll('#plt-strip .tstb').forEach(b => b.classList.remove('on'));
+  btn?.classList.add('on');
+  document.getElementById('plt-lbl').textContent = PLT[p].label;
+  if (p === 'ios') setShape('ios', document.querySelector('#shape-tg .tb'));
+  renderSizes();
+}
+
+function setShape(s, btn) {
+  S.shape = s;
+  document.querySelectorAll('#shape-tg .tb').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === s));
+  redraw();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Canvas rendering
+// ─────────────────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('cv');
+const ctx    = canvas.getContext('2d');
+
+function renderIcon(c, size) {
+  const cx = c.getContext('2d');
+  c.width = size; c.height = size;
+  cx.clearRect(0, 0, size, size);
+
+  // Clip shape
+  const shape = S.shape;
+  let r = 0;
+  if      (shape === 'circle') r = size / 2;
+  else if (shape === 'ios')    r = size * 0.2256;
+  else if (shape === 'round')  r = size * 0.13;
+
+  cx.save();
+  cx.beginPath();
+  if (shape === 'circle') {
+    cx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+  } else if (r > 0) {
+    rrect(cx, 0, 0, size, size, r);
+  } else {
+    cx.rect(0, 0, size, size);
+  }
+  cx.clip();
+
+  // Background
+  const c1  = document.getElementById('c1').value;
+  const c2  = document.getElementById('c2').value;
+  const grad = document.getElementById('use-grad').checked;
+  const ang  = parseInt(document.getElementById('grad-angle').value || 135);
+
+  if (grad && c2 !== c1) {
+    const rad = (ang - 90) * Math.PI / 180;
+    const gx = cx.createLinearGradient(
+      size/2 - Math.cos(rad)*size/2, size/2 - Math.sin(rad)*size/2,
+      size/2 + Math.cos(rad)*size/2, size/2 + Math.sin(rad)*size/2
+    );
+    gx.addColorStop(0, c1); gx.addColorStop(1, c2);
+    cx.fillStyle = gx;
+  } else {
+    cx.fillStyle = c1;
+  }
+  cx.fillRect(0, 0, size, size);
+
+  // Inset highlight
+  if (document.getElementById('fx-inset').checked) {
+    const hi = cx.createLinearGradient(0, 0, 0, size * 0.55);
+    hi.addColorStop(0, 'rgba(255,255,255,0.20)');
+    hi.addColorStop(1, 'rgba(255,255,255,0)');
+    cx.fillStyle = hi;
+    cx.fillRect(0, 0, size, size);
+  }
+
+  // Text
+  const txt  = document.getElementById('ico-txt').value.trim();
+  if (txt) {
+    const tc  = document.getElementById('txt-col').value;
+    const tsz = parseInt(document.getElementById('txt-sz').value || 45);
+    const fnt = document.getElementById('ico-font').value;
+    const fs  = Math.round(size * tsz / 100);
+
+    if (document.getElementById('fx-shadow').checked) {
+      cx.shadowColor   = 'rgba(0,0,0,0.5)';
+      cx.shadowBlur    = size * 0.04;
+      cx.shadowOffsetY = size * 0.018;
+    }
+    cx.fillStyle    = tc;
+    cx.font         = `bold ${fs}px ${fnt}`;
+    cx.textAlign    = 'center';
+    cx.textBaseline = 'middle';
+    cx.fillText(txt, size/2, size/2);
+    cx.shadowColor = 'transparent'; cx.shadowBlur = 0; cx.shadowOffsetY = 0;
+  }
+
+  cx.restore();
+}
+
+function rrect(cx, x, y, w, h, r) {
+  cx.moveTo(x+r, y);
+  cx.arcTo(x+w, y, x+w, y+h, r);
+  cx.arcTo(x+w, y+h, x, y+h, r);
+  cx.arcTo(x, y+h, x, y, r);
+  cx.arcTo(x, y, x+w, y, r);
+  cx.closePath();
+}
+
+function redraw() {
+  renderIcon(canvas, 368);
+  renderSizes();
+  renderLogo();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Size thumbnails
+// ─────────────────────────────────────────────────────────────────────────────
+function renderSizes() {
+  const grid  = document.getElementById('sz-grid');
+  if (!grid) return;
+  const sizes = PLT[S.platform]?.sizes || PLT.ios.sizes;
+  grid.innerHTML = '';
+
+  sizes.forEach(s => {
+    const disp = Math.min(s, 72);
+    const item = document.createElement('div');
+    item.className = 'szi';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'szp';
+    wrap.style.width  = `${disp}px`;
+    wrap.style.height = `${disp}px`;
+
+    const c = document.createElement('canvas');
+    renderIcon(c, disp);
+    wrap.appendChild(c);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'szl';
+    lbl.textContent = `${s}`;
+
+    item.appendChild(wrap);
+    item.appendChild(lbl);
+    grid.appendChild(item);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Export
+// ─────────────────────────────────────────────────────────────────────────────
+async function exportAll() {
+  const sizes = PLT[S.platform].sizes;
+  const files = sizes.map(size => {
+    const c = document.createElement('canvas');
+    renderIcon(c, size);
+    return { size, dataUrl: c.toDataURL('image/png'), name: `icon-${size}x${size}.png` };
+  });
+
+  if (window.electronBridge?.exportIcons) {
+    const dest = await window.electronBridge.exportIcons(files, S.platform);
+    showToast(`${sizes.length} Icons exportiert → Downloads`);
+  } else {
+    // Browser fallback: download each
+    files.forEach(({ dataUrl, name }) => {
+      const a = document.createElement('a');
+      a.href = dataUrl; a.download = name; a.click();
+    });
+  }
+}
+
+async function downloadSingle() {
+  const c = document.createElement('canvas');
+  renderIcon(c, 1024);
+  const dataUrl = c.toDataURL('image/png');
+  if (window.electronBridge?.saveFile) {
+    await window.electronBridge.saveFile(dataUrl, 'icon-1024x1024.png');
+  } else {
+    const a = document.createElement('a');
+    a.href = dataUrl; a.download = 'icon-1024x1024.png'; a.click();
+  }
+}
+
+async function openInkscape() {
+  const c = document.createElement('canvas');
+  renderIcon(c, 1024);
+  if (window.electronBridge?.openInInkscape) {
+    await window.electronBridge.openInInkscape(c.toDataURL('image/png'));
+  } else {
+    showToast('Inkscape nur in der Desktop-App verfügbar', 'err');
+  }
+}
+
+async function copyCanvas() {
+  const c = document.createElement('canvas');
+  renderIcon(c, 1024);
+  c.toBlob(blob => {
+    navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).catch(() => {});
+  });
+}
+
+function saveToBrand() {
+  if (S.active < 0) { showToast('Wähle zuerst ein Brand-Profil', 'err'); return; }
+  const c = document.createElement('canvas');
+  renderIcon(c, 512);
+  S.brands[S.active].iconDataUrl = c.toDataURL('image/png');
+  S.brands[S.active].updated = Date.now();
+  saveBrands();
+  showToast('Icon im Brand gespeichert');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Brand System
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadBrands() {
+  let data = null;
+  if (window.electronBridge?.loadBrand) {
+    data = await window.electronBridge.loadBrand().catch(() => null);
+  } else {
+    try { data = JSON.parse(localStorage.getItem('kcbrand') || 'null'); } catch {}
+  }
+  if (Array.isArray(data)) S.brands = data;
+  renderBrandList();
+}
+
+function saveBrands() {
+  if (window.electronBridge?.saveBrand) {
+    window.electronBridge.saveBrand(S.brands);
+  } else {
+    localStorage.setItem('kcbrand', JSON.stringify(S.brands));
+  }
+  renderBrandList();
+}
+
+function renderBrandList() {
+  const list = document.getElementById('brand-list');
+  if (!list) return;
+  list.innerHTML = '';
+  S.brands.forEach((b, i) => {
+    const el = document.createElement('div');
+    el.className = `bc${i === S.active ? ' on' : ''}`;
+    el.innerHTML = `
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+        ${['c1','c2','c3','c4'].map(k=>
+          `<div style="width:18px;height:18px;border-radius:4px;background:${b.colors?.[k]||'#333'};${k==='c4'?'border:1px solid var(--border)':''}"></div>`
+        ).join('')}
+      </div>
+      <div style="font-weight:700;font-size:13px">${b.name||'Unbenannt'}</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:2px">
+        ${[b.traits?.roundness,b.traits?.style,b.traits?.mood].filter(Boolean).join(' · ')||'—'}
+      </div>`;
+    el.onclick = () => selectBrand(i);
+    list.appendChild(el);
+  });
+  updateHomeBrands();
+}
+
+function selectBrand(i) {
+  S.active = i;
+  const b = S.brands[i];
+  document.getElementById('be-name').value = b.name || '';
+  document.getElementById('be-c1').value   = b.colors?.c1 || '#6C47FF';
+  document.getElementById('be-c2').value   = b.colors?.c2 || '#a855f7';
+  document.getElementById('be-c3').value   = b.colors?.c3 || '#60A5FA';
+  document.getElementById('be-c4').value   = b.colors?.c4 || '#07060d';
+  document.getElementById('be-c5').value   = b.colors?.c5 || '#e8e0ff';
+  document.getElementById('be-notes').value = b.notes || '';
+  document.getElementById('be-date').textContent =
+    b.created ? new Date(b.created).toLocaleDateString('de-CH') : '—';
+
+  if (b.traits) {
+    S.traits = {...b.traits};
+    Object.entries(b.traits).forEach(([k, v]) => {
+      document.querySelectorAll(`#tr-${k} .tb`).forEach(btn =>
+        btn.classList.toggle('on', btn.dataset.v === v));
+    });
+  }
+
+  // Log
+  const log = document.getElementById('be-log');
+  log.innerHTML = (b.log||[]).slice(-6).reverse()
+    .map(e=>`<div>· ${e.date} — ${e.msg}</div>`).join('') ||
+    '<div style="color:var(--t3)">Noch keine Änderungen gespeichert</div>';
+
+  document.getElementById('be-empty').style.display = 'none';
+  document.getElementById('be-form').style.display  = 'block';
+  updPrev();
+  renderBrandList();
+}
+
+function updPrev() {
+  const sw = document.getElementById('be-swatches');
+  if (!sw) return;
+  const ids    = ['be-c1','be-c2','be-c3','be-c4','be-c5'];
+  const labels = ['Primary','Secondary','Accent','BG','Text'];
+  sw.innerHTML = ids.map((id, i) => `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+      <div style="width:36px;height:36px;border-radius:8px;background:${
+        document.getElementById(id).value};border:1px solid var(--border)"></div>
+      <div style="font-size:9px;color:var(--t3)">${labels[i]}</div>
+    </div>`).join('');
+}
+
+function setTrait(key, val, btn) {
+  S.traits[key] = val;
+  btn.closest('.tg').querySelectorAll('.tb').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === val));
+}
+
+function newBrand() {
+  const b = {
+    name: 'Neues Brand',
+    colors: { c1:'#6C47FF', c2:'#a855f7', c3:'#60A5FA', c4:'#07060d', c5:'#e8e0ff' },
+    traits: { roundness:'rounded', style:'minimal', mood:'dark', weight:'medium' },
+    notes: '', created: Date.now(), updated: Date.now(), log: [],
+  };
+  S.brands.push(b);
+  S.active = S.brands.length - 1;
+  saveBrands();
+  selectBrand(S.active);
+}
+
+function saveBrand() {
+  if (S.active < 0) return;
+  const b   = S.brands[S.active];
+  const old = b.name;
+  b.name   = document.getElementById('be-name').value;
+  b.colors = {
+    c1: document.getElementById('be-c1').value,
+    c2: document.getElementById('be-c2').value,
+    c3: document.getElementById('be-c3').value,
+    c4: document.getElementById('be-c4').value,
+    c5: document.getElementById('be-c5').value,
+  };
+  b.traits  = { ...S.traits };
+  b.notes   = document.getElementById('be-notes').value;
+  b.updated = Date.now();
+  if (!b.log) b.log = [];
+  b.log.push({ date: new Date().toLocaleDateString('de-CH'), msg: `Gespeichert` });
+
+  saveBrands();
+  selectBrand(S.active);
+  document.getElementById('h-bname').textContent = b.name;
+}
+
+function delBrand() {
+  if (S.active < 0 || !confirm('Brand löschen?')) return;
+  S.brands.splice(S.active, 1);
+  S.active = -1;
+  document.getElementById('be-empty').style.display = '';
+  document.getElementById('be-form').style.display  = 'none';
+  saveBrands();
+}
+
+function applyToIcon() {
+  if (S.active < 0) return;
+  const b = S.brands[S.active];
+  if (b.colors) {
+    document.getElementById('c1').value = b.colors.c1;
+    document.getElementById('c2').value = b.colors.c2;
+  }
+  if (b.name) document.getElementById('ico-txt').value = b.name[0].toUpperCase();
+  nav('design');
+  redraw();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Toast
+// ─────────────────────────────────────────────────────────────────────────────
+let _toastTimer;
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('kc-toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { t.className = type; }, 2600);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Color Preset Themes
+// ─────────────────────────────────────────────────────────────────────────────
+const THEMES = [
+  { name:'K-Creative', c1:'#6C47FF', c2:'#a855f7', bc:{ c1:'#6C47FF',c2:'#a855f7',c3:'#60A5FA',c4:'#07060d',c5:'#e8e0ff'} },
+  { name:'Ocean',      c1:'#0ea5e9', c2:'#06b6d4', bc:{ c1:'#0ea5e9',c2:'#06b6d4',c3:'#38bdf8',c4:'#0c1a2e',c5:'#e0f2fe'} },
+  { name:'Forest',     c1:'#059669', c2:'#10b981', bc:{ c1:'#059669',c2:'#10b981',c3:'#34d399',c4:'#0a1f17',c5:'#d1fae5'} },
+  { name:'Sunset',     c1:'#f97316', c2:'#ef4444', bc:{ c1:'#f97316',c2:'#ef4444',c3:'#fbbf24',c4:'#1a0e00',c5:'#fff1e6'} },
+  { name:'Neon',       c1:'#a3e635', c2:'#22d3ee', bc:{ c1:'#a3e635',c2:'#22d3ee',c3:'#f0abfc',c4:'#030712',c5:'#f0fdf4'} },
+  { name:'Gold',       c1:'#d97706', c2:'#f59e0b', bc:{ c1:'#d97706',c2:'#f59e0b',c3:'#fcd34d',c4:'#1c1004',c5:'#fffbeb'} },
+  { name:'Cyber',      c1:'#7c3aed', c2:'#0ea5e9', bc:{ c1:'#7c3aed',c2:'#0ea5e9',c3:'#e879f9',c4:'#05001a',c5:'#f5f3ff'} },
+  { name:'Rose',       c1:'#e11d48', c2:'#f43f5e', bc:{ c1:'#e11d48',c2:'#f43f5e',c3:'#fb7185',c4:'#1a0010',c5:'#fff1f2'} },
+  { name:'Mono',       c1:'#374151', c2:'#111827', bc:{ c1:'#374151',c2:'#111827',c3:'#6b7280',c4:'#030712',c5:'#f9fafb'} },
+  { name:'Midnight',   c1:'#1e1b4b', c2:'#4f46e5', bc:{ c1:'#4f46e5',c2:'#6366f1',c3:'#818cf8',c4:'#070618',c5:'#e0e7ff'} },
+];
+
+let _selTheme = 0;
+
+function renderThemes() {
+  const containers = [
+    { el: document.getElementById('theme-presets'),       onApply: t => { document.getElementById('c1').value=t.c1; document.getElementById('c2').value=t.c2; redraw(); } },
+    { el: document.getElementById('brand-theme-presets'), onApply: t => applyBrandTheme(t) },
+  ];
+  containers.forEach(({ el, onApply }) => {
+    if (!el) return;
+    el.innerHTML = '';
+    THEMES.forEach((t, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'theme-swatch' + (el.id === 'theme-presets' && i === _selTheme ? ' on' : '');
+      sw.title = t.name;
+      sw.style.background = `linear-gradient(135deg,${t.c1},${t.c2})`;
+      sw.innerHTML = `<span>${t.name}</span>`;
+      sw.onclick = () => {
+        onApply(t);
+        if (el.id === 'theme-presets') {
+          _selTheme = i;
+          el.querySelectorAll('.theme-swatch').forEach((s,j) => s.classList.toggle('on', j===i));
+        }
+        renderLogo();
+      };
+      el.appendChild(sw);
+    });
+  });
+}
+
+function syncThemeSel() {
+  const c1 = document.getElementById('c1').value;
+  const c2 = document.getElementById('c2').value;
+  const i = THEMES.findIndex(t => t.c1 === c1 && t.c2 === c2);
+  _selTheme = i;
+  document.querySelectorAll('#theme-presets .theme-swatch').forEach((s,j) => s.classList.toggle('on', j===i));
+}
+
+function applyBrandTheme(t) {
+  if (S.active < 0) { showToast('Wähle zuerst ein Brand-Profil', 'err'); return; }
+  const bc = t.bc;
+  document.getElementById('be-c1').value = bc.c1;
+  document.getElementById('be-c2').value = bc.c2;
+  document.getElementById('be-c3').value = bc.c3;
+  document.getElementById('be-c4').value = bc.c4;
+  document.getElementById('be-c5').value = bc.c5;
+  updPrev();
+  showToast(`Theme „${t.name}" angewendet`);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Color Harmony Generator
+// ─────────────────────────────────────────────────────────────────────────────
+function hexToHsl(hex) {
+  let r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max+min)/2;
+  if (max===min) { h=s=0; } else {
+    const d = max-min; s = l>0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){ case r: h=((g-b)/d+(g<b?6:0))/6; break; case g: h=((b-r)/d+2)/6; break; default: h=((r-g)/d+4)/6; }
+  }
+  return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+}
+
+function hslToHex(h, s, l) {
+  h=(h%360+360)%360; s=Math.min(100,Math.max(0,s))/100; l=Math.min(100,Math.max(0,l))/100;
+  const a = s*Math.min(l,1-l);
+  const f = n => { const k=(n+h/30)%12, c=l-a*Math.max(-1,Math.min(k-3,9-k,1)); return Math.round(255*c).toString(16).padStart(2,'0'); };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function genHarmony() {
+  if (S.active < 0) { showToast('Wähle zuerst ein Brand-Profil', 'err'); return; }
+  const [h, s, l] = hexToHsl(document.getElementById('be-c1').value);
+  document.getElementById('be-c2').value = hslToHex(h + 30,  s,         l);
+  document.getElementById('be-c3').value = hslToHex(h + 60,  s * 0.85,  Math.min(l * 1.35, 75));
+  document.getElementById('be-c4').value = hslToHex(h,        s * 0.4,   Math.min(l * 0.12, 10));
+  document.getElementById('be-c5').value = hslToHex(h,        s * 0.12,  93);
+  updPrev();
+  showToast('Harmonische Palette generiert');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Logo Composer
+// ─────────────────────────────────────────────────────────────────────────────
+let _logoBg = 'dark';
+
+function setLogoBg(mode, btn) {
+  _logoBg = mode;
+  ['dark','light','trans'].forEach(m => document.getElementById(`logo-${m}-btn`)?.classList.toggle('on', m===mode));
+  const wrap = document.getElementById('logo-bg-wrap');
+  if (mode === 'dark')  wrap.style.background = '#07060d';
+  if (mode === 'light') wrap.style.background = '#f8fafc';
+  if (mode === 'trans') wrap.style.background = '';
+  renderLogo();
+}
+
+function renderLogo(layout = 'h') {
+  const cv   = document.getElementById('logo-cv');
+  if (!cv) return;
+  const name    = (document.getElementById('logo-name')?.value || '').trim() || 'App Name';
+  const tagline = (document.getElementById('logo-tagline')?.value || '').trim();
+  const c1 = document.getElementById('c1').value;
+  const c2 = document.getElementById('c2').value;
+  const isDark  = _logoBg !== 'light';
+  const txtCol  = isDark ? '#f0eeff' : '#0f0e1a';
+  const subCol  = isDark ? 'rgba(240,238,255,0.5)' : 'rgba(15,14,26,0.45)';
+
+  const ICON_S = 56;
+  const PAD    = 16;
+  const nameFs = 26;
+  const tagFs  = 13;
+  const lineH  = nameFs + 4;
+
+  // Measure text width roughly (canvas needed anyway)
+  cv.width  = 1; cv.height = 1;
+  const cx = cv.getContext('2d');
+  cx.font = `800 ${nameFs}px -apple-system,SF Pro Display,system-ui,sans-serif`;
+  const nameW = cx.measureText(name).width;
+  const totalW = ICON_S + PAD + Math.max(nameW, 200) + PAD;
+  const totalH = ICON_S + 2 * PAD;
+  cv.width  = Math.round(totalW);
+  cv.height = Math.round(totalH);
+
+  // BG
+  if (_logoBg === 'trans') {
+    cx.clearRect(0, 0, cv.width, cv.height);
+  } else {
+    cx.fillStyle = _logoBg === 'dark' ? '#07060d' : '#f8fafc';
+    cx.fillRect(0, 0, cv.width, cv.height);
+  }
+
+  // Icon
+  const ic = document.createElement('canvas');
+  renderIcon(ic, ICON_S);
+  cx.drawImage(ic, PAD, PAD);
+
+  // Name
+  cx.fillStyle = txtCol;
+  cx.font = `800 ${nameFs}px -apple-system,SF Pro Display,system-ui,sans-serif`;
+  cx.textAlign = 'left';
+  cx.textBaseline = 'alphabetic';
+  const textX = PAD + ICON_S + PAD;
+  const centerY = PAD + ICON_S / 2;
+  const nameY   = tagline ? centerY - 2 : centerY + nameFs * 0.35;
+  cx.fillText(name, textX, nameY);
+
+  // Tagline
+  if (tagline) {
+    cx.fillStyle = subCol;
+    cx.font = `500 ${tagFs}px -apple-system,SF Pro Display,system-ui,sans-serif`;
+    cx.fillText(tagline, textX, nameY + lineH - 2);
+  }
+}
+
+async function downloadLogo(layout) {
+  renderLogo(layout);
+  const cv = document.getElementById('logo-cv');
+  if (window.electronBridge?.saveFile) {
+    await window.electronBridge.saveFile(cv.toDataURL('image/png'), 'logo.png');
+  } else {
+    const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = 'logo.png'; a.click();
+  }
+  showToast('Logo gespeichert');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Projects
+// ─────────────────────────────────────────────────────────────────────────────
+const TYPE_ICONS  = { brand:'✦', icons:'🎨', ui:'⬜', sound:'🎵' };
+const TYPE_LABELS = { brand:'Brand Identity', icons:'Icon Set', ui:'UI Theme', sound:'Sound Identity' };
+
+function loadProjects() {
+  try { const r = localStorage.getItem('kc-projects'); if (r) S.projects = JSON.parse(r); } catch {}
+  renderProjects();
+}
+
+function saveProjects() {
+  try { localStorage.setItem('kc-projects', JSON.stringify(S.projects)); } catch {}
+  renderProjects();
+}
+
+function renderProjects() {
+  const grid = document.getElementById('proj-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  S.projects.forEach(p => {
+    const brand = S.brands.find(b => b.id === p.brandId || b.name === p.brandId);
+    const c1 = brand?.colors?.c1 || p.color || '#6C47FF';
+    const c2 = brand?.colors?.c2 || '#a855f7';
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.innerHTML = `
+      <div class="proj-thumb" style="background:linear-gradient(135deg,${c1},${c2})">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+          font-size:24px;opacity:.55">${TYPE_ICONS[p.type]||'◫'}</div>
+      </div>
+      <div class="proj-info">
+        <div class="proj-type">${TYPE_LABELS[p.type]||p.type}</div>
+        <div class="proj-name">${p.name}</div>
+        <div class="proj-meta">${brand?brand.name:'Kein Brand'} · ${new Date(p.updated||p.created).toLocaleDateString('de-CH')}</div>
+      </div>`;
+    card.onclick = () => openProject(p);
+    grid.appendChild(card);
+  });
+
+  // "New" placeholder card
+  const add = document.createElement('div');
+  add.className = 'proj-card proj-new';
+  add.style.cssText = 'min-height:130px;display:flex;align-items:center;justify-content:center;border-style:dashed';
+  add.innerHTML = `<div style="text-align:center;padding:20px;color:var(--t3)">
+    <div style="font-size:26px;margin-bottom:6px">+</div>
+    <div style="font-size:12px;font-weight:600">Neues Projekt</div>
+  </div>`;
+  add.onclick = showNewProjectModal;
+  grid.appendChild(add);
+
+  const pc = document.getElementById('proj-count');
+  if (pc) pc.textContent = S.projects.length;
+  const pl = document.getElementById('proj-last');
+  if (pl) pl.textContent = S.projects.length > 0
+    ? S.projects[S.projects.length-1].name : 'Noch kein Projekt';
+}
+
+function openProject(p) {
+  S.activeProject = p;
+  if (p.type === 'brand' || p.type === 'ui') {
+    const idx = S.brands.findIndex(b => b.id === p.brandId || b.name === p.brandId);
+    if (idx >= 0) { selectBrand(idx); }
+    nav('brand');
+    return;
+  }
+  if (p.type === 'icons') {
+    const brand = S.brands.find(b => b.id === p.brandId || b.name === p.brandId);
+    if (brand?.colors) {
+      document.getElementById('c1').value = brand.colors.c1;
+      document.getElementById('c2').value = brand.colors.c2;
+      redraw();
+    }
+    nav('design');
+    return;
+  }
+  showToast(`Projekt „${p.name}" geöffnet`);
+}
+
+function showNewProjectModal() {
+  const sel = document.getElementById('pm-brand');
+  sel.innerHTML = '<option value="">— Kein Brand —</option>';
+  S.brands.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.id || b.name;
+    o.textContent = b.name;
+    sel.appendChild(o);
+  });
+  document.getElementById('pm-name').value = '';
+  _newProjType = 'brand';
+  document.querySelectorAll('.type-opt').forEach(b => b.classList.toggle('on', b.dataset.t === 'brand'));
+  document.getElementById('proj-modal').classList.remove('hide');
+  setTimeout(() => document.getElementById('pm-name').focus(), 80);
+}
+
+function closeProjectModal() {
+  document.getElementById('proj-modal').classList.add('hide');
+}
+
+function selProjType(t, btn) {
+  _newProjType = t;
+  document.querySelectorAll('.type-opt').forEach(b => b.classList.toggle('on', b === btn));
+}
+
+function createProject() {
+  const name = document.getElementById('pm-name').value.trim();
+  if (!name) { showToast('Bitte Projektname eingeben', 'err'); return; }
+  const bval  = document.getElementById('pm-brand').value;
+  const brand = S.brands.find(b => b.id === bval || b.name === bval);
+  if (brand && !brand.id) brand.id = 'brand-' + Date.now();
+  const p = {
+    id: 'proj-' + Date.now(),
+    name,
+    type: _newProjType,
+    brandId: brand ? (brand.id || brand.name) : null,
+    color: brand?.colors?.c1 || '#6C47FF',
+    sounds: [],
+    created: Date.now(),
+    updated: Date.now(),
+  };
+  S.projects.push(p);
+  saveProjects();
+  closeProjectModal();
+  showToast(`Projekt „${name}" erstellt`);
+  openProject(p);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Settings / AI
+// ─────────────────────────────────────────────────────────────────────────────
+function saveAiKey() {
+  const key = document.getElementById('ai-key').value.trim();
+  if (!key) { showToast('Bitte API Key eingeben', 'err'); return; }
+  try { localStorage.setItem('kc-ai-key', key); } catch {}
+  document.getElementById('ai-status').innerHTML = '<span style="color:var(--ag)">✓ API Key gespeichert (lokal)</span>';
+  showToast('API Key gespeichert');
+}
+
+async function testAiKey() {
+  const key = (document.getElementById('ai-key').value.trim()) || localStorage.getItem('kc-ai-key') || '';
+  if (!key) { showToast('Bitte API Key eingeben', 'err'); return; }
+  const el = document.getElementById('ai-status');
+  el.textContent = 'Teste Verbindung…';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/models', {
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' }
+    });
+    if (r.ok) {
+      el.innerHTML = '<span style="color:var(--ag)">✓ API Key gültig — Claude verbunden</span>';
+      showToast('Claude API verbunden');
+    } else {
+      el.innerHTML = '<span style="color:#f87171">✗ Ungültiger API Key (Status ' + r.status + ')</span>';
+      showToast('Ungültiger API Key', 'err');
+    }
+  } catch {
+    el.innerHTML = '<span style="color:#fbbf24">⚠ Netzwerkfehler — in Electron-App testen</span>';
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// COLOR TOKEN SYSTEM
+// ═════════════════════════════════════════════════════════════════════════════
+
+const CT_ROLES = [
+  { key: 'primary',        label: 'Primary',        desc: 'Hauptmarkenfarbe' },
+  { key: 'secondary',      label: 'Secondary',      desc: 'Akzentfarbe' },
+  { key: 'surface',        label: 'Surface',        desc: 'Panel-Hintergründe' },
+  { key: 'background',     label: 'Background',     desc: 'App-Hintergrund' },
+  { key: 'text-primary',   label: 'Text Primary',   desc: 'Haupttexte' },
+  { key: 'text-secondary', label: 'Text Secondary', desc: 'Untertexte' },
+  { key: 'highlight',      label: 'Highlight',      desc: 'CTA & Glows' },
+];
+
+const CT_DEFAULTS = {
+  primary:          '#6C47FF',
+  secondary:        '#a855f7',
+  surface:          '#1a1230',
+  background:       '#07060d',
+  'text-primary':   '#e8e0ff',
+  'text-secondary': '#8b7eb8',
+  highlight:        '#00c872',
+};
+
+let CT = { ...CT_DEFAULTS };
+let _ctRole = 'primary';
+
+// ── Color math ────────────────────────────────────────────────────────────────
+function ctHexToRgb(hex) {
+  const n = parseInt(hex.replace('#',''), 16);
+  return [(n>>16)&255, (n>>8)&255, n&255];
+}
+function ctRgbToHex(r,g,b) {
+  return '#' + [r,g,b].map(v => Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
+}
+function ctHexToHsl(hex) {
+  let [r,g,b] = ctHexToRgb(hex).map(v => v/255);
+  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+  let h=0, s=0, l=(max+min)/2;
+  if(d){
+    s = d/(1-Math.abs(2*l-1));
+    if(max===r) h=((g-b)/d+6)%6;
+    else if(max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h=Math.round(h*60);
+  }
+  return [h, Math.round(s*100), Math.round(l*100)];
+}
+function ctHslToHex(h,s,l) {
+  s/=100; l/=100;
+  const a=s*Math.min(l,1-l);
+  const f=n=>{const k=(n+h/30)%12; return l-a*Math.max(Math.min(k-3,9-k,1),-1);};
+  return ctRgbToHex(f(0)*255, f(8)*255, f(4)*255);
+}
+function ctRelLum(hex) {
+  return ctHexToRgb(hex).map(v => {
+    v /= 255;
+    return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+  }).reduce((a,v,i) => a + v * [0.2126,0.7152,0.0722][i], 0);
+}
+function ctContrast(hex1, hex2) {
+  const [l1,l2] = [ctRelLum(hex1), ctRelLum(hex2)].sort((a,b)=>b-a);
+  return ((l1+0.05)/(l2+0.05)).toFixed(2);
+}
+function ctWcagLevel(ratio) {
+  return ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA' : ratio >= 3 ? 'AA Large' : 'FAIL';
+}
+
+// ── Harmony generator ──────────────────────────────────────────────────────
+function ctHarmony(baseHex, type) {
+  const [h,s,l] = ctHexToHsl(baseHex);
+  switch(type) {
+    case 'complementary': return [
+      ctHslToHex(h, s, l),
+      ctHslToHex((h+180)%360, s, l),
+      ctHslToHex(h, Math.max(s-20,10), Math.min(l+15,90)),
+      ctHslToHex((h+180)%360, Math.max(s-20,10), Math.min(l+15,90)),
+      ctHslToHex(h, s, Math.max(l-30,10)),
+    ];
+    case 'analogous': return [
+      ctHslToHex(h, s, l),
+      ctHslToHex((h+30)%360, s, l),
+      ctHslToHex((h-30+360)%360, s, l),
+      ctHslToHex((h+15)%360, Math.max(s-15,10), Math.min(l+20,90)),
+      ctHslToHex((h-15+360)%360, Math.max(s-15,10), Math.max(l-20,10)),
+    ];
+    case 'triadic': return [
+      ctHslToHex(h, s, l),
+      ctHslToHex((h+120)%360, s, l),
+      ctHslToHex((h+240)%360, s, l),
+      ctHslToHex(h, Math.max(s-20,10), Math.min(l+20,90)),
+      ctHslToHex((h+120)%360, Math.max(s-20,10), Math.min(l+20,90)),
+    ];
+    case 'split': return [
+      ctHslToHex(h, s, l),
+      ctHslToHex((h+150)%360, s, l),
+      ctHslToHex((h+210)%360, s, l),
+      ctHslToHex(h, Math.max(s-15,10), Math.min(l+25,90)),
+      ctHslToHex((h+180)%360, s, Math.max(l-10,10)),
+    ];
+    case 'mono': default: return [
+      ctHslToHex(h, s, l),
+      ctHslToHex(h, Math.max(s-20,5), Math.min(l+25,90)),
+      ctHslToHex(h, s, Math.max(l-25,5)),
+      ctHslToHex(h, Math.max(s-35,5), Math.min(l+40,95)),
+      ctHslToHex(h, Math.min(s+10,100), Math.max(l-40,5)),
+    ];
+  }
+}
+
+// ── CSS variable injection ─────────────────────────────────────────────────
+function ctApplyVars() {
+  const lines = CT_ROLES.map(r => `--ct-${r.key}:${CT[r.key]}`);
+  document.getElementById('ct-vars').textContent =
+    `:root{${lines.join(';')}}`;
+}
+
+// ── Render token grid ──────────────────────────────────────────────────────
+function ctRenderGrid() {
+  const bg = CT.background;
+  const grid = document.getElementById('ct-grid');
+  if (!grid) return;
+  grid.innerHTML = CT_ROLES.map(r => {
+    const hex = CT[r.key];
+    const cr  = ctContrast(hex, bg);
+    const lvl = ctWcagLevel(+cr);
+    const wcagCls = lvl === 'AAA' ? 'aaa' : (lvl.startsWith('AA') ? 'aa' : 'fail');
+    return `
+    <div class="ct-token${_ctRole===r.key?' on':''}" onclick="ctSetRole('${r.key}')">
+      <div class="ct-swatch" style="background:${hex}"></div>
+      <div class="ct-role">${r.label}</div>
+      <div class="ct-hex">${hex}</div>
+      <div><span class="ct-wcag ${wcagCls}">${lvl} ${cr}:1</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Harmony strip render ───────────────────────────────────────────────────
+function ctRenderHarmonyStrip() {
+  const type   = document.getElementById('ct-harm-type')?.value || 'complementary';
+  const colors = ctHarmony(CT.primary, type);
+  const strip  = document.getElementById('harm-strip');
+  if (!strip) return;
+  strip.innerHTML = colors.map(c =>
+    `<div class="harm-swatch" style="background:${c}"><span>${c}</span></div>`
+  ).join('');
+  // WCAG row
+  const row = document.getElementById('wcag-row');
+  if (!row) return;
+  const pairs = [
+    ['text-primary on primary', CT['text-primary'], CT.primary],
+    ['text-primary on surface', CT['text-primary'], CT.surface],
+    ['text-primary on background', CT['text-primary'], CT.background],
+    ['highlight on background',   CT.highlight,       CT.background],
+  ];
+  row.innerHTML = pairs.map(([lbl, fg, bg]) => {
+    const cr  = ctContrast(fg, bg);
+    const lvl = ctWcagLevel(+cr);
+    const cls = lvl === 'AAA' ? 'aaa' : (lvl.startsWith('AA') ? 'aa' : 'fail');
+    return `<span class="ct-wcag ${cls}" title="${lbl}">${lbl.split(' ')[0].split('-').pop()}: ${cr}:1 ${lvl}</span>`;
+  }).join('');
+}
+
+// ── Preview matrix update ──────────────────────────────────────────────────
+function ctUpdatePreview() {
+  const el = (id, prop, val) => {
+    const e = document.getElementById(id); if (e) e.style[prop] = val;
+  };
+  const t = (id, txt) => {
+    const e = document.getElementById(id); if (e) e.textContent = txt;
+  };
+  // Social card
+  t('pv-soc-badge', CT.primary);
+  // Typography WCAG
+  const crTxt = +ctContrast(CT['text-primary'], CT.surface);
+  const lvlTxt = ctWcagLevel(crTxt);
+  const wEl = document.getElementById('pv-typo-wcag-p');
+  if (wEl) {
+    wEl.className = `ct-wcag ${lvlTxt === 'AAA' ? 'aaa' : lvlTxt.startsWith('AA') ? 'aa' : 'fail'}`;
+    wEl.textContent = lvlTxt;
+  }
+  t('pv-typo-cr-p', `${crTxt}:1`);
+  // UI button token label
+  t('pv-ui-p', CT.primary);
+}
+
+// ── Role selection ─────────────────────────────────────────────────────────
+function ctSetRole(key) {
+  _ctRole = key;
+  const hex = CT[key];
+  const picker = document.getElementById('ct-picker');
+  const hexInput = document.getElementById('ct-hex-input');
+  const sel = document.getElementById('ct-role-sel');
+  if (picker) picker.value = hex.substring(0,7); // color input needs 6-digit hex
+  if (hexInput) hexInput.value = hex;
+  const [h,s,l] = ctHexToHsl(hex);
+  const setN = (id, v) => { const e=document.getElementById(id); if(e) e.value=v; };
+  setN('ct-hue', h); setN('ct-sat', s); setN('ct-lig', l);
+  if (sel) sel.value = key;
+  // WCAG info
+  const bg  = CT.background;
+  const cr  = ctContrast(hex, bg);
+  const lvl = ctWcagLevel(+cr);
+  const infoEl = document.getElementById('ct-wcag-info');
+  if (infoEl) infoEl.textContent = `vs. Background: ${cr}:1 — ${lvl}`;
+  ctRenderGrid();
+}
+
+function ctSelectRole() {
+  ctSetRole(document.getElementById('ct-role-sel').value);
+}
+
+// ── Picker input handlers ──────────────────────────────────────────────────
+function ctPickerInput() {
+  const hex = document.getElementById('ct-picker').value;
+  CT[_ctRole] = hex;
+  document.getElementById('ct-hex-input').value = hex;
+  const [h,s,l] = ctHexToHsl(hex);
+  document.getElementById('ct-hue').value = h;
+  document.getElementById('ct-sat').value = s;
+  document.getElementById('ct-lig').value = l;
+  ctApplyVars();
+  ctRenderGrid();
+  ctRenderHarmonyStrip();
+  ctUpdatePreview();
+}
+
+function ctHexInput() {
+  let hex = document.getElementById('ct-hex-input').value.trim();
+  if (!hex.startsWith('#')) hex = '#' + hex;
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+  CT[_ctRole] = hex;
+  document.getElementById('ct-picker').value = hex;
+  const [h,s,l] = ctHexToHsl(hex);
+  document.getElementById('ct-hue').value = h;
+  document.getElementById('ct-sat').value = s;
+  document.getElementById('ct-lig').value = l;
+  ctApplyVars();
+  ctRenderGrid();
+  ctRenderHarmonyStrip();
+  ctUpdatePreview();
+}
+
+function ctHslInput() {
+  const h = +document.getElementById('ct-hue').value;
+  const s = +document.getElementById('ct-sat').value;
+  const l = +document.getElementById('ct-lig').value;
+  const hex = ctHslToHex(h, s, l);
+  CT[_ctRole] = hex;
+  document.getElementById('ct-picker').value = hex;
+  document.getElementById('ct-hex-input').value = hex;
+  ctApplyVars();
+  ctRenderGrid();
+  ctRenderHarmonyStrip();
+  ctUpdatePreview();
+}
+
+// ── Apply harmony to tokens ────────────────────────────────────────────────
+function ctApplyHarmony() {
+  const type = document.getElementById('ct-harm-type').value;
+  const [c0,c1,c2,c3,c4] = ctHarmony(CT.primary, type);
+  CT.primary   = c0;
+  CT.secondary = c1;
+  CT.highlight = c2;
+  const [,, lig] = ctHexToHsl(c0);
+  CT.surface    = ctHslToHex(...ctHexToHsl(c0).map((v,i)=>i===2?Math.max(10,Math.min(20,lig*.25)):v));
+  ctApplyVars();
+  ctRenderGrid();
+  ctRenderHarmonyStrip();
+  ctUpdatePreview();
+  ctSetRole(_ctRole);
+  showToast('Harmonie angewendet');
+}
+
+// ── AI Vibe palette ────────────────────────────────────────────────────────
+async function ctVibeGenerate() {
+  const vibe = document.getElementById('ct-vibe-input').value.trim();
+  if (!vibe) { showToast('Bitte Vibe eingeben', 'err'); return; }
+  const apiKey = localStorage.getItem('kc-ai-key');
+  if (!apiKey) { showToast('Kein API Key — bitte in Einstellungen setzen', 'err'); return; }
+
+  const statusEl = document.getElementById('ct-vibe-status');
+  const cardsEl  = document.getElementById('ct-vibe-cards');
+  statusEl.textContent = '✦ Claude generiert Palette…';
+  cardsEl.innerHTML = '';
+  setActivity('ai', 'generiert Palette', true);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 1200,
+        system: `Du bist ein Farbdesign-Experte. Wenn der Nutzer einen Vibe oder eine Stimmung beschreibt,
+generierst du 3 harmonische Farbpaletten als JSON-Array. Jede Palette hat:
+- name: kurzer Palettenname (max 3 Wörter)
+- why: 1-2 Sätze warum diese Farben passen
+- tokens: { primary, secondary, surface, background, text-primary, text-secondary, highlight } als Hex-Strings
+
+Antworte NUR mit dem JSON-Array, kein Prosa drumherum.`,
+        messages: [{ role: 'user', content: `Vibe: "${vibe}"` }],
+      }),
+    });
+    const data = await res.json();
+    const raw  = data.content?.[0]?.text || '[]';
+    const palettes = JSON.parse(raw.match(/\[[\s\S]*\]/)?.[0] || '[]');
+
+    if (!palettes.length) throw new Error('Keine Paletten erhalten');
+
+    cardsEl.innerHTML = palettes.map((p, i) => `
+      <div class="vibe-card" onclick="ctApplyVibePalette(${i})">
+        <div class="vibe-card-swatches">
+          ${Object.values(p.tokens||{}).slice(0,5).map(c=>`<div class="vcs" style="background:${c}"></div>`).join('')}
+        </div>
+        <div class="vibe-card-name">${p.name||'Palette '+(i+1)}</div>
+        <div class="vibe-card-why">${p.why||''}</div>
+      </div>`).join('');
+
+    // Store palettes for apply
+    window._ctVibePalettes = palettes;
+    statusEl.textContent = `${palettes.length} Paletten generiert — klicken zum Anwenden`;
+  } catch(err) {
+    statusEl.textContent = `Fehler: ${err.message}`;
+  } finally {
+    setActivity('ai', 'idle');
+  }
+}
+
+function ctApplyVibePalette(i) {
+  const p = window._ctVibePalettes?.[i];
+  if (!p?.tokens) return;
+  Object.assign(CT, p.tokens);
+  ctApplyVars();
+  ctRenderGrid();
+  ctRenderHarmonyStrip();
+  ctUpdatePreview();
+  ctSetRole('primary');
+  showToast(`Palette "${p.name}" angewendet`);
+}
+
+// ── Exports ────────────────────────────────────────────────────────────────
+function ctExportCSS() {
+  const css = `:root {\n${CT_ROLES.map(r=>`  --color-${r.key}: ${CT[r.key]};`).join('\n')}\n}`;
+  navigator.clipboard.writeText(css).then(()=>showToast('CSS Vars kopiert')).catch(()=>showToast('Kopieren fehlgeschlagen','err'));
+}
+
+function ctExportTailwind() {
+  const tw = `module.exports = {\n  theme: {\n    extend: {\n      colors: {\n${
+    CT_ROLES.map(r=>`        '${r.key}': '${CT[r.key]}',`).join('\n')
+  }\n      }\n    }\n  }\n}`;
+  navigator.clipboard.writeText(tw).then(()=>showToast('Tailwind Config kopiert')).catch(()=>showToast('Kopieren fehlgeschlagen','err'));
+}
+
+function ctExportJSON() {
+  const json = JSON.stringify({ '$schema':'color-tokens/v1', tokens: Object.fromEntries(
+    CT_ROLES.map(r=>[r.key, { $value: CT[r.key], $type: 'color', $description: r.desc }])
+  )}, null, 2);
+  navigator.clipboard.writeText(json).then(()=>showToast('tokens.json kopiert')).catch(()=>showToast('Kopieren fehlgeschlagen','err'));
+}
+
+function ctSaveToBrand() {
+  if (S.active < 0 || !S.brands[S.active]) {
+    showToast('Kein aktives Brand-Profil — bitte zuerst auswählen', 'err');
+    return;
+  }
+  S.brands[S.active].tokens = { ...CT };
+  saveBrands();
+  showToast('Color Tokens in Brand gespeichert');
+}
+
+// ── Init (called when tab-colors becomes active) ───────────────────────────
+function ctInit() {
+  // Load from active brand if available
+  if (S.active >= 0 && S.brands[S.active]?.tokens) {
+    Object.assign(CT, S.brands[S.active].tokens);
+  }
+  ctApplyVars();
+  ctRenderGrid();
+  ctRenderHarmonyStrip();
+  ctUpdatePreview();
+  ctSetRole('primary');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+function updateHomeBrands() {
+  const grid = document.getElementById('h-brands');
+  if (!grid) return;
+  const items = S.brands.slice(0, 4).map(b => `
+    <div class="bc" onclick="nav('brand')">
+      <div style="display:flex;gap:5px;margin-bottom:10px">
+        <div class="sw" style="background:${b.colors?.c1||'#6C47FF'}"></div>
+        <div class="sw" style="background:${b.colors?.c2||'#a855f7'}"></div>
+        <div class="sw" style="background:${b.colors?.c3||'#60A5FA'}"></div>
+        <div class="sw" style="background:${b.colors?.c4||'#07060d'};border:1px solid var(--border)"></div>
+      </div>
+      <div style="font-weight:700;font-size:13px">${b.name||'Unbenannt'}</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:2px">
+        ${[b.traits?.roundness,b.traits?.style].filter(Boolean).join(' · ')||'—'}
+      </div>
+    </div>`).join('');
+
+  grid.innerHTML = items + `
+    <div class="bc" style="border-style:dashed;opacity:.45" onclick="newBrand();nav('brand')">
+      <div style="text-align:center;padding:14px 0;color:var(--t3)">
+        <div style="font-size:20px;margin-bottom:3px">+</div>
+        <div style="font-size:12px">Neues Brand</div>
+      </div>
+    </div>`;
+
+  document.getElementById('h-count').textContent = S.brands.length;
+  if (S.brands.length > 0) {
+    const ab = S.active >= 0 ? S.brands[S.active] : S.brands[0];
+    document.getElementById('h-bname').textContent = ab?.name || '—';
+  }
+}
+</script>
+</body>
+</html>

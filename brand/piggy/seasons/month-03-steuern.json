@@ -1,0 +1,21 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-03-steuern",
+  "kind": "month",
+  "name": "Steuererklärung",
+  "enabled": true,
+  "valid": {
+    "month": 3,
+    "from": "03-15",
+    "to": "03-31"
+  },
+  "palette": {},
+  "accessories": [
+    "roundGlasses",
+    "receipt"
+  ],
+  "background": [
+    "coins"
+  ],
+  "note": "Brille + Quittung, fallende Münzen — Schweizer Steuerfrist 31. März, passt zu Quittungs-App"
+}

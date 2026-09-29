@@ -1,0 +1,24 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-07-ferien",
+  "kind": "month",
+  "name": "Sommerferien",
+  "enabled": true,
+  "valid": {
+    "month": 7,
+    "from": "07-01",
+    "to": "07-24"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.gold.50}",
+    "component.appIcon.bgTo": "{primitive.color.sky.200}",
+    "component.appIcon.bgRim": "{primitive.color.sky.400}"
+  },
+  "accessories": [
+    "strawHat"
+  ],
+  "background": [
+    "sun"
+  ],
+  "note": "Strohhut, Sonne"
+}

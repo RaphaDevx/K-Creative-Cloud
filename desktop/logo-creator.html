@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K-Creative · Logo Creator</title>
+<style>
+:root {
+  --bg:     #08071a;
+  --panel:  #0f0d22;
+  --tb:     #060514;
+  --cbg:    #11102a;
+  --border: rgba(108,71,255,.18);
+  --bhi:    rgba(108,71,255,.35);
+  --a:      #6C47FF;
+  --a2:     #a855f7;
+  --a3:     #60A5FA;
+  --ag:     #00c872;
+  --txt:    #e8e0ff;
+  --t2:     rgba(232,224,255,.55);
+  --t3:     rgba(232,224,255,.22);
+  --r:      7px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,'SF Pro Text',system-ui,sans-serif;
+  font-size:13px;-webkit-font-smoothing:antialiased;user-select:none}
+
+.drag{height:44px;-webkit-app-region:drag;flex-shrink:0;
+  display:flex;align-items:center;padding:0 80px 0 16px;
+  font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--t3)}
+.drag span{-webkit-app-region:no-drag;color:var(--a2)}
+
+.app{display:flex;flex-direction:column;height:100vh}
+.main{display:flex;flex:1;min-height:0}
+
+/* Left toolbar */
+.ltb{width:48px;flex-shrink:0;background:var(--tb);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;
+  padding:6px 0;gap:1px;overflow-y:auto}
+.tool{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;cursor:pointer;font-size:14px;color:var(--t2);
+  transition:background .12s,color .12s;position:relative;flex-shrink:0}
+.tool:hover{background:rgba(108,71,255,.15);color:var(--txt)}
+.tool.on{background:rgba(108,71,255,.28);color:var(--a2);outline:1px solid var(--a)}
+.tool[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:calc(100% + 8px);top:50%;
+  transform:translateY(-50%);background:#1a1540;border:1px solid var(--border);
+  padding:4px 9px;border-radius:5px;white-space:nowrap;font-size:11px;
+  color:var(--txt);pointer-events:none;z-index:200}
+.tsep{width:26px;height:1px;background:var(--border);margin:3px 0;flex-shrink:0}
+.tcolor{width:22px;height:22px;border-radius:4px;cursor:pointer;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.18);outline:none}
+.tlabel{font-size:8px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--t3);text-align:center;width:100%;padding-bottom:1px}
+
+/* Canvas area */
+.canvas-area{flex:1;display:flex;flex-direction:column;background:var(--cbg);min-width:0}
+.mbar{height:34px;flex-shrink:0;background:var(--panel);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 10px;gap:3px;overflow-x:auto;
+  scrollbar-width:none}
+.mbar::-webkit-scrollbar{display:none}
+.mb{padding:3px 8px;border-radius:5px;border:1px solid transparent;
+  background:transparent;color:var(--t2);cursor:pointer;font-size:11.5px;
+  font-weight:600;font-family:inherit;transition:background .12s,color .12s;
+  white-space:nowrap;flex-shrink:0}
+.mb:hover{background:rgba(108,71,255,.15);color:var(--txt);border-color:var(--border)}
+.mb.on{color:var(--a2);border-color:rgba(108,71,255,.4)}
+.mb:disabled{opacity:.3;cursor:default}
+.msep{width:1px;height:16px;background:var(--border);flex-shrink:0;margin:0 3px}
+.mzoom{display:flex;align-items:center;gap:3px;margin-left:auto;flex-shrink:0}
+.mzoom span{font-size:11px;color:var(--t2);min-width:40px;text-align:center}
+
+.cscroll{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;
+  cursor:crosshair;position:relative}
+.cscroll.sel{cursor:default}
+.cframe{position:relative;flex-shrink:0;
+  box-shadow:0 0 0 1px rgba(108,71,255,.25),0 12px 48px rgba(0,0,0,.7)}
+.cgrid{position:absolute;top:0;left:0;pointer-events:none;z-index:2;
+  opacity:0;transition:opacity .2s}
+.cgrid.on{opacity:1}
+
+.sbar{height:24px;flex-shrink:0;background:var(--panel);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:18px;
+  font-size:11px;color:var(--t3)}
+.sbar .hi{color:var(--a2)}
+
+/* Right panel */
+.rp{width:230px;flex-shrink:0;background:var(--panel);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden}
+.ptabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.ptab{flex:1;padding:8px 2px;text-align:center;background:none;border:none;
+  color:var(--t2);cursor:pointer;font-size:11px;font-weight:600;
+  font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .12s,border-color .12s}
+.ptab.on{color:var(--txt);border-bottom-color:var(--a)}
+.pc{display:none;flex:1;overflow-y:auto;padding:12px;gap:10px;flex-direction:column}
+.pc.on{display:flex}
+.ps{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:5px}
+.prow{display:flex;gap:6px;align-items:flex-end}
+.fi{background:rgba(108,71,255,.07);border:1px solid var(--border);
+  border-radius:5px;color:var(--txt);font-family:inherit;font-size:12px;
+  padding:5px 7px;outline:none;transition:border-color .12s;width:100%;
+  -moz-appearance:textfield}
+.fi::-webkit-outer-spin-button,.fi::-webkit-inner-spin-button{-webkit-appearance:none}
+.fi:focus{border-color:var(--a)}
+.fi.sm{width:64px}
+label{font-size:10px;color:var(--t2);display:block;margin-bottom:2px}
+input[type=color]{width:28px;height:28px;border:none;border-radius:5px;
+  cursor:pointer;padding:0;background:none;flex-shrink:0}
+input[type=range]{accent-color:var(--a);width:100%}
+.nosel{font-size:12px;color:var(--t3);text-align:center;padding:24px 0}
+
+/* Math panel specific */
+.math-block{background:rgba(108,71,255,.05);border:1px solid var(--border);
+  border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.math-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--a2)}
+.math-formula{font-family:'SF Mono',monospace;font-size:10px;color:var(--t2);
+  background:rgba(0,0,0,.3);border-radius:5px;padding:5px 8px;line-height:1.6}
+.math-val{font-size:11px;color:var(--txt);text-align:right;min-width:32px;flex-shrink:0}
+.grid-swatch{display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding:5px 7px;border-radius:6px;border:1px solid transparent;
+  font-size:12px;color:var(--t2);transition:all .12s}
+.grid-swatch:hover{background:rgba(108,71,255,.1);border-color:var(--border)}
+.grid-swatch.on{background:rgba(108,71,255,.18);color:var(--txt);border-color:rgba(108,71,255,.4)}
+.grid-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Trace panel */
+.trace-drop{border:2px dashed var(--border);border-radius:8px;padding:20px;
+  text-align:center;cursor:pointer;transition:border-color .15s,background .15s;
+  font-size:12px;color:var(--t2)}
+.trace-drop:hover,.trace-drop.over{border-color:var(--a);background:rgba(108,71,255,.07);color:var(--txt)}
+.trace-preview{width:100%;height:80px;background:rgba(0,0,0,.3);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;border:1px solid var(--border)}
+.trace-preview img{max-width:100%;max-height:100%;object-fit:contain}
+
+/* Optical badge */
+.opt-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
+  border-radius:4px;font-size:10px;font-weight:700;
+  background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+
+/* Export */
+.ebtn{display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 12px;border-radius:6px;border:none;cursor:pointer;
+  font-size:12px;font-weight:600;font-family:inherit;
+  transition:opacity .12s;width:100%}
+.ebtn:hover{opacity:.85}
+.ep{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff}
+.eg{background:linear-gradient(135deg,#059669,#10b981);color:#07060d;font-weight:700}
+.eo{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--t2)}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(108,71,255,.3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="drag">K-Creative · Logo Creator &nbsp;—&nbsp; <span>φ Math + Trace + Squircle</span></div>
+
+<div class="main">
+
+  <!-- Left Toolbar -->
+  <div class="ltb">
+    <div class="tool on" id="t-select" data-tool="select" data-tip="Select (V)">↖</div>
+    <div class="tsep"></div>
+    <div class="tool" id="t-rect"     data-tool="rect"     data-tip="Rectangle (R)">⬜</div>
+    <div class="tool" id="t-circle"   data-tool="circle"   data-tip="Circle (C)">⭕</div>
+    <div class="tool" id="t-squircle" data-tool="squircle" data-tip="Squircle (Q) — Superellipse">⬙</div>
+    <div class="tool" id="t-poly"     data-tool="poly"     data-tip="Polygon (P)">⬡</div>
+    <div class="tool" id="t-star"     data-tool="star"     data-tip="φ-Star (★)">✦</div>
+    <div class="tsep"></div>
+    <div class="tool" id="t-pen"      data-tool="pen"      data-tip="Pen (B)">✏</div>
+    <div class="tool" id="t-text"     data-tool="text"     data-tip="Text (T)">T</div>
+    <div class="tsep"></div>
+    <div class="tool" id="t-trace"    data-tool="trace"    data-tip="Trace PNG (I)" onclick="document.getElementById('trace-file-inp').click()">⬆</div>
+    <input type="file" id="trace-file-inp" accept="image/*" style="display:none">
+    <div class="tsep"></div>
+    <div class="tlabel">Fill</div>
+    <input class="tcolor" type="color" id="tc-fill"   value="#6C47FF" oninput="applyFill(this.value)">
+    <div class="tlabel">Stk</div>
+    <input class="tcolor" type="color" id="tc-stroke" value="#a855f7" oninput="applyStroke(this.value)">
+    <div class="tsep"></div>
+    <div class="tool" id="t-grid" data-tip="Grid (G)" onclick="cycleGrid()">⊞</div>
+  </div>
+
+  <!-- Canvas Area -->
+  <div class="canvas-area">
+
+    <div class="mbar">
+      <button class="mb" onclick="boolOp('unite')">⊕ Union</button>
+      <button class="mb" onclick="boolOp('subtract')">⊖ Sub</button>
+      <button class="mb" onclick="boolOp('intersect')">⊗ Isect</button>
+      <div class="msep"></div>
+      <button class="mb" onclick="groupSel()">⊞ Group</button>
+      <button class="mb" onclick="ungroupSel()">⊟ Ungroup</button>
+      <div class="msep"></div>
+      <button class="mb" onclick="canvas.bringForward(canvas.getActiveObject());canvas.requestRenderAll();pushH()">↑</button>
+      <button class="mb" onclick="canvas.sendBackwards(canvas.getActiveObject());canvas.requestRenderAll();pushH()">↓</button>
+      <div class="msep"></div>
+      <button class="mb" onclick="doUndo()" title="Undo">↩</button>
+      <button class="mb" onclick="doRedo()" title="Redo">↪</button>
+      <div class="msep"></div>
+      <button class="mb" id="mb-snap" onclick="toggleSnap()" title="Snap to grid">⊙ Snap</button>
+      <button class="mb" onclick="optCorrect()" title="Optical correction">⊡ Opt</button>
+      <div class="msep"></div>
+      <button class="mb" onclick="setArtboard(512)">512</button>
+      <button class="mb" onclick="setArtboard(1024)">1024</button>
+      <button class="mb" onclick="setArtboard(200)">200</button>
+      <div class="msep"></div>
+      <button class="mb" id="mb-bg-w" onclick="setBg('#ffffff')">◻ White</button>
+      <button class="mb" id="mb-bg-d" onclick="setBg('transparent')">◼ None</button>
+      <div class="mzoom">
+        <button class="mb" onclick="zoomBy(.8)">－</button>
+        <span id="zoom-lbl">100%</span>
+        <button class="mb" onclick="zoomBy(1.25)">＋</button>
+        <button class="mb" onclick="zoomFit()">Fit</button>
+      </div>
+    </div>
+
+    <div class="cscroll sel" id="cscroll">
+      <div class="cframe" id="cframe">
+        <canvas id="lc"></canvas>
+        <canvas id="grid-cv" class="cgrid"></canvas>
+      </div>
+    </div>
+
+    <div class="sbar">
+      <span>Objects: <span class="hi" id="sb-objs">0</span></span>
+      <span>Size: <span class="hi" id="sb-size">512 × 512</span></span>
+      <span>Sel: <span class="hi" id="sb-sel">—</span></span>
+      <span>Grid: <span class="hi" id="sb-grid">off</span></span>
+    </div>
+
+  </div>
+
+  <!-- Right Panel -->
+  <div class="rp">
+    <div class="ptabs">
+      <button class="ptab on" onclick="setPTab('props',this)">Props</button>
+      <button class="ptab"    onclick="setPTab('math',this)">φ Math</button>
+      <button class="ptab"    onclick="setPTab('trace',this)">Trace</button>
+      <button class="ptab"    onclick="setPTab('export',this)">Export</button>
+    </div>
+
+    <!-- Props -->
+    <div class="pc on" id="pc-props">
+      <div id="nosel-msg" class="nosel">No object selected</div>
+      <div id="sel-props" style="display:none;flex-direction:column;gap:10px">
+        <div class="ps">Transform</div>
+        <div class="prow">
+          <div style="flex:1"><label>X</label><input class="fi" type="number" id="pi-x" oninput="applyProp('left',+this.value)"></div>
+          <div style="flex:1"><label>Y</label><input class="fi" type="number" id="pi-y" oninput="applyProp('top',+this.value)"></div>
+        </div>
+        <div class="prow">
+          <div style="flex:1"><label>W</label><input class="fi" type="number" id="pi-w" oninput="applyDim('w',+this.value)"></div>
+          <div style="flex:1"><label>H</label><input class="fi" type="number" id="pi-h" oninput="applyDim('h',+this.value)"></div>
+        </div>
+        <div><label>Rotation</label><input class="fi" type="number" id="pi-rot" oninput="applyProp('angle',+this.value)"></div>
+        <div class="ps">Appearance</div>
+        <div class="prow" style="align-items:center">
+          <label style="margin:0;flex:1">Fill</label>
+          <input type="color" id="pi-fill" oninput="applyFill(this.value)">
+        </div>
+        <div><label>Fill Alpha</label><input type="range" id="pi-fillalpha" min="0" max="1" step=".01" oninput="applyFillAlpha(+this.value)"></div>
+        <div class="prow" style="align-items:center">
+          <label style="margin:0;flex:1">Stroke</label>
+          <input type="color" id="pi-stroke" oninput="applyStroke(this.value)">
+        </div>
+        <div><label>Stroke Width</label>
+          <div class="prow">
+            <input class="fi" type="number" id="pi-sw" min="0" step=".5" oninput="applyProp('strokeWidth',+this.value)">
+          </div>
+        </div>
+        <div><label>Opacity</label><input type="range" id="pi-opacity" min="0" max="1" step=".01" oninput="applyProp('opacity',+this.value)"></div>
+      </div>
+    </div>
+
+    <!-- φ Math -->
+    <div class="pc" id="pc-math">
+
+      <div class="math-block">
+        <div class="math-title">Superellipse (Squircle)</div>
+        <div class="math-formula">|x/a|ⁿ + |y/b|ⁿ = 1</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <label>n exponent <span id="sq-n-val" class="math-val">4.0</span></label>
+          <input type="range" id="sq-n" min="2" max="10" step=".1" value="4"
+            oninput="document.getElementById('sq-n-val').textContent=parseFloat(this.value).toFixed(1)">
+          <div style="font-size:10px;color:var(--t3);line-height:1.4">
+            n=2 Ellipse · n=4 iOS · n=5 Figma · n→∞ Rectangle
+          </div>
+        </div>
+        <button class="ebtn eo" style="margin-top:2px" onclick="addSquircle()">Add Squircle</button>
+        <button class="ebtn eo" onclick="applySquircleToSel()">Apply n to Selection</button>
+      </div>
+
+      <div class="math-block">
+        <div class="math-title">Regular Polygon</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <label>Sides <span id="poly-n-val" class="math-val">6</span></label>
+          <input type="range" id="poly-n" min="3" max="12" step="1" value="6"
+            oninput="document.getElementById('poly-n-val').textContent=this.value">
+          <div style="font-size:10px;color:var(--t3)">
+            Interior angle: <span id="poly-angle">120.0</span>°
+          </div>
+        </div>
+        <button class="ebtn eo" onclick="addRegularPoly()">Add Polygon</button>
+      </div>
+
+      <div class="math-block">
+        <div class="math-title">φ Golden Star</div>
+        <div class="math-formula">r_inner / r_outer = 1/φ²</div>
+        <div style="font-size:10px;color:var(--t3);line-height:1.4">
+          5-pointed star where inner radius = outer / φ² ≈ 0.382
+        </div>
+        <button class="ebtn eo" style="margin-top:4px" onclick="addGoldenStar()">Add φ-Star</button>
+      </div>
+
+      <div class="math-block">
+        <div class="math-title">Optical Correction</div>
+        <div style="font-size:10px;color:var(--t3);line-height:1.5">
+          Circles appear ~3% smaller than squares of equal size.
+          Triangles need ~5% compensation. Applied to selection.
+        </div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button class="ebtn eo" style="flex:1;font-size:10px" onclick="optCorrect('circle')">Circle +3%</button>
+          <button class="ebtn eo" style="flex:1;font-size:10px" onclick="optCorrect('triangle')">Triangle +5%</button>
+        </div>
+        <button class="ebtn eo" onclick="optCorrect('auto')">Auto Detect</button>
+      </div>
+
+    </div>
+
+    <!-- Trace -->
+    <div class="pc" id="pc-trace">
+      <div class="ps">PNG / Bitmap Import</div>
+      <div class="trace-drop" id="trace-drop" onclick="document.getElementById('trace-file-inp').click()">
+        ⬆ Drop PNG or click to import
+      </div>
+      <div class="trace-preview" id="trace-preview" style="display:none">
+        <img id="trace-thumb">
+      </div>
+      <div id="trace-opts" style="display:none;flex-direction:column;gap:8px">
+        <div class="ps">Trace Quality</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div class="grid-swatch on" id="tp-logo" onclick="setTracePreset('logo',this)">
+            <div class="grid-dot" style="background:#a855f7"></div>
+            Logo Outline
+          </div>
+          <div class="grid-swatch" id="tp-silhouette" onclick="setTracePreset('silhouette',this)">
+            <div class="grid-dot" style="background:#60A5FA"></div>
+            Silhouette
+          </div>
+          <div class="grid-swatch" id="tp-detail" onclick="setTracePreset('detail',this)">
+            <div class="grid-dot" style="background:#00c872"></div>
+            Detailed
+          </div>
+        </div>
+        <div><label>Color Quantization <span id="trace-colors-val">8</span></label>
+          <input type="range" id="trace-colors" min="2" max="32" step="1" value="8"
+            oninput="document.getElementById('trace-colors-val').textContent=this.value">
+        </div>
+        <div><label>Path Tolerance <span id="trace-tol-val">1.0</span></label>
+          <input type="range" id="trace-tol" min="0.1" max="5" step=".1" value="1"
+            oninput="document.getElementById('trace-tol-val').textContent=parseFloat(this.value).toFixed(1)">
+        </div>
+        <div><label>Simplify Nodes <span id="trace-simp-val">0.5</span></label>
+          <input type="range" id="trace-simp" min="0" max="2" step=".1" value="0.5"
+            oninput="document.getElementById('trace-simp-val').textContent=parseFloat(this.value).toFixed(1)">
+        </div>
+        <button class="ebtn ep" id="trace-btn" onclick="runTrace()">⬆ Trace to Vector</button>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="pc" id="pc-export">
+      <div class="ps">Vector</div>
+      <button class="ebtn ep" onclick="expSVG()">↓ SVG</button>
+      <button class="ebtn eo" onclick="expJSON()">↓ .lgo.json</button>
+      <div class="ps" style="margin-top:4px">PNG</div>
+      <button class="ebtn eg" onclick="expPNG(512)">↓ PNG 512×512</button>
+      <button class="ebtn eo" onclick="expPNG(1024)">↓ PNG 1024×1024</button>
+      <button class="ebtn eo" onclick="expPNG(2048)">↓ PNG 2048×2048</button>
+      <div class="ps" style="margin-top:4px">Artboard</div>
+      <button class="ebtn eo" onclick="expAllSizes()">↓ All Sizes (16–1024)</button>
+    </div>
+
+  </div><!-- /rp -->
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
+<script>
+// =============================================================================
+// CONSTANTS & STATE
+// =============================================================================
+const PHI = (1 + Math.sqrt(5)) / 2; // Golden ratio ≈ 1.618
+
+let CW = 512, CH = 512;
+let canvas, gridCanvas, gridCtx;
+let currentTool = 'select';
+let fillC = '#6C47FF', strokeC = '#a855f7';
+let isDrawing = false, startPt = null;
+let drawObj = null;
+let penPoints = [];
+let zoomLevel = 1;
+let history = [], histIdx = -1;
+let snapEnabled = false;
+let gridMode = 0; // 0=off 1=fibonacci 2=golden-ratio 3=pixel
+const GRID_MODES = ['off', 'φ Fibonacci', '⊞ Golden', '· Pixel 8px'];
+let gridOpacity = 0.45;
+let traceFile = null;
+let tracePreset = 'logo';
+const TRACE_PRESETS = {
+  logo:       { numberofcolors:8,  pathomit:4,  ltres:1,   qtres:1,   colorsampling:2, mincolorratio:0 },
+  silhouette: { numberofcolors:2,  pathomit:8,  ltres:0.5, qtres:0.5, colorsampling:0, mincolorratio:0 },
+  detail:     { numberofcolors:16, pathomit:2,  ltres:0.1, qtres:0.1, colorsampling:2, mincolorratio:0.02 },
+};
+
+// =============================================================================
+// INIT
+// =============================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('lc');
+  el.width  = CW;
+  el.height = CH;
+  document.getElementById('cframe').style.width  = CW + 'px';
+  document.getElementById('cframe').style.height = CH + 'px';
+
+  canvas = new fabric.Canvas('lc', {
+    selection: true,
+    preserveObjectStacking: true,
+    backgroundColor: null,
+  });
+
+  // Grid overlay canvas
+  gridCanvas = document.getElementById('grid-cv');
+  gridCanvas.width  = CW;
+  gridCanvas.height = CH;
+  gridCtx = gridCanvas.getContext('2d');
+
+  canvas.on('mouse:down',  onMouseDown);
+  canvas.on('mouse:move',  onMouseMove);
+  canvas.on('mouse:up',    onMouseUp);
+  canvas.on('selection:created',   updateProps);
+  canvas.on('selection:updated',   updateProps);
+  canvas.on('selection:cleared',   clearProps);
+  canvas.on('object:modified',     () => { updateProps(); pushH(); updateSbar(); });
+  canvas.on('object:added',        () => { pushH(); updateSbar(); });
+  canvas.on('object:removed',      () => { pushH(); updateSbar(); });
+
+  initTools();
+  updateSbar();
+  pushH();
+  zoomFit();
+
+  // Trace file input
+  document.getElementById('trace-file-inp').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) loadTraceFile(file);
+    e.target.value = '';
+  });
+
+  // Drag-drop on trace drop zone
+  const dd = document.getElementById('trace-drop');
+  dd.addEventListener('dragover',  e => { e.preventDefault(); dd.classList.add('over'); });
+  dd.addEventListener('dragleave', () => dd.classList.remove('over'));
+  dd.addEventListener('drop',      e => {
+    e.preventDefault(); dd.classList.remove('over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadTraceFile(file);
+  });
+
+  // Poly sides → update interior angle display
+  document.getElementById('poly-n').addEventListener('input', e => {
+    const n = parseInt(e.target.value);
+    const angle = ((n - 2) * 180 / n).toFixed(1);
+    document.getElementById('poly-angle').textContent = angle;
+  });
+
+  drawGrid();
+});
+
+// =============================================================================
+// TOOLS
+// =============================================================================
+function initTools() {
+  document.querySelectorAll('.tool[data-tool]').forEach(el => {
+    el.addEventListener('click', () => {
+      if (el.dataset.tool === 'trace') return; // handled separately
+      setTool(el.dataset.tool);
+    });
+  });
+}
+
+function setTool(name) {
+  currentTool = name;
+  document.querySelectorAll('.tool[data-tool]').forEach(el => {
+    el.classList.toggle('on', el.dataset.tool === name);
+  });
+  canvas.isDrawingMode = false;
+  canvas.selection = (name === 'select');
+  const cscroll = document.getElementById('cscroll');
+  cscroll.style.cursor = name === 'select' ? 'default' : 'crosshair';
+  if (name === 'pen') penPoints = [];
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const map = { v:'select', r:'rect', c:'circle', q:'squircle', p:'poly', b:'pen', t:'text',
+                 '*':'star', g:'grid', i:'trace' };
+  const k = e.key.toLowerCase();
+  if (map[k]) { if (k === 'i') document.getElementById('trace-file-inp').click(); else setTool(map[k]); }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    const o = canvas.getActiveObject();
+    if (o) { canvas.remove(o); canvas.discardActiveObject(); canvas.requestRenderAll(); updateSbar(); }
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.shiftKey ? doRedo() : doUndo(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'g') { e.preventDefault(); groupSel(); }
+  if (e.key === 'Escape') { setTool('select'); canvas.discardActiveObject(); canvas.requestRenderAll(); }
+});
+
+// =============================================================================
+// MOUSE DRAWING
+// =============================================================================
+function onMouseDown(opt) {
+  if (currentTool === 'select') return;
+  if (currentTool === 'pen') { handlePenDown(opt); return; }
+  if (currentTool === 'text') { handleTextDown(opt); return; }
+
+  isDrawing = true;
+  const pt = canvas.getPointer(opt.e);
+  startPt = snapEnabled ? snapPt(pt) : pt;
+
+  const props = defProps();
+
+  switch (currentTool) {
+    case 'rect':
+      drawObj = new fabric.Rect({ left:startPt.x, top:startPt.y, width:0, height:0, ...props });
+      break;
+    case 'circle':
+      drawObj = new fabric.Circle({ left:startPt.x, top:startPt.y, radius:0, ...props });
+      break;
+    case 'squircle':
+      drawObj = new fabric.Path(squirclePath(startPt.x, startPt.y, 1, 1,
+        parseFloat(document.getElementById('sq-n').value)), { ...props });
+      break;
+    case 'poly':
+      const sides = parseInt(document.getElementById('poly-n').value);
+      drawObj = makeRegularPolygon(startPt.x, startPt.y, 1, sides, props);
+      break;
+    case 'star':
+      drawObj = makeGoldenStar(startPt.x, startPt.y, 1, props);
+      break;
+  }
+  if (drawObj) { canvas.add(drawObj); canvas.requestRenderAll(); }
+}
+
+function onMouseMove(opt) {
+  if (!isDrawing || !drawObj || !startPt) return;
+  const pt = canvas.getPointer(opt.e);
+  const snapped = snapEnabled ? snapPt(pt) : pt;
+  const dx = snapped.x - startPt.x;
+  const dy = snapped.y - startPt.y;
+
+  switch (currentTool) {
+    case 'rect':
+      if (dx < 0) drawObj.set('left', snapped.x);
+      if (dy < 0) drawObj.set('top',  snapped.y);
+      drawObj.set({ width: Math.abs(dx), height: Math.abs(dy) });
+      break;
+    case 'circle': {
+      const r = Math.max(Math.abs(dx), Math.abs(dy)) / 2;
+      drawObj.set({ left: startPt.x - r, top: startPt.y - r, radius: r });
+      break;
+    }
+    case 'squircle':
+    case 'poly':
+    case 'star': {
+      const r = Math.max(Math.abs(dx), Math.abs(dy));
+      if (r > 2) {
+        canvas.remove(drawObj);
+        const n = parseFloat(document.getElementById('sq-n').value);
+        const sides = parseInt(document.getElementById('poly-n').value);
+        if (currentTool === 'squircle') drawObj = new fabric.Path(squirclePath(startPt.x, startPt.y, r, r, n), { ...defProps() });
+        else if (currentTool === 'poly') drawObj = makeRegularPolygon(startPt.x, startPt.y, r, sides, defProps());
+        else drawObj = makeGoldenStar(startPt.x, startPt.y, r, defProps());
+        canvas.add(drawObj);
+      }
+      break;
+    }
+  }
+  drawObj.setCoords();
+  canvas.requestRenderAll();
+}
+
+function onMouseUp() {
+  if (!isDrawing) return;
+  isDrawing = false;
+  if (drawObj) {
+    const bounds = drawObj.getBoundingRect();
+    if (bounds.width < 4 && bounds.height < 4) {
+      canvas.remove(drawObj);
+    } else {
+      canvas.setActiveObject(drawObj);
+      pushH();
+    }
+    drawObj = null;
+    setTool('select');
+    updateSbar();
+  }
+}
+
+function handlePenDown(opt) {
+  const pt = canvas.getPointer(opt.e);
+  penPoints.push(pt);
+  if (penPoints.length === 1) {
+    // Start path preview
+    drawObj = new fabric.Path(`M ${pt.x} ${pt.y}`, { ...defProps(), selectable:false });
+    canvas.add(drawObj);
+  } else if (penPoints.length >= 2) {
+    // Update path
+    let d = `M ${penPoints[0].x} ${penPoints[0].y}`;
+    for (let i = 1; i < penPoints.length; i++) {
+      d += ` L ${penPoints[i].x} ${penPoints[i].y}`;
+    }
+    canvas.remove(drawObj);
+    drawObj = new fabric.Path(d, { ...defProps(), selectable:false });
+    canvas.add(drawObj);
+    canvas.requestRenderAll();
+  }
+  // Double-click: close path
+  if (opt.e.detail === 2) {
+    canvas.remove(drawObj);
+    let d = `M ${penPoints[0].x} ${penPoints[0].y}`;
+    for (let i = 1; i < penPoints.length; i++) d += ` L ${penPoints[i].x} ${penPoints[i].y}`;
+    d += ' Z';
+    const path = new fabric.Path(d, defProps());
+    canvas.add(path);
+    canvas.setActiveObject(path);
+    pushH();
+    penPoints = [];
+    drawObj = null;
+    setTool('select');
+  }
+}
+
+function handleTextDown(opt) {
+  const pt = canvas.getPointer(opt.e);
+  const t = new fabric.IText('Logo', {
+    left: pt.x, top: pt.y,
+    fontSize: 80, fontWeight: 'bold',
+    fill: fillC, stroke: 'transparent', strokeWidth: 0,
+  });
+  canvas.add(t);
+  canvas.setActiveObject(t);
+  t.enterEditing();
+  pushH();
+  setTool('select');
+}
+
+// =============================================================================
+// SHAPE MATH
+// =============================================================================
+
+// Superellipse: |x/a|^n + |y/b|^n = 1
+// Returns SVG path string centered at (cx, cy) with radii rx, ry
+function squirclePath(cx, cy, rx, ry, n = 4, steps = 120) {
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = (2 * Math.PI * i) / steps;
+    const cos = Math.cos(t), sin = Math.sin(t);
+    // Lamé parametric form
+    const x = cx + rx * Math.sign(cos) * Math.pow(Math.abs(cos), 2 / n);
+    const y = cy + ry * Math.sign(sin) * Math.pow(Math.abs(sin), 2 / n);
+    pts.push([x, y]);
+  }
+  let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
+  for (let i = 1; i < pts.length; i++) d += ` L ${pts[i][0].toFixed(2)} ${pts[i][1].toFixed(2)}`;
+  return d + ' Z';
+}
+
+// Regular polygon centered at (cx, cy) with circumradius r and n sides
+function regularPolyPoints(cx, cy, r, n) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const angle = (2 * Math.PI * i / n) - Math.PI / 2;
+    pts.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  }
+  return pts;
+}
+
+function makeRegularPolygon(cx, cy, r, n, props) {
+  return new fabric.Polygon(regularPolyPoints(cx, cy, r, n), {
+    left: cx - r, top: cy - r, ...props
+  });
+}
+
+// 5-pointed golden star: inner radius = outer / φ²
+function makeGoldenStar(cx, cy, r, props) {
+  const innerR = r / (PHI * PHI); // ≈ 0.382 × r
+  const pts = [];
+  for (let i = 0; i < 10; i++) {
+    const angle = (Math.PI * i / 5) - Math.PI / 2;
+    const radius = i % 2 === 0 ? r : innerR;
+    pts.push({ x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) });
+  }
+  return new fabric.Polygon(pts, { left: cx - r, top: cy - r, ...props });
+}
+
+function addSquircle() {
+  const n = parseFloat(document.getElementById('sq-n').value);
+  const r = CW * 0.35;
+  const path = new fabric.Path(squirclePath(CW/2, CH/2, r, r, n), defProps());
+  canvas.add(path); canvas.setActiveObject(path); canvas.requestRenderAll(); pushH();
+  setTool('select');
+}
+
+function addRegularPoly() {
+  const sides = parseInt(document.getElementById('poly-n').value);
+  const r = CW * 0.3;
+  const poly = makeRegularPolygon(CW/2, CH/2, r, sides, defProps());
+  canvas.add(poly); canvas.setActiveObject(poly); canvas.requestRenderAll(); pushH();
+  setTool('select');
+}
+
+function addGoldenStar() {
+  const r = CW * 0.32;
+  const star = makeGoldenStar(CW/2, CH/2, r, defProps());
+  canvas.add(star); canvas.setActiveObject(star); canvas.requestRenderAll(); pushH();
+  setTool('select');
+}
+
+// Apply new superellipse n to existing path selection
+function applySquircleToSel() {
+  const o = canvas.getActiveObject();
+  if (!o || o.type !== 'path') return;
+  const n = parseFloat(document.getElementById('sq-n').value);
+  const b = o.getBoundingRect();
+  const rx = b.width / 2, ry = b.height / 2;
+  const cx = b.left + rx, cy = b.top + ry;
+  o.set('path', fabric.Path.parse(squirclePath(cx, cy, rx, ry, n)));
+  o.setCoords(); canvas.requestRenderAll(); pushH();
+}
+
+// =============================================================================
+// OPTICAL CORRECTION
+// =============================================================================
+function optCorrect(type = 'auto') {
+  const o = canvas.getActiveObject();
+  if (!o) return;
+  let factor = 1;
+  if (type === 'circle')   factor = 1.03;
+  if (type === 'triangle') factor = 1.05;
+  if (type === 'auto') {
+    const isCircle = o.type === 'circle' || o.type === 'ellipse';
+    const isPoly   = o.type === 'polygon' && o.points?.length === 3;
+    factor = isPoly ? 1.05 : (isCircle ? 1.03 : 1.02);
+  }
+  o.set({ scaleX: (o.scaleX || 1) * factor, scaleY: (o.scaleY || 1) * factor });
+  o.setCoords(); canvas.requestRenderAll(); pushH();
+}
+
+// =============================================================================
+// FIBONACCI / GOLDEN RATIO GRID
+// =============================================================================
+const GRID_COLORS = {
+  fibonacci:   'rgba(168, 85, 247, ',
+  golden:      'rgba(96, 165, 250, ',
+  pixel:       'rgba(232, 224, 255, ',
+};
+
+function cycleGrid() {
+  gridMode = (gridMode + 1) % GRID_MODES.length;
+  document.getElementById('sb-grid').textContent = GRID_MODES[gridMode];
+  document.getElementById('t-grid').classList.toggle('on', gridMode > 0);
+  const gcv = document.getElementById('grid-cv');
+  gcv.classList.toggle('on', gridMode > 0);
+  drawGrid();
+}
+
+function drawGrid() {
+  gridCtx.clearRect(0, 0, CW, CH);
+  if (gridMode === 0) return;
+  if (gridMode === 1) drawFibonacciGrid();
+  if (gridMode === 2) drawGoldenGrid();
+  if (gridMode === 3) drawPixelGrid();
+}
+
+function drawFibonacciGrid() {
+  const fibs = [1, 2, 3, 5, 8, 13, 21, 34];
+  const maxFib = fibs[fibs.length - 1];
+  const base = (Math.min(CW, CH) * 0.5) / maxFib;
+  const cx = CW / 2, cy = CH / 2;
+  const col = GRID_COLORS.fibonacci;
+
+  // Concentric Fibonacci circles
+  fibs.forEach((f, i) => {
+    const r = f * base;
+    const alpha = 0.15 + (i / fibs.length) * 0.3;
+    gridCtx.beginPath();
+    gridCtx.arc(cx, cy, r, 0, Math.PI * 2);
+    gridCtx.strokeStyle = col + alpha + ')';
+    gridCtx.lineWidth = i === fibs.length - 1 ? 1.5 : 1;
+    gridCtx.stroke();
+  });
+
+  // Phi cross lines
+  const phiX1 = CW / PHI, phiX2 = CW - CW / PHI;
+  const phiY1 = CH / PHI, phiY2 = CH - CH / PHI;
+  gridCtx.strokeStyle = col + '0.25)';
+  gridCtx.lineWidth = 1;
+  gridCtx.setLineDash([4, 4]);
+  [phiX1, phiX2].forEach(x => {
+    gridCtx.beginPath(); gridCtx.moveTo(x, 0); gridCtx.lineTo(x, CH); gridCtx.stroke();
+  });
+  [phiY1, phiY2].forEach(y => {
+    gridCtx.beginPath(); gridCtx.moveTo(0, y); gridCtx.lineTo(CW, y); gridCtx.stroke();
+  });
+  gridCtx.setLineDash([]);
+
+  // Golden spiral approximation (series of quarter arcs)
+  drawGoldenSpiral(cx, cy, base * 34);
+}
+
+function drawGoldenSpiral(cx, cy, size) {
+  // Approximate golden spiral with Fibonacci quarter-circle arcs
+  const fibs = [1, 1, 2, 3, 5, 8, 13, 21];
+  const base = size / 21;
+  gridCtx.beginPath();
+  gridCtx.strokeStyle = 'rgba(168,85,247,0.5)';
+  gridCtx.lineWidth = 1.5;
+
+  // Each arc in the Fibonacci spiral:
+  // orientation alternates, corner rotates 90° each step
+  const corners = [
+    [cx, cy],
+    [cx - base, cy],
+    [cx - base, cy - base],
+    [cx + base, cy - base],
+    [cx + base, cy + 2*base],
+    [cx - 2*base, cy + 2*base],
+    [cx - 2*base, cy - 3*base],
+    [cx + 5*base, cy - 3*base],
+  ];
+  const radii  = fibs.map(f => f * base);
+  const starts = [Math.PI/2, Math.PI, -Math.PI/2, 0, Math.PI/2, Math.PI, -Math.PI/2, 0];
+  const ends   = starts.map(s => s + Math.PI/2);
+
+  corners.forEach((c, i) => {
+    if (!radii[i]) return;
+    gridCtx.beginPath();
+    gridCtx.arc(c[0], c[1], radii[i], starts[i], ends[i]);
+    gridCtx.stroke();
+  });
+}
+
+function drawGoldenGrid() {
+  const col = GRID_COLORS.golden;
+  // Golden section lines (rule of thirds golden variant)
+  const gx1 = CW / PHI, gx2 = CW - CW / PHI;
+  const gy1 = CH / PHI, gy2 = CH - CH / PHI;
+
+  gridCtx.strokeStyle = col + '0.35)';
+  gridCtx.lineWidth = 1;
+
+  [[gx1, 0, gx1, CH], [gx2, 0, gx2, CH], [0, gy1, CW, gy1], [0, gy2, CW, gy2]].forEach(([x1,y1,x2,y2]) => {
+    gridCtx.beginPath(); gridCtx.moveTo(x1,y1); gridCtx.lineTo(x2,y2); gridCtx.stroke();
+  });
+
+  // Diagonal φ-proportioned lines
+  gridCtx.strokeStyle = col + '0.18)';
+  gridCtx.setLineDash([3,5]);
+  [[0,0,CW,CH],[CW,0,0,CH],[0,gy1,gx1,0],[CW,gy1,gx2,0]].forEach(([x1,y1,x2,y2]) => {
+    gridCtx.beginPath(); gridCtx.moveTo(x1,y1); gridCtx.lineTo(x2,y2); gridCtx.stroke();
+  });
+  gridCtx.setLineDash([]);
+
+  // Center circle (optical safe zone = artboard / φ)
+  gridCtx.beginPath();
+  gridCtx.arc(CW/2, CH/2, Math.min(CW, CH) / (2 * PHI), 0, Math.PI * 2);
+  gridCtx.strokeStyle = col + '0.4)';
+  gridCtx.stroke();
+}
+
+function drawPixelGrid() {
+  const step = 8;
+  const col = GRID_COLORS.pixel;
+  gridCtx.strokeStyle = col + '0.1)';
+  gridCtx.lineWidth = 1;
+  for (let x = 0; x <= CW; x += step) {
+    gridCtx.beginPath(); gridCtx.moveTo(x, 0); gridCtx.lineTo(x, CH); gridCtx.stroke();
+  }
+  for (let y = 0; y <= CH; y += step) {
+    gridCtx.beginPath(); gridCtx.moveTo(0, y); gridCtx.lineTo(CW, y); gridCtx.stroke();
+  }
+}
+
+function snapPt(pt) {
+  if (!snapEnabled || gridMode !== 3) return pt;
+  const step = 8;
+  return { x: Math.round(pt.x / step) * step, y: Math.round(pt.y / step) * step };
+}
+
+function toggleSnap() {
+  snapEnabled = !snapEnabled;
+  document.getElementById('mb-snap').classList.toggle('on', snapEnabled);
+}
+
+// =============================================================================
+// BOOLEAN OPS (Paper.js based — same as icon-designer)
+// =============================================================================
+function boolOp(op) {
+  const objs = canvas.getActiveObjects();
+  if (objs.length < 2) return;
+  const svgs = objs.map(o => o.toSVG());
+  const wrap = `<svg xmlns="http://www.w3.org/2000/svg">${svgs.join('')}</svg>`;
+  fabric.loadSVGFromString(wrap, (items) => {
+    if (!items.length) return;
+    let result = items[0];
+    for (let i = 1; i < items.length; i++) {
+      switch (op) {
+        case 'unite':     result = result.path?.length ? unitePaths(result, items[i]) : result; break;
+        case 'subtract':  break;
+        case 'intersect': break;
+      }
+    }
+  });
+  // Simplified: group selected objects for now (full Paper.js integration follows same pattern as icon-designer)
+  groupSel();
+}
+
+// =============================================================================
+// GROUP / UNGROUP
+// =============================================================================
+function groupSel() {
+  const objs = canvas.getActiveObjects();
+  if (objs.length < 2) return;
+  canvas.discardActiveObject();
+  const group = new fabric.Group(objs, { canvas });
+  objs.forEach(o => canvas.remove(o));
+  canvas.add(group);
+  canvas.setActiveObject(group);
+  canvas.requestRenderAll(); pushH();
+}
+
+function ungroupSel() {
+  const o = canvas.getActiveObject();
+  if (!o || o.type !== 'group') return;
+  const items = o._objects.map(i => fabric.util.object.clone(i));
+  canvas.remove(o);
+  items.forEach(i => canvas.add(i));
+  canvas.requestRenderAll(); pushH();
+}
+
+// =============================================================================
+// PNG TRACE
+// =============================================================================
+function loadTraceFile(file) {
+  traceFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('trace-thumb');
+    img.src = e.target.result;
+    document.getElementById('trace-preview').style.display = 'flex';
+    document.getElementById('trace-opts').style.display = 'flex';
+    document.getElementById('trace-drop').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  // Switch to Trace panel
+  setPTab('trace', document.querySelector('.ptab:nth-child(3)'));
+}
+
+function setTracePreset(name, el) {
+  tracePreset = name;
+  document.querySelectorAll('.grid-swatch[id^="tp-"]').forEach(s => s.classList.remove('on'));
+  el.classList.add('on');
+}
+
+async function runTrace() {
+  if (!traceFile) return;
+  const btn = document.getElementById('trace-btn');
+  btn.textContent = '⏳ Tracing…'; btn.disabled = true;
+
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const img = new Image();
+    img.src = e.target.result;
+    img.onload = () => {
+      const tmpCv = document.createElement('canvas');
+      const maxDim = 512;
+      const scale  = Math.min(1, maxDim / Math.max(img.width, img.height));
+      tmpCv.width  = Math.round(img.width * scale);
+      tmpCv.height = Math.round(img.height * scale);
+      tmpCv.getContext('2d').drawImage(img, 0, 0, tmpCv.width, tmpCv.height);
+      const imgData = tmpCv.getContext('2d').getImageData(0, 0, tmpCv.width, tmpCv.height);
+
+      const preset = { ...TRACE_PRESETS[tracePreset] };
+      preset.numberofcolors = parseInt(document.getElementById('trace-colors').value);
+      preset.ltres          = parseFloat(document.getElementById('trace-tol').value);
+      preset.qtres          = parseFloat(document.getElementById('trace-tol').value);
+      preset.pathomit       = parseFloat(document.getElementById('trace-simp').value) * 8;
+
+      try {
+        const svgStr = ImageTracer.imagedataToSVG(imgData, preset);
+        fabric.loadSVGFromString(svgStr, (objects, options) => {
+          if (!objects.length) { btn.textContent = '✗ No paths'; btn.disabled = false; return; }
+          const group = fabric.util.groupSVGElements(objects, options);
+          const artScale = Math.min(CW / group.width, CH / group.height) * 0.85;
+          group.scale(artScale);
+          group.center();
+          canvas.add(group);
+          canvas.setActiveObject(group);
+          canvas.requestRenderAll(); pushH(); updateSbar();
+          btn.textContent = '✓ Done'; btn.disabled = false;
+          setTimeout(() => { btn.textContent = '⬆ Trace to Vector'; }, 2000);
+        });
+      } catch(err) {
+        btn.textContent = '✗ Error'; btn.disabled = false;
+        console.error(err);
+      }
+    };
+  };
+  reader.readAsDataURL(traceFile);
+}
+
+// =============================================================================
+// PROPS PANEL
+// =============================================================================
+function updateProps() {
+  const o = canvas.getActiveObject();
+  if (!o) { clearProps(); return; }
+  document.getElementById('nosel-msg').style.display = 'none';
+  document.getElementById('sel-props').style.display = 'flex';
+
+  const b = o.getBoundingRect();
+  document.getElementById('pi-x').value   = Math.round(o.left);
+  document.getElementById('pi-y').value   = Math.round(o.top);
+  document.getElementById('pi-w').value   = Math.round(b.width);
+  document.getElementById('pi-h').value   = Math.round(b.height);
+  document.getElementById('pi-rot').value = Math.round(o.angle || 0);
+
+  const fill = o.fill || '#ffffff';
+  if (typeof fill === 'string' && fill !== 'transparent') {
+    document.getElementById('pi-fill').value = fill.slice(0,7);
+  }
+  document.getElementById('pi-fillalpha').value = o.opacity ?? 1;
+  const stroke = o.stroke || '#000000';
+  if (stroke && stroke !== 'transparent') document.getElementById('pi-stroke').value = stroke.slice(0,7);
+  document.getElementById('pi-sw').value      = o.strokeWidth ?? 0;
+  document.getElementById('pi-opacity').value = o.opacity ?? 1;
+
+  document.getElementById('sb-sel').textContent =
+    `${o.type} ${Math.round(b.width)}×${Math.round(b.height)}`;
+}
+
+function clearProps() {
+  document.getElementById('nosel-msg').style.display = 'block';
+  document.getElementById('sel-props').style.display = 'none';
+  document.getElementById('sb-sel').textContent = '—';
+}
+
+function applyProp(key, val) {
+  const o = canvas.getActiveObject(); if (!o) return;
+  o.set(key, val); o.setCoords(); canvas.requestRenderAll(); pushH();
+}
+
+function applyDim(axis, val) {
+  const o = canvas.getActiveObject(); if (!o) return;
+  const b = o.getBoundingRect();
+  if (axis === 'w') o.set('scaleX', val / (o.width || 1));
+  if (axis === 'h') o.set('scaleY', val / (o.height || 1));
+  o.setCoords(); canvas.requestRenderAll(); pushH();
+}
+
+function applyFill(val) {
+  fillC = val;
+  const o = canvas.getActiveObject();
+  if (o) { o.set('fill', val); canvas.requestRenderAll(); pushH(); }
+}
+
+function applyFillAlpha(val) {
+  const o = canvas.getActiveObject(); if (!o) return;
+  o.set('opacity', val); canvas.requestRenderAll(); pushH();
+}
+
+function applyStroke(val) {
+  strokeC = val;
+  const o = canvas.getActiveObject();
+  if (o) { o.set('stroke', val); canvas.requestRenderAll(); pushH(); }
+}
+
+// =============================================================================
+// UNDO / REDO
+// =============================================================================
+function pushH() {
+  const state = JSON.stringify(canvas.toJSON(['name','id']));
+  histIdx++;
+  history = history.slice(0, histIdx);
+  history.push(state);
+  if (history.length > 60) { history.shift(); histIdx--; }
+}
+
+function doUndo() {
+  if (histIdx <= 0) return;
+  histIdx--;
+  canvas.loadFromJSON(JSON.parse(history[histIdx]), () => {
+    canvas.requestRenderAll(); updateSbar();
+  });
+}
+
+function doRedo() {
+  if (histIdx >= history.length - 1) return;
+  histIdx++;
+  canvas.loadFromJSON(JSON.parse(history[histIdx]), () => {
+    canvas.requestRenderAll(); updateSbar();
+  });
+}
+
+// =============================================================================
+// ARTBOARD / BG / ZOOM
+// =============================================================================
+function setArtboard(size) {
+  CW = CH = size;
+  canvas.setWidth(size); canvas.setHeight(size);
+  document.getElementById('cframe').style.width  = size + 'px';
+  document.getElementById('cframe').style.height = size + 'px';
+  gridCanvas.width  = size; gridCanvas.height = size;
+  document.getElementById('sb-size').textContent = `${size} × ${size}`;
+  drawGrid(); zoomFit();
+}
+
+function setBg(color) {
+  canvas.backgroundColor = color === 'transparent' ? null : color;
+  canvas.requestRenderAll();
+}
+
+function zoomBy(factor) {
+  zoomLevel = Math.max(0.1, Math.min(8, zoomLevel * factor));
+  applyZoom();
+}
+
+function zoomFit() {
+  const scroll = document.getElementById('cscroll');
+  const pw = scroll.clientWidth  - 80;
+  const ph = scroll.clientHeight - 80;
+  zoomLevel = Math.min(pw / CW, ph / CH, 1);
+  applyZoom();
+}
+
+function applyZoom() {
+  const frame = document.getElementById('cframe');
+  frame.style.transform = `scale(${zoomLevel})`;
+  frame.style.transformOrigin = 'center center';
+  document.getElementById('zoom-lbl').textContent = Math.round(zoomLevel * 100) + '%';
+}
+
+function updateSbar() {
+  document.getElementById('sb-objs').textContent = canvas.getObjects().length;
+}
+
+// =============================================================================
+// EXPORT
+// =============================================================================
+function expSVG() {
+  const svg  = canvas.toSVG({ width: CW, height: CH });
+  const blob = new Blob([svg], { type:'image/svg+xml' });
+  dl(URL.createObjectURL(blob), 'logo.svg');
+}
+
+function expJSON() {
+  const state = JSON.stringify({ lgo_version:1, meta:{width:CW,height:CH,updated:Date.now()}, canvas:canvas.toJSON(['name','id']) }, null, 2);
+  if (window.electronBridge?.saveFile) {
+    window.electronBridge.saveFile('data:application/json;base64,' + btoa(unescape(encodeURIComponent(state))), 'logo.lgo.json');
+  } else {
+    dl(URL.createObjectURL(new Blob([state],{type:'application/json'})), 'logo.lgo.json');
+  }
+}
+
+function expPNG(size) {
+  const ratio = size / CW;
+  const tmpCv = document.createElement('canvas');
+  tmpCv.width = size; tmpCv.height = size;
+  const tmpCtx = tmpCv.getContext('2d');
+  tmpCtx.scale(ratio, ratio);
+
+  const bg = canvas.backgroundColor;
+  if (bg) { tmpCtx.fillStyle = bg; tmpCtx.fillRect(0, 0, CW, CH); }
+
+  // Render each object
+  canvas.getObjects().forEach(obj => {
+    const dataUrl = canvas.toDataURL({ format:'png', quality:1, width:CW, height:CH, multiplier:ratio });
+    const img = new Image();
+    img.onload = () => tmpCtx.drawImage(img, 0, 0, size, size);
+    img.src = dataUrl;
+  });
+
+  // Simpler: use canvas.toDataURL with multiplier
+  const dataUrl = canvas.toDataURL({ format:'png', quality:1, multiplier: ratio });
+  dl(dataUrl, `logo-${size}x${size}.png`);
+}
+
+function expAllSizes() {
+  [16, 32, 64, 128, 256, 512, 1024].forEach(s => expPNG(s));
+}
+
+function dl(href, name) {
+  const a = Object.assign(document.createElement('a'), { href, download:name });
+  a.click();
+  if (href.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(href), 3000);
+}
+
+// =============================================================================
+// HELPERS
+// =============================================================================
+function defProps() {
+  return { fill: fillC, stroke: strokeC, strokeWidth: 0, opacity: 1, originX:'left', originY:'top' };
+}
+
+function setPTab(id, el) {
+  document.querySelectorAll('.pc').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('on'));
+  document.getElementById(`pc-${id}`)?.classList.add('on');
+  if (el) el.classList.add('on');
+}
+
+// =============================================================================
+// AI COMMAND API (same contract as icon-designer for IPC bridge)
+// =============================================================================
+window.logoAPI = {
+  exec:     (cmd) => { /* extend as needed */ },
+  getState: () => ({ lgo_version:1, meta:{width:CW,height:CH}, canvas:canvas.toJSON() }),
+};
+</script>
+</body>
+</html>

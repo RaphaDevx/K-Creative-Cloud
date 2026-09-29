@@ -1,4 +1,5 @@
 """Music JSON → MIDI file using midiutil."""
+from __future__ import annotations
 import time
 from pathlib import Path
 from midiutil import MIDIFile

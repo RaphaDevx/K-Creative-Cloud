@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "video-shorts-mcp"))
 from tts_kokoro import synthesize
 
 REMOTION_DIR = Path(__file__).parent
-OUTPUT_DIR = Path.home() / "Sara_Home" / "HSG" / "Bachelor" / "FS 26" / "OM" / "Reels"
+OUTPUT_DIR = Path("/home/raphael/Sara_Home/HSG/Bachelor/FS 26/OM/Reels")
 FPS = 30
 
 # ── Hand-crafted BOM storyboard ───────────────────────────────────────────────

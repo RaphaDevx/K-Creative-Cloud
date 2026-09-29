@@ -1,0 +1,24 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-12-samichlaus",
+  "kind": "month",
+  "name": "Samichlaus / Advent",
+  "enabled": true,
+  "valid": {
+    "month": 12,
+    "from": "12-01",
+    "to": "12-26"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.sky.400}",
+    "component.appIcon.bgTo": "{primitive.color.sky.600}",
+    "component.appIcon.bgRim": "{primitive.color.violet.700}"
+  },
+  "accessories": [
+    "santaHat"
+  ],
+  "background": [
+    "snow"
+  ],
+  "note": "Samichlaus-Mütze, Schnee"
+}

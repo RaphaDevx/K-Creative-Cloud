@@ -1,0 +1,38 @@
+{
+  "button": {
+    "primary": {
+      "bg":          { "$value": "{color.bordeaux.500}", "$type": "color" },
+      "bg-hover":    { "$value": "{color.bordeaux.600}", "$type": "color" },
+      "text":        { "$value": "{color.neutral.0}",    "$type": "color" },
+      "border":      { "$value": "transparent",          "$type": "color" },
+      "padding-x":   { "$value": "{spacing.md}",         "$type": "dimension" },
+      "padding-y":   { "$value": "10px",                 "$type": "dimension" },
+      "radius":      { "$value": "{radius.md}",          "$type": "dimension" },
+      "font-size":   { "$value": "{typography.size.sm}", "$type": "dimension" },
+      "font-weight": { "$value": "{typography.weight.medium}", "$type": "fontWeight" }
+    },
+    "secondary": {
+      "bg":          { "$value": "transparent",          "$type": "color" },
+      "bg-hover":    { "$value": "{semantic.accent.soft}", "$type": "color" },
+      "text":        { "$value": "{color.bordeaux.500}", "$type": "color" },
+      "border":      { "$value": "{semantic.accent.ring}", "$type": "color" },
+      "padding-x":   { "$value": "{spacing.md}",         "$type": "dimension" },
+      "padding-y":   { "$value": "10px",                 "$type": "dimension" },
+      "radius":      { "$value": "{radius.md}",          "$type": "dimension" }
+    },
+    "ghost": {
+      "bg":          { "$value": "transparent",          "$type": "color" },
+      "bg-hover":    { "$value": "{semantic.bg.elevated}", "$type": "color" },
+      "text":        { "$value": "{semantic.text.secondary}", "$type": "color" },
+      "border":      { "$value": "transparent",          "$type": "color" },
+      "padding-x":   { "$value": "{spacing.sm}",         "$type": "dimension" },
+      "padding-y":   { "$value": "6px",                  "$type": "dimension" },
+      "radius":      { "$value": "{radius.sm}",          "$type": "dimension" }
+    },
+    "size": {
+      "sm": { "height": "28px", "font-size": "11px", "padding-x": "10px" },
+      "md": { "height": "36px", "font-size": "13px", "padding-x": "16px" },
+      "lg": { "height": "44px", "font-size": "15px", "padding-x": "20px" }
+    }
+  }
+}

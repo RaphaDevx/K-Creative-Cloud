@@ -627,9 +627,9 @@ html,body{
 </div>
 
 <script>
-const HOST = window.location.hostname;
-const API  = `http://${HOST}:7000`;
-const WS   = `ws://${HOST}:7000`;
+const HOST = window.location.host;  // includes port, e.g. "localhost:47200"
+const API  = `http://${HOST}`;
+const WS   = `ws://${HOST}`;
 
 // ── State ────────────────────────────────────────────────────
 let activeSlot   = 0;

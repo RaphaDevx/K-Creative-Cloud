@@ -1,4 +1,5 @@
-const { app, BrowserWindow, dialog, shell } = require('electron');
+const { app, BrowserWindow, dialog, shell, ipcMain } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const { spawn } = require('child_process');
 const http  = require('http');
 const path  = require('path');
@@ -95,57 +96,58 @@ async function createWindow() {
   return mainWindow;
 }
 
-// ── OTA update check ──────────────────────────────────────────────────────────
-function checkForUpdates(win) {
-  const { net } = require('electron');
-  const req = net.request({
-    method: 'GET',
-    url: 'https://api.github.com/repos/RaphaDevx/K-Creative-Cloud/releases/latest',
-    headers: { 'User-Agent': 'K-DAW' },
-  });
+// ── Auto-updater (electron-updater via R2) ────────────────────────────────────
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
-  req.on('response', res => {
-    let body = '';
-    res.on('data', chunk => { body += chunk; });
-    res.on('end', () => {
-      try {
-        const release = JSON.parse(body);
-        const latest  = (release.tag_name || '').replace(/^v/, '');
-        const current = app.getVersion();
-        if (!latest || latest === current) return;
+autoUpdater.on('update-available', (info) => {
+  injectUpdateBar(info.version);
+});
 
-        const archTag  = process.arch === 'arm64' ? 'arm64' : 'x64';
-        const dmgAsset = (release.assets || []).find(
-          a => a.name.startsWith('K-DAW') && a.name.includes(archTag) && a.name.endsWith('.dmg')
-        );
-        const downloadUrl = dmgAsset
-          ? dmgAsset.browser_download_url
-          : release.html_url;
+autoUpdater.on('download-progress', (p) => {
+  const pct = Math.round(p.percent);
+  mainWindow?.webContents.executeJavaScript(`
+    const bar = document.getElementById('k-update-bar');
+    if (bar) { const btn = bar.querySelector('.k-update-btn'); if (btn) btn.textContent = 'Downloading… ${pct}%'; }
+  `).catch(() => {});
+});
 
-        dialog.showMessageBox(win, {
-          type: 'info',
-          title: 'Update available',
-          message: `K-DAW ${latest} is available`,
-          detail: `You are running v${current}. Do you want to download the update?`,
-          buttons: ['Download', 'Later'],
-          defaultId: 0,
-          cancelId: 1,
-        }).then(({ response }) => {
-          if (response === 0) shell.openExternal(downloadUrl);
-        });
-      } catch (_) {}
-    });
-  });
+autoUpdater.on('update-downloaded', (info) => {
+  mainWindow?.webContents.executeJavaScript(`
+    const bar = document.getElementById('k-update-bar');
+    if (bar) {
+      const btn = bar.querySelector('.k-update-btn');
+      if (btn) { btn.textContent = 'Install & Restart'; btn.onclick = () => window.kdawElectron.installUpdate(); btn.style.background = 'rgba(255,255,255,0.25)'; }
+      const lbl = bar.querySelector('.k-update-label');
+      if (lbl) lbl.textContent = '✓ Download complete — ready to install';
+    }
+  `).catch(() => {});
+});
 
-  req.on('error', () => {});
-  req.end();
+autoUpdater.on('error', (err) => { console.warn('[updater]', err.message); });
+
+function injectUpdateBar(version) {
+  const js = `(function() {
+    if (document.getElementById('k-update-bar')) return;
+    const bar = document.createElement('div');
+    bar.id = 'k-update-bar';
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:linear-gradient(135deg,#7c5cfc 0%,#5c8afc 100%);color:#fff;padding:9px 16px 9px 20px;display:flex;align-items:center;gap:12px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;font-size:13px;font-weight:500;box-shadow:0 2px 20px rgba(124,92,252,.5);user-select:none;-webkit-app-region:no-drag';
+    bar.innerHTML = \`<span style="opacity:.8;font-size:15px">⬆</span><span class="k-update-label" style="flex:1">K-DAW <strong style="font-weight:700">v${version}</strong> ist verfügbar</span><button class="k-update-btn" onclick="window.kdawElectron.downloadUpdate()" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;padding:5px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap">Update laden</button><button onclick="this.closest('#k-update-bar').remove()" style="background:none;border:none;color:rgba(255,255,255,.55);cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;border-radius:4px" title="Später">×</button>\`;
+    document.body.prepend(bar);
+    document.body.style.paddingTop = (parseInt(document.body.style.paddingTop)||0) + 46 + 'px';
+  })()`;
+  mainWindow?.webContents.executeJavaScript(js).catch(() => {});
 }
+
+ipcMain.handle('download-update', () => autoUpdater.downloadUpdate().catch(console.warn));
+ipcMain.handle('install-update',  () => autoUpdater.quitAndInstall(false, true));
 
 // ── App lifecycle ──────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   startServer();
   createWindow().then(() => {
-    if (mainWindow) setTimeout(() => checkForUpdates(mainWindow), 3000);
+    if (mainWindow) setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 3000);
+    setInterval(() => { if (mainWindow) autoUpdater.checkForUpdates().catch(() => {}); }, 4 * 60 * 60 * 1000);
   });
 
   app.on('activate', () => {

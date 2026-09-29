@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K-Creative Studio</title>
+<style>
+:root {
+  --bg: #07060d;
+  --accent: #6C47FF;
+  --acc2: #a855f7;
+  --acc3: #60A5FA;
+  --txt: #e8e0ff;
+  --t2: rgba(232,224,255,0.55);
+  --t3: rgba(232,224,255,0.22);
+  --border: rgba(108,71,255,0.2);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; background: var(--bg); color: var(--txt);
+  font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.container {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 28px; text-align: center; padding: 40px;
+  max-width: 480px;
+}
+
+.logo {
+  font-size: 13px; font-weight: 900; letter-spacing: .14em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #6C47FF, #a855f7, #60A5FA);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.spinner-wrap {
+  position: relative; width: 56px; height: 56px;
+}
+.spinner {
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+}
+.spinner-wrap::after {
+  content: ''; position: absolute; inset: 8px; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--acc2);
+  animation: spin 1.6s linear infinite reverse;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.status {
+  font-size: 14px; color: var(--t2);
+  min-height: 20px; transition: opacity .3s;
+}
+
+.log-box {
+  width: 100%; background: rgba(108,71,255,0.06);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px; color: var(--t3); line-height: 1.6;
+  min-height: 72px; max-height: 120px; overflow: hidden;
+  display: none;
+}
+.log-box.visible { display: block; }
+.log-line { opacity: 0; animation: fadein .3s forwards; }
+@keyframes fadein { to { opacity: 1; } }
+
+/* Error state */
+.error-wrap { display: none; flex-direction: column; align-items: center; gap: 16px; }
+.error-wrap.visible { display: flex; }
+.error-icon { font-size: 36px; }
+.error-title { font-size: 15px; font-weight: 600; color: #ff6b6b; }
+.error-msg { font-size: 13px; color: var(--t2); line-height: 1.6; }
+.error-detail {
+  width: 100%; background: rgba(255,60,60,0.06);
+  border: 1px solid rgba(255,60,60,0.2); border-radius: 8px;
+  padding: 10px 12px; font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px; color: rgba(255,140,140,0.7); line-height: 1.5;
+  display: none;
+}
+.error-detail.visible { display: block; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.btn {
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: opacity .2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { opacity: .8; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost {
+  background: transparent; color: var(--t2);
+  border: 1px solid var(--border);
+}
+
+.version { font-size: 10px; color: var(--t3); letter-spacing: .04em; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container" id="loading-view">
+  <div class="logo">K-Creative Studio</div>
+  <div class="spinner-wrap">
+    <div class="spinner"></div>
+  </div>
+  <div class="status" id="status-text">Starte Backend…</div>
+  <div class="log-box" id="log-box"></div>
+  <div class="version" id="version-text"></div>
+</div>
+
+<div class="container error-wrap" id="error-view">
+  <div class="logo">K-Creative Studio</div>
+  <div class="error-icon">⚠️</div>
+  <div class="error-title">Backend konnte nicht gestartet werden</div>
+  <div class="error-msg" id="error-msg">
+    Der K-Creative Server ist nicht erreichbar.<br>
+    Bitte stelle sicher, dass keine andere Instanz läuft.
+  </div>
+  <div class="error-detail" id="error-detail"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="window.electronAPI?.retryBackend?.()">
+      ↻ Erneut versuchen
+    </button>
+    <button class="btn btn-ghost" onclick="window.electronAPI?.openLogs?.()">
+      Log öffnen
+    </button>
+    <button class="btn btn-ghost" onclick="window.electronAPI?.quitApp?.()">
+      Beenden
+    </button>
+  </div>
+  <div class="version" id="error-version"></div>
+</div>
+
+<script>
+const statusEl   = document.getElementById('status-text');
+const logBox     = document.getElementById('log-box');
+const loadView   = document.getElementById('loading-view');
+const errorView  = document.getElementById('error-view');
+const errorMsg   = document.getElementById('error-msg');
+const errorDetail = document.getElementById('error-detail');
+
+function log(msg) {
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.textContent = '› ' + msg;
+  logBox.appendChild(line);
+  logBox.classList.add('visible');
+  logBox.scrollTop = logBox.scrollHeight;
+  if (logBox.children.length > 8) logBox.removeChild(logBox.firstChild);
+}
+
+function setStatus(msg) {
+  statusEl.textContent = msg;
+}
+
+function showError(msg, detail) {
+  loadView.style.display = 'none';
+  errorView.classList.add('visible');
+  if (msg) errorMsg.innerHTML = msg;
+  if (detail) {
+    errorDetail.textContent = detail;
+    errorDetail.classList.add('visible');
+  }
+}
+
+// Listen for IPC events from main process
+window.addEventListener('DOMContentLoaded', async () => {
+  if (window.electronAPI) {
+    const ver = await window.electronAPI.getVersion?.();
+    if (ver) {
+      document.getElementById('version-text').textContent = `v${ver}`;
+      document.getElementById('error-version').textContent = `v${ver}`;
+    }
+  }
+});
+
+// Messages from main process via IPC
+if (window.electronAPI?.onLoadingStatus) {
+  window.electronAPI.onLoadingStatus((event, data) => {
+    if (data.type === 'log')    log(data.msg);
+    if (data.type === 'status') setStatus(data.msg);
+    if (data.type === 'error')  showError(data.msg, data.detail);
+  });
+}
+</script>
+</body>
+</html>

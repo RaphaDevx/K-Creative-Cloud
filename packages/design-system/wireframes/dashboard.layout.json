@@ -1,0 +1,77 @@
+{
+  "$schema": "https://k-creative.local/schemas/layout/v1",
+  "id": "dashboard",
+  "title": "K-Learning Dashboard",
+  "viewport": { "width": 390, "height": 844, "device": "iPhone 14 Pro" },
+  "theme": "light",
+  "root": {
+    "type": "Screen",
+    "id": "screen-home",
+    "layout": "column",
+    "children": [
+      {
+        "type": "StatusBar",
+        "id": "status-bar",
+        "tokens": { "height": 54 }
+      },
+      {
+        "type": "ScrollView",
+        "id": "content",
+        "flex": 1,
+        "children": [
+          {
+            "type": "Section",
+            "id": "stories-row",
+            "layout": "row",
+            "tokens": { "gap": "spacing.sm", "padding-x": "spacing.md", "padding-y": "spacing.sm" },
+            "children": [
+              { "type": "StoryAvatar", "label": "Heute", "accent": true },
+              { "type": "StoryAvatar", "label": "Makro" },
+              { "type": "StoryAvatar", "label": "Stats" },
+              { "type": "StoryAvatar", "label": "OM" }
+            ]
+          },
+          {
+            "type": "Section",
+            "id": "progress-header",
+            "tokens": { "padding": "spacing.md" },
+            "children": [
+              { "type": "Heading", "level": 2, "text": "Lernfortschritt", "token": "typography.size.lg" },
+              { "type": "ProgressBar", "value": 0.62, "accent": "color.bordeaux.500" }
+            ]
+          },
+          {
+            "type": "List",
+            "id": "block-cards",
+            "tokens": { "gap": "spacing.sm", "padding": "spacing.md" },
+            "children": [
+              {
+                "type": "BlockCard",
+                "id": "block-makro",
+                "title": "Makroökonomie II",
+                "subtitle": "Kapitel 3 · IS-LM Modell",
+                "progress": 0.45,
+                "badge": "In Progress",
+                "accentColor": "color.kyanit.500"
+              },
+              {
+                "type": "BlockCard",
+                "id": "block-stats",
+                "title": "Statistik",
+                "subtitle": "Kapitel 7 · Regression",
+                "progress": 0.78,
+                "badge": "Review",
+                "accentColor": "color.sage.500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "BottomNav",
+        "id": "bottom-nav",
+        "items": ["Home", "Explore", "Learn", "Profile"]
+      }
+    ]
+  }
+}

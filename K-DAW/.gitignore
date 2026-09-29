@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+desktop/node_modules/
+
+# Build outputs
+desktop/release/
+backend/dist/
+backend/build/
+renders/
+downloads/
+
+# Secrets — NEVER commit these
+*.p12
+*.p8
+*.pem
+*.key
+*.mobileprovision
+.env
+.env.*
+*.env
+*secrets*
+*credentials*
+.k-secrets/
+
+# macOS
+.DS_Store
+*.xcarchive
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

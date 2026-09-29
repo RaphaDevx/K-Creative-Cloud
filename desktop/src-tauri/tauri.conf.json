@@ -1,0 +1,56 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devPath": "http://localhost:7000",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "K-Creative Studio",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "K-Creative Studio",
+        "width": 1600,
+        "height": 960,
+        "resizable": true,
+        "fullscreen": false,
+        "url": "http://localhost:7000"
+      }
+    ],
+    "allowlist": {
+      "all": false,
+      "fs": {
+        "all": true,
+        "scope": [
+          "/home/raphael/K-Creative-Cloud/**",
+          "/home/raphael/K-Learning/**"
+        ]
+      },
+      "shell": {
+        "all": false,
+        "open": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Productivity",
+      "identifier": "cloud.k-creative.studio",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "longDescription": "K-Creative Studio — Open-Source Creative Cloud mit AI-gesteuerten headless Pipelines",
+      "shortDescription": "Open-Source Creative Hub"
+    },
+    "security": {
+      "csp": null
+    }
+  }
+}

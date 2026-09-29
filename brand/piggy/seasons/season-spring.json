@@ -1,0 +1,23 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "season-spring",
+  "kind": "season",
+  "name": "Frühling",
+  "enabled": true,
+  "valid": {
+    "from": "03-20",
+    "to": "06-20"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.mint.300}",
+    "component.appIcon.bgTo": "{primitive.color.mint.500}",
+    "component.appIcon.bgRim": "{primitive.color.mint.500}"
+  },
+  "accessories": [
+    "flowerCrown"
+  ],
+  "background": [
+    "petals"
+  ],
+  "note": "Blumenkranz, Blütenblätter, frisches Mint"
+}

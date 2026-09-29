@@ -1,0 +1,12 @@
+{
+  "radius": {
+    "none": { "$value": "0px",    "$type": "dimension" },
+    "xs":   { "$value": "4px",    "$type": "dimension", "$description": "Chips, kleine Badges" },
+    "sm":   { "$value": "6px",    "$type": "dimension" },
+    "md":   { "$value": "8px",    "$type": "dimension", "$description": "Buttons, Inputs, Komponenten" },
+    "lg":   { "$value": "12px",   "$type": "dimension", "$description": "Karten" },
+    "xl":   { "$value": "16px",   "$type": "dimension", "$description": "Modals, große Karten" },
+    "2xl":  { "$value": "24px",   "$type": "dimension" },
+    "full": { "$value": "9999px", "$type": "dimension", "$description": "Pills, Avatar" }
+  }
+}

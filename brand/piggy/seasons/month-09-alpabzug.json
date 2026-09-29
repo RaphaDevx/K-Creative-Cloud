@@ -1,0 +1,25 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-09-alpabzug",
+  "kind": "month",
+  "name": "Alpabzug",
+  "enabled": true,
+  "valid": {
+    "month": 9,
+    "from": "09-15",
+    "to": "09-30"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.sky.200}",
+    "component.appIcon.bgTo": "{primitive.color.sky.200}",
+    "component.appIcon.bgRim": "{primitive.color.sky.400}"
+  },
+  "accessories": [
+    "cowBell",
+    "flowerCrown"
+  ],
+  "background": [
+    "mountains"
+  ],
+  "note": "Treichel + Blumenkranz, Alpen"
+}

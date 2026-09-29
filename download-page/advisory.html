@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Advisory — Software by RaphaDevx</title>
+<style>
+:root {
+  --bg:      #07060d;
+  --accent:  #6C47FF;
+  --acc2:    #a855f7;
+  --acc3:    #60A5FA;
+  --amber:   #f59e0b;
+  --green:   #00ff88;
+  --txt:     #e8e0ff;
+  --t2:      rgba(232,224,255,0.55);
+  --t3:      rgba(232,224,255,0.28);
+  --border:  rgba(108,71,255,0.18);
+  --panel:   rgba(10,8,22,0.85);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(108,71,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,71,255,0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+.orb-1 { width: 700px; height: 700px; background: #4C2FBB; top: -250px; left: -150px; opacity: .28; }
+.orb-2 { width: 450px; height: 450px; background: #7e22ce; bottom: -120px; right: -80px; opacity: .22; }
+.orb-3 { width: 300px; height: 300px; background: #1d4ed8; top: 40%; left: 60%; opacity: .15; }
+
+/* Nav */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: rgba(7,6,13,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 32px;
+  z-index: 100;
+}
+.nav-logo {
+  font-weight: 900; font-size: 15px; letter-spacing: .08em; text-transform: uppercase;
+  background: linear-gradient(135deg, #6C47FF, #a855f7, #60A5FA);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-logo span { font-weight: 400; opacity: .7; }
+.nav-links { margin-left: 40px; display: flex; gap: 28px; }
+.nav-links a {
+  font-size: 13px; color: var(--t2); text-decoration: none;
+  transition: color .15s;
+}
+.nav-links a:hover { color: var(--txt); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+.nav-pill {
+  padding: 5px 14px; border-radius: 99px; font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  background: rgba(108,71,255,.12); border: 1px solid rgba(108,71,255,.3);
+  color: #a78bfa; text-decoration: none; transition: background .15s;
+}
+.nav-pill:hover { background: rgba(108,71,255,.22); }
+
+/* Main */
+main { position: relative; z-index: 1; padding-top: 56px; }
+
+/* Hero */
+.hero {
+  text-align: center; max-width: 760px; margin: 0 auto;
+  padding: 96px 24px 72px;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 16px; border-radius: 99px;
+  border: 1px solid rgba(0,255,136,.25);
+  background: rgba(0,255,136,.05);
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 32px;
+}
+.hero-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+.hero h1 {
+  font-size: clamp(44px, 8vw, 80px); font-weight: 900; line-height: 1.02;
+  letter-spacing: -.03em;
+  background: linear-gradient(135deg, #fff 20%, #c4b5fd 55%, #93c5fd);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 24px;
+}
+.hero-sub {
+  font-size: 18px; color: var(--t2); line-height: 1.65;
+  max-width: 560px; margin: 0 auto;
+}
+
+/* Section */
+.section {
+  max-width: 1080px; margin: 0 auto; padding: 0 24px 96px;
+}
+.section-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 32px;
+}
+.section-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--acc3); background: rgba(96,165,250,.08);
+  border: 1px solid rgba(96,165,250,.2); border-radius: 99px; padding: 4px 14px;
+}
+.section-line { flex: 1; height: 1px; background: var(--border); }
+
+/* Cards grid */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  gap: 20px;
+}
+@media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+
+/* Product card */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 36px;
+  backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; gap: 16px;
+  transition: border-color .2s, transform .2s;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(108,71,255,.06), transparent 60%);
+  pointer-events: none;
+}
+.card:hover {
+  border-color: rgba(108,71,255,.35);
+  transform: translateY(-2px);
+}
+.card.mobile::before {
+  background: radial-gradient(ellipse at top left, rgba(96,165,250,.06), transparent 60%);
+}
+.card.mobile:hover { border-color: rgba(96,165,250,.35); }
+
+.card-head { display: flex; align-items: center; gap: 14px; }
+.card-icon {
+  width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: rgba(108,71,255,.12); border: 1px solid rgba(108,71,255,.2);
+}
+.card.mobile .card-icon {
+  background: rgba(96,165,250,.1); border-color: rgba(96,165,250,.2);
+}
+.card.amber .card-icon {
+  background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.2);
+}
+.card-meta { display: flex; flex-direction: column; gap: 3px; }
+.card-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--acc2);
+}
+.card.mobile .card-tag { color: var(--acc3); }
+.card.amber .card-tag { color: var(--amber); }
+.card-name {
+  font-size: 22px; font-weight: 800; letter-spacing: -.4px; color: var(--txt);
+}
+.card-desc {
+  font-size: 13px; color: var(--t2); line-height: 1.6;
+}
+
+/* Download buttons */
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 9px; font-size: 13px; font-weight: 700;
+  text-decoration: none; transition: all .15s; cursor: pointer; border: none;
+  letter-spacing: .01em; white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #6C47FF, #a855f7);
+  color: #fff;
+  box-shadow: 0 0 28px rgba(108,71,255,.3), 0 3px 12px rgba(0,0,0,.35);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 40px rgba(108,71,255,.45), 0 6px 20px rgba(0,0,0,.4);
+}
+.btn-blue {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: #fff;
+  box-shadow: 0 0 28px rgba(96,165,250,.25), 0 3px 12px rgba(0,0,0,.35);
+}
+.btn-blue:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 40px rgba(96,165,250,.4), 0 6px 20px rgba(0,0,0,.4);
+}
+.btn-amber {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  color: #000;
+  box-shadow: 0 0 28px rgba(245,158,11,.25), 0 3px 12px rgba(0,0,0,.3);
+}
+.btn-amber:hover { transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--t2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: rgba(108,71,255,.4); color: var(--txt); }
+.btn-ghost.blue:hover { border-color: rgba(96,165,250,.4); }
+.btn[disabled], .btn.disabled {
+  opacity: .4; pointer-events: none;
+}
+
+.version-note { font-size: 11px; color: var(--t3); align-self: center; }
+
+/* Status badge */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.status-live {
+  background: rgba(0,255,136,.07); border: 1px solid rgba(0,255,136,.2); color: var(--green);
+}
+.status-dev {
+  background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.2); color: var(--amber);
+}
+.status-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+}
+.status-live .status-dot { box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+
+/* Footer */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center; font-size: 12px; color: var(--t3);
+}
+footer a { color: var(--t2); text-decoration: none; }
+footer a:hover { color: var(--txt); }
+
+/* Icon SVGs inline */
+svg { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+  <span class="nav-logo">K<span>-Advisory</span></span>
+  <div class="nav-links">
+    <a href="#desktop">Desktop</a>
+    <a href="#mobile">Mobile</a>
+    <a href="#web">Web</a>
+  </div>
+  <div class="nav-right">
+    <a href="https://github.com/RaphaDevx" class="nav-pill" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Software by RaphaDevx
+  </div>
+  <h1>K Projects</h1>
+  <p class="hero-sub">
+    A suite of desktop, mobile and web apps — creative tools, dev utilities, learning platforms, and financial intelligence.
+  </p>
+</div>
+
+<!-- Desktop Apps -->
+<section class="section" id="desktop">
+  <div class="section-header">
+    <span class="section-tag">Desktop</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards">
+
+    <!-- K-Creative Studio -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🎨</div>
+        <div class="card-meta">
+          <span class="card-tag">Creative Suite</span>
+          <span class="card-name">K-Creative Studio</span>
+        </div>
+        <span class="status-badge status-live" style="margin-left:auto">
+          <span class="status-dot"></span>Live
+        </span>
+      </div>
+      <p class="card-desc">Open-source creative suite powered by AI — DJ Live Interface, Plugin Engine, and Claude Terminal. Replaces Adobe / Autodesk with Inkscape, GIMP, Blender, and LMMS.</p>
+      <div class="btn-row">
+        <a id="kcreative-btn-arm64" href="#" class="btn btn-primary disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Apple Silicon
+        </a>
+        <a id="kcreative-btn-x64" href="#" class="btn btn-ghost blue disabled">
+          Intel (x64)
+        </a>
+        <a id="kcreative-btn-linux" href="#" class="btn btn-ghost" style="display:none">
+          Linux (AppImage)
+        </a>
+        <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="btn btn-ghost" target="_blank">
+          All releases
+        </a>
+      </div>
+      <span id="kcreative-version" class="version-note">Fetching latest…</span>
+    </div>
+
+    <!-- K-DAW -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🎛</div>
+        <div class="card-meta">
+          <span class="card-tag">Music Production</span>
+          <span class="card-name">K-DAW</span>
+        </div>
+        <span class="status-badge status-live" style="margin-left:auto">
+          <span class="status-dot"></span>Live
+        </span>
+      </div>
+      <p class="card-desc">AI-powered music production and DJ app. Generate tracks from text prompts, MIDI-learn any controller in seconds, and mix with a live interface.</p>
+      <div class="btn-row">
+        <a id="kdaw-btn-arm64" href="#" class="btn btn-blue disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Apple Silicon
+        </a>
+        <a id="kdaw-btn-x64" href="#" class="btn btn-ghost blue disabled">
+          Intel (x64)
+        </a>
+        <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="btn btn-ghost" target="_blank">
+          All releases
+        </a>
+      </div>
+      <span id="kdaw-version" class="version-note">Fetching latest…</span>
+    </div>
+
+    <!-- K-Dev Dashboard -->
+    <div class="card amber">
+      <div class="card-head">
+        <div class="card-icon amber">⚡</div>
+        <div class="card-meta">
+          <span class="card-tag amber">Dev Tool</span>
+          <span class="card-name">K-Dev Dashboard</span>
+        </div>
+        <span class="status-badge status-dev" style="margin-left:auto">
+          <span class="status-dot"></span>Beta
+        </span>
+      </div>
+      <p class="card-desc">Unified build dashboard for iOS, macOS, and web apps. Live terminal, build log streaming, EAS pipeline management — all in one native window.</p>
+      <div class="btn-row">
+        <a id="kdev-btn-mac" href="#" class="btn btn-amber disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          macOS (arm64)
+        </a>
+        <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="btn btn-ghost" target="_blank">
+          Releases
+        </a>
+      </div>
+      <span id="kdev-version" class="version-note">v1.0.0 · macOS 12+ · Apple Silicon</span>
+    </div>
+
+    <!-- K-AI Dashboard -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon" style="background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.25)">🤖</div>
+        <div class="card-meta">
+          <span class="card-tag">AI Interface</span>
+          <span class="card-name">K-AI Dashboard</span>
+        </div>
+        <span class="status-badge status-dev" style="margin-left:auto">
+          <span class="status-dot"></span>Beta
+        </span>
+      </div>
+      <p class="card-desc">Desktop interface for your self-hosted AI stack. Browse skills, memory, and conversation history. Connects to any K-AI server on your home lab via local network or Tailscale.</p>
+      <div class="btn-row">
+        <a id="kai-btn-mac" href="https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-ai-dashboard/K-AI%20Dashboard-1.1.0-arm64.dmg" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Apple Silicon
+        </a>
+        <a href="#" class="btn btn-ghost disabled">
+          Intel (x64) — soon
+        </a>
+      </div>
+      <span id="kai-version" class="version-note">v1.1.0 · macOS 12+ · Signed &amp; Notarized · Self-hosted</span>
+    </div>
+
+    <!-- K-Research -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon" style="background:rgba(78,204,163,.1);border-color:rgba(78,204,163,.25)">🔬</div>
+        <div class="card-meta">
+          <span class="card-tag" style="color:rgba(78,204,163,.8)">Research Tool</span>
+          <span class="card-name">K-Research</span>
+        </div>
+        <span class="status-badge status-dev" style="margin-left:auto">
+          <span class="status-dot"></span>Beta
+        </span>
+      </div>
+      <p class="card-desc">Interactive research dashboard for academic projects. Visualises sources, chapters, and research questions as a force-directed graph — with abstracts, PDF status, and connection explorer.</p>
+      <div class="btn-row">
+        <a id="kresearch-btn-arm64" href="#" class="btn btn-primary disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Apple Silicon
+        </a>
+      </div>
+      <span id="kresearch-version" class="version-note">Fetching latest…</span>
+    </div>
+
+    <!-- K-Cloud -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon" style="background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.25)">☁️</div>
+        <div class="card-meta">
+          <span class="card-tag" style="color:rgba(96,165,250,.8)">Sync Daemon</span>
+          <span class="card-name">K-Cloud</span>
+        </div>
+        <span class="status-badge status-dev" style="margin-left:auto">
+          <span class="status-dot"></span>v1.0
+        </span>
+      </div>
+      <p class="card-desc">Private NAS sync daemon with macOS menu bar app. Keeps a local folder in sync with a Synology NAS — event-driven local pushes, incremental NAS polling, automatic conflict handling.</p>
+      <div class="btn-row">
+        <a id="kcloud-btn" href="#" class="btn btn-primary disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Universal (arm64 + Intel)
+        </a>
+      </div>
+      <span id="kcloud-version" class="version-note">Fetching latest…</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- Mobile Apps -->
+<section class="section" id="mobile">
+  <div class="section-header">
+    <span class="section-tag" style="color:var(--acc3);background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.2)">Mobile</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards">
+
+    <!-- K-Learning -->
+    <div class="card mobile">
+      <div class="card-head">
+        <div class="card-icon">📚</div>
+        <div class="card-meta">
+          <span class="card-tag">Learning Platform</span>
+          <span class="card-name">K-Learning</span>
+        </div>
+        <span class="status-badge status-dev" style="margin-left:auto">
+          <span class="status-dot"></span>TestFlight
+        </span>
+      </div>
+      <p class="card-desc">AI-powered learning platform with adaptive flashcards, exam simulations, and progress analytics. Built for university-level courses with spaced repetition.</p>
+      <div class="btn-row">
+        <a id="klearning-btn-tf" href="https://testflight.apple.com/join/placeholder" class="btn btn-blue disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          TestFlight (iOS)
+        </a>
+        <a href="#" class="btn btn-ghost disabled">
+          App Store — Coming Soon
+        </a>
+      </div>
+      <span class="version-note">iOS 16+ · iPhone &amp; iPad</span>
+    </div>
+
+    <!-- Piggy -->
+    <div class="card mobile">
+      <div class="card-head">
+        <div class="card-icon">🐷</div>
+        <div class="card-meta">
+          <span class="card-tag">Finance</span>
+          <span class="card-name">Piggy</span>
+        </div>
+        <span class="status-badge status-dev" style="margin-left:auto">
+          <span class="status-dot"></span>TestFlight
+        </span>
+      </div>
+      <p class="card-desc">Expense tracking with receipt scanning and AI categorisation. Capture receipts with your camera, get instant summaries, and sync across devices.</p>
+      <div class="btn-row">
+        <a id="piggy-btn-tf" href="#" class="btn btn-blue disabled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          TestFlight (iOS)
+        </a>
+        <a href="https://piggy-38h.pages.dev" class="btn btn-ghost" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+          Web App
+        </a>
+      </div>
+      <span class="version-note">iOS 16+ · Build #8 in progress</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- Web -->
+<section class="section" id="web">
+  <div class="section-header">
+    <span class="section-tag" style="color:#34d399;background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.2)">Web</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cards">
+
+    <!-- K-Learning Web -->
+    <div class="card mobile">
+      <div class="card-head">
+        <div class="card-icon">🌐</div>
+        <div class="card-meta">
+          <span class="card-tag">Web App</span>
+          <span class="card-name">K-Learning Web</span>
+        </div>
+        <span class="status-badge status-live" style="margin-left:auto">
+          <span class="status-dot"></span>Live
+        </span>
+      </div>
+      <p class="card-desc">Browser-based version of K-Learning. No install required — full flashcard and exam training directly in your browser.</p>
+      <div class="btn-row">
+        <a href="#" class="btn btn-blue">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+          Open App
+        </a>
+      </div>
+      <span class="version-note">No install · Works on all devices</span>
+    </div>
+
+    <!-- Piggy Web -->
+    <div class="card mobile">
+      <div class="card-head">
+        <div class="card-icon">💸</div>
+        <div class="card-meta">
+          <span class="card-tag">Web App</span>
+          <span class="card-name">Piggy Web</span>
+        </div>
+        <span class="status-badge status-live" style="margin-left:auto">
+          <span class="status-dot"></span>Live
+        </span>
+      </div>
+      <p class="card-desc">Full Piggy expense tracker in the browser. Scan receipts via camera, categorise with AI, export reports.</p>
+      <div class="btn-row">
+        <a href="https://piggy-38h.pages.dev" class="btn btn-blue" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+          Open App
+        </a>
+      </div>
+      <span class="version-note">piggy-38h.pages.dev · Cloudflare</span>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>K-Advisory — <a href="https://github.com/RaphaDevx" target="_blank">github.com/RaphaDevx</a></p>
+</footer>
+
+<script>
+(async () => {
+  try {
+    const data = await fetch('releases.json').then(r => r.json());
+    const r2 = data.r2_base;
+    const p = data.products;
+    const url = (path) => {
+      const i = path.indexOf('/');
+      return `${r2}/${path.slice(0, i + 1)}${encodeURIComponent(path.slice(i + 1))}`;
+    };
+    const set = (id, prop, val) => { const el = document.getElementById(id); if (el) el[prop] = val; };
+    const rm  = (id, cls)       => { const el = document.getElementById(id); if (el) el.classList.remove(cls); };
+
+    set('kcreative-btn-arm64', 'href', url(p['k-creative'].arm64)); rm('kcreative-btn-arm64', 'disabled');
+    set('kcreative-btn-x64',   'href', url(p['k-creative'].x64));   rm('kcreative-btn-x64',   'disabled');
+    set('kcreative-version', 'textContent', `v${p['k-creative'].version} · ${p['k-creative'].note}`);
+
+    set('kdaw-btn-arm64', 'href', url(p['k-daw'].arm64)); rm('kdaw-btn-arm64', 'disabled');
+    set('kdaw-btn-x64',   'href', url(p['k-daw'].x64));   rm('kdaw-btn-x64',   'disabled');
+    set('kdaw-version', 'textContent', `v${p['k-daw'].version} · ${p['k-daw'].note}`);
+
+    set('kdev-btn-mac', 'href', url(p['k-dev-dashboard'].arm64)); rm('kdev-btn-mac', 'disabled');
+    set('kdev-version', 'textContent', `v${p['k-dev-dashboard'].version} · ${p['k-dev-dashboard'].note}`);
+
+    set('kai-btn-mac', 'href', url(p['k-ai-dashboard'].arm64));
+    set('kai-version', 'textContent', `v${p['k-ai-dashboard'].version} · ${p['k-ai-dashboard'].note}`);
+
+    if (p['k-research']) {
+      set('kresearch-btn-arm64', 'href', url(p['k-research'].arm64)); rm('kresearch-btn-arm64', 'disabled');
+      set('kresearch-version', 'textContent', `v${p['k-research'].version} · ${p['k-research'].note}`);
+    }
+    if (p['k-cloud']) {
+      set('kcloud-btn', 'href', url(p['k-cloud'].universal)); rm('kcloud-btn', 'disabled');
+      set('kcloud-version', 'textContent', `v${p['k-cloud'].version} · ${p['k-cloud'].note}`);
+    }
+  } catch (e) {
+    console.warn('[releases] Failed to load releases.json', e);
+  }
+})();
+</script>
+
+</body>
+</html>

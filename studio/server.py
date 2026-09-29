@@ -1103,6 +1103,96 @@ async def midi_ws(websocket: WebSocket):
             midi_proc.terminate()
 
 
+# ── Canvas AI Bridge ──────────────────────────────────────────────────────────
+# Clients: icon-designer.html connects via WebSocket for real-time AI commands.
+# Claude Code / external scripts can also POST to /api/canvas/exec.
+
+_canvas_clients: list[WebSocket] = []
+
+@app.websocket("/ws/canvas")
+async def canvas_ws(websocket: WebSocket):
+    """
+    Bidirectional AI↔Canvas bridge.
+      AI → browser: { "type": "exec", "cmd": { "action": "add", ... } }
+      browser → AI: { "type": "state", "state": { ... } }  (KCD JSON)
+                    { "type": "ack",   "result": ... }
+    """
+    await websocket.accept()
+    _canvas_clients.append(websocket)
+    try:
+        while True:
+            msg = await websocket.receive_json()
+            # Forward ack/state messages to any waiting HTTP callers
+            # (stored in shared in-memory queue for /api/canvas/exec)
+            if msg.get("type") in ("ack", "state"):
+                _canvas_last_response["data"] = msg
+                _canvas_last_response["event"].set()
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
+        if websocket in _canvas_clients:
+            _canvas_clients.remove(websocket)
+
+
+_canvas_last_response: dict = {"data": None, "event": asyncio.Event()}
+
+
+@app.post("/api/canvas/exec")
+async def canvas_exec(payload: dict = Body(...)):
+    """
+    Send a canvas command to all connected icon-designer windows.
+    Body: { "action": "add", "type": "rect", "options": { ... } }
+    Returns: { "ok": true, "clients": N } or error.
+    """
+    if not _canvas_clients:
+        raise HTTPException(503, "No canvas clients connected")
+
+    msg = {"type": "exec", "cmd": payload}
+    _canvas_last_response["data"] = None
+    _canvas_last_response["event"].clear()
+
+    dead = []
+    for ws in _canvas_clients:
+        try:
+            await ws.send_json(msg)
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        if ws in _canvas_clients:
+            _canvas_clients.remove(ws)
+
+    # Wait up to 3s for ack from first client
+    try:
+        await asyncio.wait_for(_canvas_last_response["event"].wait(), timeout=3.0)
+        return JSONResponse({"ok": True, "result": _canvas_last_response["data"]})
+    except asyncio.TimeoutError:
+        return JSONResponse({"ok": True, "result": None, "note": "no ack"})
+
+
+@app.get("/api/canvas/state")
+async def canvas_get_state():
+    """Ask the connected designer for its current KCD state."""
+    if not _canvas_clients:
+        raise HTTPException(503, "No canvas clients connected")
+
+    _canvas_last_response["data"] = None
+    _canvas_last_response["event"].clear()
+
+    for ws in _canvas_clients:
+        try:
+            await ws.send_json({"type": "get-state"})
+            break
+        except Exception:
+            pass
+
+    try:
+        await asyncio.wait_for(_canvas_last_response["event"].wait(), timeout=3.0)
+        return JSONResponse(_canvas_last_response["data"] or {})
+    except asyncio.TimeoutError:
+        raise HTTPException(504, "Canvas did not respond in time")
+
+
 if __name__ == "__main__":
-    print("K-Creative Studio → http://localhost:7000")
-    uvicorn.run(app, host="0.0.0.0", port=7000, log_level="warning")
+    port = int(os.environ.get("K_CREATIVE_PORT", "47200"))
+    print(f"K-Creative Studio → http://localhost:{port}")
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")

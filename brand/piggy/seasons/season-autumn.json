@@ -1,0 +1,23 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "season-autumn",
+  "kind": "season",
+  "name": "Herbst",
+  "enabled": true,
+  "valid": {
+    "from": "09-23",
+    "to": "12-20"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.gold.100}",
+    "component.appIcon.bgTo": "{primitive.color.leaf.400}",
+    "component.appIcon.bgRim": "{primitive.color.leaf.600}"
+  },
+  "accessories": [
+    "scarf"
+  ],
+  "background": [
+    "leaves"
+  ],
+  "note": "Schal, fallende Blätter, warme Orangetöne"
+}

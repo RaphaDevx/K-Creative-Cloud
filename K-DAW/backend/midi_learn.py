@@ -9,6 +9,7 @@ Architecture:
 EXTEND sections are marked explicitly throughout this file.
 """
 
+from __future__ import annotations
 import json
 from pathlib import Path
 from datetime import datetime

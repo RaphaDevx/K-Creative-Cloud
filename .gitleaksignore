@@ -1,3 +1,5 @@
 # Free trial demo key built into blender-mcp upstream (ahujasid/blender-mcp)
 # This is a public free-tier key for Hyper3D Rodin, not a real secret.
 blender-mcp/addon.py:generic-api-key:33
+# K-Dev Phase 1: Supabase publishable (anon) Key ist oeffentlich by design
+remotion-mcp/deploy_om_reels.py:generic-api-key:14

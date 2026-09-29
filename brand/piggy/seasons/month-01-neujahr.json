@@ -1,0 +1,24 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "month-01-neujahr",
+  "kind": "month",
+  "name": "Neujahr",
+  "enabled": true,
+  "valid": {
+    "month": 1,
+    "from": "01-01",
+    "to": "01-07"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.violet.400}",
+    "component.appIcon.bgTo": "{primitive.color.violet.700}",
+    "component.appIcon.bgRim": "{primitive.color.violet.700}"
+  },
+  "accessories": [
+    "partyHat"
+  ],
+  "background": [
+    "confetti"
+  ],
+  "note": "Partyhut, Konfetti"
+}

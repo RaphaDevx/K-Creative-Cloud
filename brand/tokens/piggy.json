@@ -1,0 +1,376 @@
+{
+  "meta": {
+    "project": "piggy",
+    "target": "expo-react-native",
+    "schema": "piggy-tokens/2 (primitive -> semantic -> component)",
+    "note": "Single Source of Truth. Änderungen hier, dann: bash brand/piggy/build.sh (alle Assets) bzw. export-assets.sh piggy --target brand (Sync nach Piggy).",
+    "references": "Werte der Form \"{pfad.zum.token}\" sind Referenzen und werden von brand/piggy/lib/piggy-core.js aufgelöst.",
+    "migration": "v1 (flach) liegt unter brand/tokens/.history/piggy.v1-flat.json. Die v1-Schlüssel colors/radius/fontSize/shadow/icon existieren weiter als Legacy-Aliase und lösen auf identische Werte auf. Siehe .kdev/partials/piggy-palette.md."
+  },
+
+  "primitive": {
+    "color": {
+      "white": "#FFFFFF",
+      "sand": {
+        "50":  "#FAFAF9",
+        "100": "#F5F3EF",
+        "200": "#EDE9E3",
+        "300": "#D9D3CA"
+      },
+      "gray": {
+        "400": "#9CA3AF",
+        "500": "#6B7280",
+        "600": "#4B5563",
+        "900": "#1A1A1A"
+      },
+      "pink": {
+        "50":  "#FFF0F4",
+        "100": "#FFDCE6",
+        "200": "#FFCAD8",
+        "300": "#FFB8C6",
+        "400": "#FF9DB6",
+        "500": "#F57C9D",
+        "600": "#E0587F",
+        "700": "#A8325A",
+        "800": "#7E2244"
+      },
+      "gold": {
+        "50":  "#FFF5E6",
+        "100": "#FFE4A8",
+        "300": "#FFC247",
+        "500": "#FF9F0A",
+        "600": "#C77700",
+        "700": "#9A5700"
+      },
+      "cocoa": {
+        "700": "#6B3A4A",
+        "900": "#3A1E2A"
+      },
+      "green": {
+        "500": "#34C759",
+        "700": "#1E7B37"
+      },
+      "red": {
+        "500": "#FF3B30",
+        "700": "#C4221A"
+      },
+      "swiss": {
+        "red": "#DA291C"
+      },
+      "sky": {
+        "200": "#CDEBFF",
+        "400": "#6CC3FF",
+        "600": "#2B8AD6"
+      },
+      "mint": {
+        "300": "#9FE3C1",
+        "500": "#3CB88A"
+      },
+      "violet": {
+        "400": "#A98BFF",
+        "700": "#5B3FB0"
+      },
+      "leaf": {
+        "400": "#F2A33A",
+        "600": "#D9622B",
+        "800": "#9C3A1E"
+      }
+    },
+
+    "space": {
+      "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64
+    },
+
+    "radius": {
+      "4": 4, "8": 8, "12": 12, "16": 16, "20": 20, "24": 24, "32": 32, "full": 9999
+    },
+
+    "type": {
+      "base": 16,
+      "ratio": 1.25,
+      "ratioName": "Major Third",
+      "scale": {
+        "-2": { "size": 10, "lineHeight": 16 },
+        "-1": { "size": 13, "lineHeight": 20 },
+        "0":  { "size": 16, "lineHeight": 24 },
+        "1":  { "size": 20, "lineHeight": 28 },
+        "2":  { "size": 25, "lineHeight": 32 },
+        "3":  { "size": 31, "lineHeight": 40 },
+        "4":  { "size": 39, "lineHeight": 48 },
+        "5":  { "size": 49, "lineHeight": 56 }
+      },
+      "weight": { "regular": "400", "semibold": "600", "bold": "700", "heavy": "800" }
+    },
+
+    "size": {
+      "16": 16, "24": 24, "32": 32, "40": 40, "48": 48, "56": 56, "64": 64
+    }
+  },
+
+  "semantic": {
+    "color": {
+      "bg": {
+        "canvas":  "{primitive.color.sand.50}",
+        "surface": "{primitive.color.white}",
+        "subtle":  "{primitive.color.sand.100}",
+        "accent":  "{primitive.color.gold.50}",
+        "brand":   "{primitive.color.pink.50}"
+      },
+      "text": {
+        "primary":   "{primitive.color.gray.900}",
+        "secondary": "{primitive.color.gray.500}",
+        "tertiary":  "{primitive.color.gray.400}",
+        "strong":    "{primitive.color.gray.600}",
+        "brand":     "{primitive.color.gold.700}",
+        "brandPink": "{primitive.color.pink.700}",
+        "onBrand":   "{primitive.color.gray.900}",
+        "onDark":    "{primitive.color.white}"
+      },
+      "brand": {
+        "primary":       "{primitive.color.gold.500}",
+        "primarySoft":   "{primitive.color.gold.100}",
+        "primaryStrong": "{primitive.color.gold.600}",
+        "secondary":     "{primitive.color.pink.300}",
+        "secondarySoft": "{primitive.color.pink.100}",
+        "secondaryStrong": "{primitive.color.pink.700}"
+      },
+      "icon": {
+        "active":  "{primitive.color.gold.600}",
+        "muted":   "{primitive.color.gray.500}",
+        "default": "{primitive.color.gray.900}",
+        "soft":    "{primitive.color.gold.100}",
+        "onFill":  "{primitive.color.white}"
+      },
+      "status": {
+        "success":     "{primitive.color.green.500}",
+        "successText": "{primitive.color.green.700}",
+        "error":       "{primitive.color.red.500}",
+        "errorText":   "{primitive.color.red.700}",
+        "warning":     "{primitive.color.gold.500}",
+        "warningText": "{primitive.color.gold.700}"
+      },
+      "border": {
+        "default": "{primitive.color.sand.200}",
+        "subtle":  "{primitive.color.sand.100}"
+      },
+      "mascot": {
+        "skin":         "{primitive.color.pink.400}",
+        "skinLight":    "{primitive.color.pink.200}",
+        "skinShade":    "{primitive.color.pink.500}",
+        "snout":        "{primitive.color.pink.300}",
+        "nostril":      "{primitive.color.pink.600}",
+        "earInner":     "{primitive.color.pink.500}",
+        "cheek":        "{primitive.color.pink.600}",
+        "hoof":         "{primitive.color.pink.500}",
+        "eye":          "{primitive.color.cocoa.900}",
+        "eyeHighlight": "{primitive.color.white}",
+        "mouth":        "{primitive.color.cocoa.900}",
+        "tongue":       "{primitive.color.pink.600}",
+        "slot":         "{primitive.color.cocoa.700}",
+        "coin":         "{primitive.color.gold.300}",
+        "coinShade":    "{primitive.color.gold.500}"
+      },
+      "accessory": {
+        "red":      "{primitive.color.swiss.red}",
+        "white":    "{primitive.color.white}",
+        "dark":     "{primitive.color.cocoa.900}",
+        "gold":     "{primitive.color.gold.300}",
+        "blue":     "{primitive.color.sky.400}",
+        "blueDark": "{primitive.color.sky.600}",
+        "mint":     "{primitive.color.mint.300}",
+        "green":    "{primitive.color.mint.500}",
+        "violet":   "{primitive.color.violet.400}",
+        "violetDark": "{primitive.color.violet.700}",
+        "orange":   "{primitive.color.leaf.400}",
+        "rust":     "{primitive.color.leaf.600}",
+        "brown":    "{primitive.color.leaf.800}",
+        "pink":     "{primitive.color.pink.500}"
+      }
+    },
+    "space": {
+      "inset":   { "xs": "{primitive.space.1}", "sm": "{primitive.space.2}", "md": "{primitive.space.4}", "lg": "{primitive.space.6}" },
+      "stack":   { "xs": "{primitive.space.1}", "sm": "{primitive.space.2}", "md": "{primitive.space.4}", "lg": "{primitive.space.6}", "xl": "{primitive.space.8}", "section": "{primitive.space.12}", "page": "{primitive.space.16}" },
+      "gutter":  "{primitive.space.6}"
+    },
+    "radius": {
+      "control": "{primitive.radius.12}",
+      "card":    "{primitive.radius.24}",
+      "sheet":   "{primitive.radius.32}",
+      "pill":    "{primitive.radius.full}"
+    },
+    "font": {
+      "caption":  "{primitive.type.scale.-2}",
+      "footnote": "{primitive.type.scale.-1}",
+      "body":     "{primitive.type.scale.0}",
+      "title3":   "{primitive.type.scale.1}",
+      "title2":   "{primitive.type.scale.2}",
+      "title1":   "{primitive.type.scale.3}",
+      "display":  "{primitive.type.scale.4}",
+      "hero":     "{primitive.type.scale.5}"
+    }
+  },
+
+  "component": {
+    "tabBar": {
+      "bg":            "{semantic.color.bg.surface}",
+      "border":        "{semantic.color.border.default}",
+      "iconActive":    "{semantic.color.icon.active}",
+      "iconInactive":  "{semantic.color.icon.muted}",
+      "labelActive":   "{semantic.color.text.brand}",
+      "labelInactive": "{semantic.color.text.secondary}",
+      "iconSize":      "{primitive.size.24}",
+      "paddingTop":    "{primitive.space.2}",
+      "scanFab": {
+        "bg":     "{semantic.color.brand.primary}",
+        "size":   "{primitive.size.64}",
+        "radius": "{primitive.radius.20}"
+      }
+    },
+    "button": {
+      "primary": {
+        "bg":       "{semantic.color.brand.primary}",
+        "text":     "{semantic.color.text.onBrand}",
+        "radius":   "{semantic.radius.control}",
+        "paddingY": "{primitive.space.3}",
+        "paddingX": "{primitive.space.6}",
+        "minHeight": "{primitive.size.48}"
+      },
+      "secondary": {
+        "bg":       "{semantic.color.brand.secondarySoft}",
+        "text":     "{semantic.color.text.brandPink}",
+        "radius":   "{semantic.radius.control}",
+        "paddingY": "{primitive.space.3}",
+        "paddingX": "{primitive.space.6}",
+        "minHeight": "{primitive.size.48}"
+      }
+    },
+    "card": {
+      "bg":      "{semantic.color.bg.surface}",
+      "radius":  "{semantic.radius.card}",
+      "padding": "{primitive.space.6}",
+      "gap":     "{primitive.space.4}"
+    },
+    "icon": {
+      "size":      "{primitive.size.24}",
+      "primary":   "{semantic.color.icon.active}",
+      "secondary": "{semantic.color.icon.soft}",
+      "onPrimary": "{semantic.color.icon.onFill}"
+    },
+    "mascot": {
+      "skin":         "{semantic.color.mascot.skin}",
+      "skinLight":    "{semantic.color.mascot.skinLight}",
+      "skinShade":    "{semantic.color.mascot.skinShade}",
+      "snout":        "{semantic.color.mascot.snout}",
+      "nostril":      "{semantic.color.mascot.nostril}",
+      "earInner":     "{semantic.color.mascot.earInner}",
+      "cheek":        "{semantic.color.mascot.cheek}",
+      "hoof":         "{semantic.color.mascot.hoof}",
+      "eye":          "{semantic.color.mascot.eye}",
+      "eyeHighlight": "{semantic.color.mascot.eyeHighlight}",
+      "mouth":        "{semantic.color.mascot.mouth}",
+      "tongue":       "{semantic.color.mascot.tongue}",
+      "slot":         "{semantic.color.mascot.slot}",
+      "coin":         "{semantic.color.mascot.coin}",
+      "coinShade":    "{semantic.color.mascot.coinShade}"
+    },
+    "logo": {
+      "wordmark":      "{semantic.color.brand.secondaryStrong}",
+      "wordmarkDepth": "{primitive.color.pink.800}",
+      "iDot":          "{semantic.color.mascot.coin}",
+      "iDotShade":     "{semantic.color.mascot.coinShade}"
+    },
+    "appIcon": {
+      "bgFrom":  "{primitive.color.gold.100}",
+      "bgTo":    "{primitive.color.gold.300}",
+      "bgRim":   "{primitive.color.gold.500}"
+    },
+    "splash": {
+      "bg": "{semantic.color.bg.canvas}",
+      "wordmark": "{component.logo.wordmark}",
+      "wordmarkDepth": "{component.logo.wordmarkDepth}"
+    }
+  },
+
+  "contrastPairs": [
+    { "fg": "semantic.color.text.primary",     "bg": "semantic.color.bg.canvas",  "kind": "text",   "use": "Fliesstext" },
+    { "fg": "semantic.color.text.primary",     "bg": "semantic.color.bg.surface", "kind": "text",   "use": "Karten-Text" },
+    { "fg": "semantic.color.text.secondary",   "bg": "semantic.color.bg.surface", "kind": "text",   "use": "Sekundärtext auf Karte" },
+    { "fg": "semantic.color.text.secondary",   "bg": "semantic.color.bg.canvas",  "kind": "text",   "use": "Sekundärtext auf Canvas" },
+    { "fg": "semantic.color.text.secondary",   "bg": "semantic.color.bg.brand",   "kind": "text",   "use": "Sekundärtext auf Pink-Fläche", "exempt": "Nicht verwenden: text.strong statt text.secondary auf bg.brand" },
+    { "fg": "semantic.color.text.strong",      "bg": "semantic.color.bg.brand",   "kind": "text",   "use": "Sekundärtext auf Pink-Fläche (Ersatz)" },
+    { "fg": "semantic.color.text.tertiary",    "bg": "semantic.color.bg.surface", "kind": "text",   "use": "Tertiärtext (nur deaktiviert/dekorativ)", "exempt": "WCAG 1.4.3 Ausnahme: nur für deaktivierte/dekorative Elemente zulässig" },
+    { "fg": "semantic.color.text.brand",       "bg": "semantic.color.bg.surface", "kind": "text",   "use": "Aktives Tab-Label, Links" },
+    { "fg": "semantic.color.text.brand",       "bg": "semantic.color.bg.accent",  "kind": "text",   "use": "Text auf Gold-Soft" },
+    { "fg": "semantic.color.text.brandPink",   "bg": "semantic.color.bg.brand",   "kind": "text",   "use": "Secondary Button" },
+    { "fg": "semantic.color.text.onBrand",     "bg": "semantic.color.brand.primary", "kind": "text", "use": "Primary Button" },
+    { "fg": "semantic.color.status.successText", "bg": "semantic.color.bg.surface", "kind": "text", "use": "Betrag positiv" },
+    { "fg": "semantic.color.status.errorText",   "bg": "semantic.color.bg.surface", "kind": "text", "use": "Betrag negativ / Fehler" },
+    { "fg": "semantic.color.status.warningText", "bg": "semantic.color.bg.surface", "kind": "text", "use": "Warnung" },
+    { "fg": "semantic.color.icon.active",      "bg": "semantic.color.bg.surface", "kind": "ui",     "use": "Aktives Tab-Icon" },
+    { "fg": "semantic.color.icon.muted",       "bg": "semantic.color.bg.surface", "kind": "ui",     "use": "Inaktives Tab-Icon" },
+    { "fg": "component.logo.wordmark",         "bg": "semantic.color.bg.canvas",  "kind": "large",  "use": "Wortmarke" },
+    { "fg": "colors.gold",                     "bg": "colors.bgCard",             "kind": "text",   "use": "LEGACY: C.gold als Tab-Label (CustomTabBar)" },
+    { "fg": "colors.textTertiary",             "bg": "colors.bgCard",             "kind": "text",   "use": "LEGACY: C.textTertiary als inaktives Label" },
+    { "fg": "colors.gold",                     "bg": "colors.bgCard",             "kind": "ui",     "use": "LEGACY: C.gold als aktives Tab-Icon" }
+  ],
+
+  "colors": {
+    "bg":            "{semantic.color.bg.canvas}",
+    "bgCard":        "{semantic.color.bg.surface}",
+    "bgSoft":        "{semantic.color.bg.subtle}",
+    "bgAccent":      "{semantic.color.bg.accent}",
+    "bgPink":        "{semantic.color.bg.brand}",
+    "textPrimary":   "{semantic.color.text.primary}",
+    "textSecondary": "{semantic.color.text.secondary}",
+    "textTertiary":  "{semantic.color.text.tertiary}",
+    "gold":          "{semantic.color.brand.primary}",
+    "goldSoft":      "{semantic.color.brand.primarySoft}",
+    "pink":          "{semantic.color.brand.secondary}",
+    "pinkSoft":      "{semantic.color.brand.secondarySoft}",
+    "success":       "{semantic.color.status.success}",
+    "error":         "{semantic.color.status.error}",
+    "warning":       "{semantic.color.status.warning}",
+    "border":        "{semantic.color.border.default}",
+    "borderSoft":    "{semantic.color.border.subtle}"
+  },
+  "radius": {
+    "xs":  "{primitive.radius.8}",
+    "sm":  "{primitive.radius.12}",
+    "md":  "{primitive.radius.16}",
+    "lg":  "{primitive.radius.20}",
+    "xl":  "{primitive.radius.24}",
+    "xxl": "{primitive.radius.32}"
+  },
+  "fontSize": {
+    "xs":   11,
+    "sm":   13,
+    "md":   15,
+    "lg":   17,
+    "xl":   22,
+    "xxl":  28,
+    "hero": 42
+  },
+  "shadow": {
+    "ios": {
+      "color":   "#00000020",
+      "offsetX": 0,
+      "offsetY": 2,
+      "opacity": 1,
+      "radius":  12
+    },
+    "android": {
+      "elevation": 3
+    },
+    "default": {
+      "color":   "#00000015",
+      "offsetX": 0,
+      "offsetY": 2,
+      "opacity": 1,
+      "radius":  8
+    }
+  },
+  "icon": {
+    "source": "brand/assets/piggy/icon-master.png",
+    "note": "1024x1024 PNG ablegen. export-assets.sh generiert icon.png, adaptive-icon.png, splash-icon.png. Kandidat: brand/piggy/dist/variants/base/piggy-appicon-base-1024.png (bewusst NICHT automatisch kopiert, siehe INTEGRATION.md)."
+  }
+}

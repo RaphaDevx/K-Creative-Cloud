@@ -3,93 +3,83 @@
     {
       "id": 0,
       "type": "hook",
-      "headline": "4 MARKETS, 0 POOLING",
-      "subtext": "Without postponement, every country buffers alone.",
-      "emoji": "\ud83c\udf0d",
+      "headline": "MRP II \u2260 MRP I",
+      "subtext": "Most students confuse them \u2014 here is the difference",
+      "emoji": "\ud83c\udfed",
+      "spoken": "Most students think MRP Two is just a bigger version of MRP One. It is not. MRP Two plans your entire factory \u2014 materials, machines, people, and money. Here are the five steps and the three exam traps.",
       "accent_hex": "#FF4444",
-      "spoken": "You sell one product in four countries \u2014 Switzerland, Germany, Great Britain, and Italy. Each market gets its own variant. Without postponement, your supply chain treats every variant as a completely separate product. That means four independent safety stocks, four separate orders \u2014 and four times the cost.",
-      "audioFile": "e5dc314d/scene_000.wav",
-      "durationFrames": 522
+      "audioFile": "4795ad35/scene_000.wav",
+      "durationFrames": 402
     },
     {
       "id": 1,
-      "type": "fact",
-      "headline": "EACH VARIANT = OWN PRODUCT",
-      "subtext": "Same newsvendor formula, four times over.",
-      "emoji": "\ud83d\udce6",
-      "accent_hex": "#FFD700",
-      "spoken": "The setup: lead time is six weeks, holding cost is five francs per unit per week, and penalty cost for stockouts is ninety-five francs. Calculate the critical ratio first: CR equals H divided by H plus P \u2014 that gives you five over one hundred, or five percent. Look up the Z-value and the F-value from the standard normal table. You need both for the formulas ahead.",
-      "audioFile": "e5dc314d/scene_001.wav",
-      "durationFrames": 631
+      "type": "explanation",
+      "headline": "MRP II = WHOLE FACTORY",
+      "subtext": "Materials + Machines + Workforce + Finance \u2014 all integrated",
+      "emoji": "\ud83d\udd17",
+      "spoken": "MRP One only handles material quantities. MRP Two integrates everything: material requirements from MRP One, plus machine capacity, workforce planning, and financial projections. It is a closed-loop system \u2014 actual results feed back into the plan.",
+      "accent_hex": "#4FC3F7",
+      "audioFile": "4795ad35/scene_001.wav",
+      "durationFrames": 481
     },
     {
       "id": 2,
-      "type": "explanation",
-      "headline": "CV REVEALS THE RISK",
-      "subtext": "Coefficient of variance: \u03c3 divided by \u03bc.",
-      "emoji": "\ud83d\udcca",
-      "accent_hex": "#4FC3F7",
-      "spoken": "Before you calculate anything, compare the markets. Do not just look at the raw standard deviation \u2014 divide it by the mean to get the coefficient of variance. Switzerland and Germany have high CV \u2014 demand is highly variable relative to the mean. Great Britain and Italy have low CV \u2014 demand is much more stable. High CV means higher safety stock, higher cost.",
-      "audioFile": "e5dc314d/scene_002.wav",
-      "durationFrames": 599
+      "type": "fact",
+      "headline": "5 STEPS \u2014 TOP TO BOTTOM",
+      "subtext": "Business Plan \u2192 S&OP \u2192 MPS \u2192 MRP \u2192 Shop Floor",
+      "emoji": "\ud83d\udccb",
+      "spoken": "MRP Two has exactly five steps, not six \u2014 this is a direct exam question. Step One: Business Planning, done annually. Step Two: Sales and Operations Planning, done monthly. Step Three: Master Production Scheduling, done weekly. Step Four: Material Requirements Planning, also weekly. Step Five: Production Activity Control, done daily.",
+      "accent_hex": "#FFD700",
+      "audioFile": "4795ad35/scene_002.wav",
+      "durationFrames": 598
     },
     {
       "id": 3,
-      "type": "explanation",
-      "headline": "EXCEL TIP: NAME YOUR CELLS",
-      "subtext": "LT, H, P, CR, Z, F \u2014 no magic numbers.",
-      "emoji": "\ud83d\udca1",
-      "accent_hex": "#4FC3F7",
-      "spoken": "Here is an exam tip that saves time and prevents errors. In Excel, name your parameter cells: call E4 LT for lead time, E5 H for holding cost, E6 P for penalty cost. Then name the derived values CR, Z, and F. Now your formulas read like the textbook \u2014 no cryptic cell addresses, no wrong references. Just type LT, H, Z directly.",
-      "audioFile": "e5dc314d/scene_003.wav",
-      "durationFrames": 626
+      "type": "warning",
+      "headline": "TRAP 1: MRP = STEP 4, WEEKLY",
+      "subtext": "NOT annually. NOT step 3. This is tested every semester.",
+      "emoji": "\ud83e\udea4",
+      "spoken": "Exam trap number one. MRP \u2014 that is Material Requirements Planning \u2014 is Step FOUR, not step three. And it runs weekly, not annually. The annual step is Business Planning at the top. If you see answer options mixing up the step number or the frequency, this is the trap.",
+      "accent_hex": "#FF7043",
+      "audioFile": "4795ad35/scene_003.wav",
+      "durationFrames": 467
     },
     {
       "id": 4,
-      "type": "explanation",
-      "headline": "ORDER QUANTITY FORMULA",
-      "subtext": "Optimal Q* per country \u2014 Newsvendor extended with lead time.",
-      "emoji": "\ud83d\udcd0",
-      "accent_hex": "#FFD700",
-      "spoken": "The optimal order quantity for each country extends the newsvendor formula with lead time. Q-star equals LT plus one multiplied by the expected weekly demand, plus Z times sigma times the square root of LT plus one. In Excel for Switzerland: equals LT plus one times mu, plus Z times sigma times SQRT of LT plus one. Copy the formula down for Germany, Great Britain, and Italy.",
-      "viz": {
-        "type": "latex",
-        "latex": "Q^* = (LT+1)\\cdot\\mu + Z\\cdot\\sigma\\cdot\\sqrt{LT+1}",
-        "caption": "Newsvendor extended with lead time"
-      },
-      "audioFile": "e5dc314d/scene_004.wav",
-      "durationFrames": 683
+      "type": "warning",
+      "headline": "TRAP 2: S&OP IS AGGREGATED",
+      "subtext": "Product families, not individual SKUs \u2014 machines AND workers",
+      "emoji": "\ud83e\udea4",
+      "spoken": "Exam trap number two. Step Two, Sales and Operations Planning, works with aggregated product families \u2014 not individual products or SKUs. It plans both machines and workforce together. If an answer says S&OP plans individual products, it is wrong.",
+      "accent_hex": "#FF7043",
+      "audioFile": "4795ad35/scene_004.wav",
+      "durationFrames": 480
     },
     {
       "id": 5,
-      "type": "explanation",
-      "headline": "COST FORMULA PER COUNTRY",
-      "subtext": "Expected cost for each country configuration.",
-      "emoji": "\ud83d\udcb0",
+      "type": "warning",
+      "headline": "TRAP 3: CLOSED LOOP = FEEDBACK",
+      "subtext": "Actual results go BACK UP to Business Planning \u2014 MRP I has no feedback",
+      "emoji": "\ud83d\udd04",
+      "spoken": "Exam trap number three. MRP Two is a closed-loop system. Actual production results flow back up to the Business Planning level. This feedback loop is what distinguishes MRP Two from MRP One \u2014 MRP One has no feedback. If an answer says MRP Two has no feedback loop, it is wrong.",
       "accent_hex": "#FF7043",
-      "spoken": "The expected cost for each configuration: H plus P times F times sigma times square root of LT plus one. In Excel: equals H plus P times F times sigma times SQRT of LT plus one. Copy down for all four countries. Then sum the order quantities and sum the costs. These totals are your baseline \u2014 the cost of running the supply chain WITHOUT pooling.",
-      "viz": {
-        "type": "latex",
-        "latex": "C = (H+P)\\cdot F\\cdot\\sigma\\cdot\\sqrt{LT+1}",
-        "caption": "Expected cost per country configuration"
-      },
-      "audioFile": "e5dc314d/scene_005.wav",
-      "durationFrames": 638
+      "audioFile": "4795ad35/scene_005.wav",
+      "durationFrames": 544
     },
     {
       "id": 6,
       "type": "takeaway",
-      "headline": "THIS IS YOUR BASELINE",
-      "subtext": "Next: postponement cuts this cost by pooling stock.",
-      "emoji": "\u26a0\ufe0f",
+      "headline": "THE 3 NUMBERS: 5, 4, WEEKLY",
+      "subtext": "5 steps total. MRP = step 4. Frequency = weekly.",
+      "emoji": "\u2705",
+      "spoken": "Three numbers win you the MRP Two questions. Five \u2014 that is the total number of steps. Four \u2014 that is the step where MRP sits. Weekly \u2014 that is the frequency of both MPS and MRP. Remember five, four, weekly, and you will not lose a single point on MRP Two.",
       "accent_hex": "#CE93D8",
-      "spoken": "Four separate safety stocks mean four times the insurance against demand uncertainty. The total cost you just calculated is the without-postponement baseline. In the next video, postponement pools all four variants into one stock, reducing total safety stock dramatically \u2014 because the variances partially cancel out. Remember the formula, remember CV, and name your cells in Excel. That's supply chain without postponement.",
-      "audioFile": "e5dc314d/scene_006.wav",
-      "durationFrames": 674
+      "audioFile": "4795ad35/scene_006.wav",
+      "durationFrames": 490
     }
   ],
-  "title": "Supply Chain without Postponement \u2014 OM HSG",
-  "totalDurationFrames": 4373,
+  "title": "MRP II \u2014 5 Steps, 3 Traps | OM Exam",
+  "totalDurationFrames": 3462,
   "style": "minimal",
   "characterId": "default"
 }

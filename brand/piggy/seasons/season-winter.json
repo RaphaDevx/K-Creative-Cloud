@@ -1,0 +1,25 @@
+{
+  "$schema": "./variant.schema.json",
+  "id": "season-winter",
+  "kind": "season",
+  "name": "Winter / Ski",
+  "enabled": true,
+  "valid": {
+    "from": "12-21",
+    "to": "03-19"
+  },
+  "palette": {
+    "component.appIcon.bgFrom": "{primitive.color.sky.200}",
+    "component.appIcon.bgTo": "{primitive.color.sky.400}",
+    "component.appIcon.bgRim": "{primitive.color.sky.600}"
+  },
+  "accessories": [
+    "beanie",
+    "skiGoggles"
+  ],
+  "background": [
+    "mountains",
+    "snow"
+  ],
+  "note": "Mütze + Skibrille, Alpen, Schnee"
+}

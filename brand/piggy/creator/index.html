@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Piggy Creator</title>
+<!-- Gleiche Generatoren wie die CLI (tools/build.js) — was hier zu sehen ist, erzeugt der Build identisch. -->
+<script src="../lib/tokens.js"></script>
+<script src="../lib/art.js"></script>
+<script src="../lib/icons.js"></script>
+<script src="data.js"></script>
+<style>
+  :root {
+    --bg: #FAFAF9; --surface: #FFFFFF; --subtle: #F5F3EF; --border: #EDE9E3;
+    --text: #1A1A1A; --text2: #6B7280; --accent: #A8325A; --ok: #1E7B37; --bad: #C4221A; --warn: #9A5700;
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s6: 24px; --s8: 32px; --s12: 48px;
+    --r-sm: 8px; --r-md: 16px; --r-lg: 24px;
+    font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #16121A; --surface: #211B26; --subtle: #2A2330; --border: #3A3140; --text: #F4EEF6; --text2: #B7ABBF; --accent: #FF9DB6; --ok: #5FD08A; --bad: #FF8A80; --warn: #FFC247; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 24px; }
+  header { display: flex; align-items: center; gap: var(--s4); padding: var(--s4) var(--s6); border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 5; flex-wrap: wrap; }
+  header h1 { font-size: 20px; line-height: 28px; margin: 0; font-weight: 800; }
+  header .sub { color: var(--text2); font-size: 13px; line-height: 20px; }
+  header .spacer { flex: 1; }
+  button, .btn { font: inherit; font-size: 13px; line-height: 20px; font-weight: 700; padding: var(--s2) var(--s4); border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--subtle); color: var(--text); cursor: pointer; min-height: 40px; }
+  button.primary { background: #FF9F0A; border-color: #FF9F0A; color: #1A1A1A; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .layout { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100vh - 73px); }
+  aside { border-right: 1px solid var(--border); background: var(--surface); padding: var(--s4); overflow: auto; max-height: calc(100vh - 73px); position: sticky; top: 73px; }
+  main { padding: var(--s6); display: grid; gap: var(--s6); align-content: start; min-width: 0; }
+  .tabs { display: flex; gap: var(--s1); margin-bottom: var(--s4); }
+  .tabs button { flex: 1; }
+  .tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  fieldset { border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s3) var(--s4) var(--s4); margin: 0 0 var(--s4); }
+  legend { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--text2); padding: 0 var(--s1); }
+  .row { display: grid; grid-template-columns: 1fr auto 88px; align-items: center; gap: var(--s2); margin: var(--s1) 0; font-size: 13px; line-height: 20px; }
+  .row label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  input[type=color] { width: 40px; height: 32px; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0; background: none; cursor: pointer; }
+  input[type=text], select, input[type=date] { font: inherit; font-size: 13px; padding: var(--s1) var(--s2); border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--bg); color: var(--text); min-height: 32px; width: 100%; }
+  .slider { display: grid; grid-template-columns: 1fr 48px; gap: var(--s2); align-items: center; margin: var(--s2) 0; font-size: 13px; }
+  .slider label { grid-column: 1 / -1; font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: #FF9F0A; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s6); min-width: 0; }
+  .card h2 { font-size: 16px; line-height: 24px; margin: 0 0 var(--s4); font-weight: 800; display: flex; gap: var(--s2); align-items: baseline; flex-wrap: wrap; }
+  .card h2 small { font-weight: 400; color: var(--text2); font-size: 13px; }
+  .hero { display: grid; grid-template-columns: 2fr 1fr; gap: var(--s6); align-items: center; }
+  .hero .logo svg { width: 100%; height: auto; max-height: 240px; }
+  .hero .icon svg { width: 100%; max-width: 240px; height: auto; border-radius: 22%; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .grid-variants { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--s4); }
+  .variant { text-align: center; font-size: 13px; line-height: 16px; cursor: pointer; border-radius: var(--r-md); padding: var(--s2); border: 2px solid transparent; background: none; min-height: auto; font-weight: 400; }
+  .variant.active { border-color: var(--accent); }
+  .variant.today::after { content: "heute"; display: inline-block; margin-top: var(--s1); font-size: 10px; font-weight: 800; background: #FF9F0A; color: #1A1A1A; border-radius: 99px; padding: 0 var(--s2); }
+  .variant svg { width: 100%; height: auto; border-radius: 22%; display: block; margin-bottom: var(--s1); }
+  .grid-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: var(--s2); }
+  .ic { display: grid; justify-items: center; gap: var(--s1); padding: var(--s2); border-radius: var(--r-sm); font-size: 10px; line-height: 16px; color: var(--text2); background: var(--bg); }
+  .ic svg { width: 32px; height: 32px; }
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); margin-bottom: var(--s4); }
+  .modes div { background: var(--bg); border-radius: var(--r-md); padding: var(--s3); display: flex; gap: var(--s3); flex-wrap: wrap; align-items: center; }
+  .modes b { width: 100%; font-size: 11px; line-height: 16px; text-transform: uppercase; color: var(--text2); }
+  .modes svg { width: 32px; height: 32px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 20px; }
+  th, td { text-align: left; padding: var(--s2); border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .sw { display: inline-block; width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--border); vertical-align: -3px; margin-right: var(--s1); }
+  .PASS { color: var(--ok); font-weight: 800; } .FAIL { color: var(--bad); font-weight: 800; } .EXEMPT { color: var(--warn); font-weight: 800; }
+  .sample { padding: 0 var(--s2); border-radius: 4px; font-weight: 700; }
+  .mascot { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--s4); }
+  .mascot figure { margin: 0; text-align: center; font-size: 13px; color: var(--text2); background: #FFF0F4; border-radius: var(--r-md); padding: var(--s2); }
+  .mascot img { width: 100%; height: auto; display: block; }
+  .note { font-size: 13px; line-height: 20px; color: var(--text2); margin: var(--s2) 0 0; }
+  .resolver { display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; margin-bottom: var(--s4); font-size: 13px; }
+  .resolver input { width: auto; }
+  .pill { background: var(--subtle); border-radius: 99px; padding: var(--s1) var(--s3); font-weight: 700; }
+  .dirty { color: var(--warn); font-weight: 700; font-size: 13px; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--border); }
+    main { padding: var(--s4); }
+    .hero { grid-template-columns: 1fr; }
+    .modes { grid-template-columns: 1fr; }
+    header { padding: var(--s3) var(--s4); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Piggy Creator</h1>
+    <div class="sub">Palette &amp; Icon-Style live bearbeiten · gleiche Generatoren wie <code>build.sh</code></div>
+  </div>
+  <div class="spacer"></div>
+  <span class="dirty" id="dirty" hidden>● ungespeicherte Änderungen</span>
+  <label class="btn" for="importFile">JSON importieren</label>
+  <input type="file" id="importFile" accept="application/json" hidden>
+  <button id="reset">Zurücksetzen</button>
+  <button id="exportStyle">style.json exportieren</button>
+  <button class="primary" id="exportTokens">piggy.json exportieren</button>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="palette">Palette</button>
+      <button role="tab" aria-selected="false" data-tab="style">Icon-Style</button>
+    </div>
+    <div id="tab-palette"></div>
+    <div id="tab-style" hidden>
+      <fieldset>
+        <legend>Geometrie</legend>
+        <div class="slider"><label for="sw">Strichstärke</label><input type="range" id="sw" min="1" max="3" step="0.25"><output id="swv"></output></div>
+        <div class="slider"><label for="cr">Eckenradius</label><input type="range" id="cr" min="0" max="6" step="0.5"><output id="crv"></output></div>
+      </fieldset>
+      <fieldset>
+        <legend>Füllung</legend>
+        <select id="fill"><option value="outline">outline</option><option value="filled">filled</option><option value="duotone">duotone</option></select>
+      </fieldset>
+      <fieldset>
+        <legend>Palette-Token</legend>
+        <div class="row"><label for="pp">primary</label><span></span><select id="pp"></select></div>
+        <div class="row"><label for="ps">secondary</label><span></span><select id="ps"></select></div>
+        <div class="row"><label for="po">onPrimary</label><span></span><select id="po"></select></div>
+      </fieldset>
+      <p class="note">Export → <code>brand/piggy/icons/style.json</code> ersetzen → <code>bash brand/piggy/build.sh --no-3d --sync</code></p>
+    </div>
+  </aside>
+
+  <main>
+    <section class="card">
+      <h2>Logo <small id="variantName"></small></h2>
+      <div class="hero"><div class="logo" id="logo"></div><div class="icon" id="appicon"></div></div>
+    </section>
+
+    <section class="card">
+      <h2>Varianten <small>Klick = Vorschau oben · Resolver: Monat schlägt Saison, Gleichstand → Basis</small></h2>
+      <div class="resolver">
+        <label for="date">Datum</label><input type="date" id="date">
+        <span>→ <span class="pill" id="resolved"></span></span>
+      </div>
+      <div class="grid-variants" id="variants"></div>
+    </section>
+
+    <section class="card">
+      <h2>Icons <small id="iconMeta"></small></h2>
+      <div class="modes" id="modes"></div>
+      <div class="grid-icons" id="icons"></div>
+    </section>
+
+    <section class="card">
+      <h2>Kontrast WCAG AA <small>Text 4.5 · grosser Text/UI 3.0</small></h2>
+      <div style="overflow-x:auto"><table id="contrast"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>3D-Maskottchen <small>Render-Stand aus <code>dist/3d</code> — Farben ändern sich erst nach <code>build.sh</code> (Blender)</small></h2>
+      <div class="mascot" id="mascot"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const PB = window.PiggyBrand, D = window.PIGGY_DATA;
+  if (!D) { document.body.innerHTML = '<p style="padding:24px">data.js fehlt — erst <code>node brand/piggy/tools/build.js</code> ausführen.</p>'; return; }
+  const clone = PB.clone;
+  const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+
+  let tokens = store.get('piggy.tokens') || clone(D.tokens);
+  let style = store.get('piggy.style') || clone(D.iconStyle);
+  let selected = 'base';
+  const variants = D.variants;
+  const $ = (id) => document.getElementById(id);
+
+  // ---------------- Palette-Formular (nur primitive Farben — Semantic/Component folgen per Referenz)
+  function buildPaletteForm() {
+    const host = $('tab-palette');
+    host.innerHTML = '';
+    const col = tokens.primitive.color;
+    const groups = {};
+    for (const [k, v] of Object.entries(col)) {
+      if (typeof v === 'string') (groups._ = groups._ || []).push([k, 'primitive.color.' + k, v]);
+      else for (const [s, hex] of Object.entries(v)) (groups[k] = groups[k] || []).push([k + '.' + s, 'primitive.color.' + k + '.' + s, hex]);
+    }
+    for (const [g, items] of Object.entries(groups)) {
+      const fs = document.createElement('fieldset');
+      fs.innerHTML = `<legend>${g === '_' ? 'Basis' : g}</legend>`;
+      for (const [label, path, hex] of items) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const id = 'c-' + path.replace(/\./g, '-');
+        row.innerHTML = `<label for="${id}" title="${path}">${label}</label><input type="color" id="${id}" value="${hex.slice(0, 7)}"><input type="text" value="${hex}" aria-label="${path} Hex" spellcheck="false">`;
+        const [picker, text] = row.querySelectorAll('input');
+        const apply = (v) => { if (!/^#[0-9a-fA-F]{6}$/.test(v)) return; PB.setPath(tokens, path, v.toUpperCase()); picker.value = v; text.value = v.toUpperCase(); changed(); };
+        picker.addEventListener('input', () => apply(picker.value));
+        text.addEventListener('change', () => apply(text.value.trim()));
+        fs.appendChild(row);
+      }
+      host.appendChild(fs);
+    }
+    const p = document.createElement('p');
+    p.className = 'note';
+    p.innerHTML = 'Nur <b>Primitive</b> sind hier editierbar; Semantic- und Component-Tokens zeigen per Referenz darauf, darum schlägt jede Änderung auf Logo, Icons, App-Theme und (nach Neu-Render) das 3D-Schwein durch.';
+    host.appendChild(p);
+  }
+
+  // ---------------- Icon-Style-Formular
+  function colorPaths() {
+    const out = [];
+    const r = PB.resolveTokens(tokens);
+    const walk = (o, p) => { for (const [k, v] of Object.entries(o)) { const q = p + '.' + k; if (v && typeof v === 'object') walk(v, q); else if (typeof v === 'string' && v.startsWith('#')) out.push(q); } };
+    walk(r.semantic.color, 'semantic.color');
+    walk(r.component.icon, 'component.icon');
+    return out;
+  }
+  function buildStyleForm() {
+    $('sw').value = style.strokeWidth; $('swv').textContent = style.strokeWidth;
+    $('cr').value = style.cornerRadius; $('crv').textContent = style.cornerRadius;
+    $('fill').value = style.fill;
+    const paths = colorPaths();
+    for (const [id, role] of [['pp', 'primary'], ['ps', 'secondary'], ['po', 'onPrimary']]) {
+      $(id).innerHTML = paths.map((p) => `<option ${p === style.palette[role] ? 'selected' : ''}>${p}</option>`).join('');
+    }
+  }
+  $('sw').addEventListener('input', (e) => { style.strokeWidth = +e.target.value; $('swv').textContent = style.strokeWidth; changed(); });
+  $('cr').addEventListener('input', (e) => { style.cornerRadius = +e.target.value; $('crv').textContent = style.cornerRadius; changed(); });
+  $('fill').addEventListener('change', (e) => { style.fill = e.target.value; changed(); });
+  for (const [id, role] of [['pp', 'primary'], ['ps', 'secondary'], ['po', 'onPrimary']]) $(id).addEventListener('change', (e) => { style.palette[role] = e.target.value; changed(); });
+
+  document.querySelectorAll('[role=tab]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', x === b));
+    $('tab-palette').hidden = b.dataset.tab !== 'palette';
+    $('tab-style').hidden = b.dataset.tab !== 'style';
+  }));
+
+  // ---------------- Rendering
+  const allVariants = () => [PB.BASE_VARIANT, ...variants];
+  const byId = (id) => allVariants().find((v) => v.id === id) || PB.BASE_VARIANT;
+  let raf = 0;
+  function changed() {
+    store.set('piggy.tokens', tokens); store.set('piggy.style', style);
+    $('dirty').hidden = JSON.stringify(tokens) === JSON.stringify(D.tokens) && JSON.stringify(style) === JSON.stringify(D.iconStyle);
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(render);
+  }
+
+  function render() {
+    let T;
+    try { T = PB.resolveTokens(tokens); } catch (e) { $('logo').textContent = e.message; return; }
+    const v = byId(selected);
+    $('variantName').textContent = v.id === 'base' ? 'Basis' : `${v.name} (${v.kind === 'month' ? 'Monat' : 'Saison'} ${v.valid.from} – ${v.valid.to})`;
+    $('logo').innerHTML = PB.renderLogo(tokens, v, { layout: 'horizontal' });
+    $('appicon').innerHTML = PB.renderAppIcon(tokens, v, {});
+
+    // Varianten
+    const dv = $('date').value.split('-').map(Number);
+    const date = dv.length === 3 ? new Date(dv[0], dv[1] - 1, dv[2]) : new Date();
+    const cur = PB.currentVariant(date, variants);
+    $('resolved').textContent = cur.id === 'base' ? 'Basis-Logo' : cur.name;
+    $('variants').innerHTML = allVariants().map((x) => `<button class="variant ${x.id === selected ? 'active' : ''} ${x.id === cur.id ? 'today' : ''}" data-id="${x.id}" aria-pressed="${x.id === selected}">${PB.renderAppIcon(tokens, x, {})}${x.id === 'base' ? 'Basis' : x.name}<br><span style="color:var(--text2)">${x.valid ? x.valid.from + '–' + x.valid.to : 'Fallback'}</span></button>`).join('');
+
+    // Icons
+    const names = Object.keys(D.iconSources.icons);
+    $('iconMeta').textContent = `${names.length} Icons · ${style.fill} · Strich ${style.strokeWidth} · Radius ${style.cornerRadius}`;
+    let iconErr = '';
+    try {
+      $('icons').innerHTML = names.map((n) => `<div class="ic">${PB.renderIcon(n, D.iconSources, style, T, { size: 32 })}<span>${n}</span></div>`).join('');
+      const pick = ['home', 'scan', 'receipt', 'split', 'friends', 'piggy'];
+      $('modes').innerHTML = ['outline', 'filled', 'duotone'].map((m) => `<div><b>${m}</b>${pick.map((n) => PB.renderIcon(n, D.iconSources, style, T, { mode: m, size: 32 })).join('')}</div>`).join('');
+    } catch (e) { iconErr = e.message; $('icons').textContent = iconErr; }
+
+    // Kontrast
+    const rep = PB.contrastReport(tokens);
+    $('contrast').innerHTML = '<tr><th>Status</th><th>Ratio</th><th>Beispiel</th><th>Paar</th><th>Verwendung</th></tr>' + rep.map((r) =>
+      `<tr><td class="${r.status}">${r.status}</td><td>${r.ratio.toFixed(2)} / ${r.need}</td><td><span class="sample" style="color:${r.fgHex};background:${r.bgHex}">Aa 12.50</span></td><td><span class="sw" style="background:${r.fgHex}"></span>${r.fg}<br><span class="sw" style="background:${r.bgHex}"></span>${r.bg}</td><td>${r.use}${r.exempt ? '<br><i>' + r.exempt + '</i>' : ''}</td></tr>`).join('');
+  }
+
+  $('variants').addEventListener('click', (e) => { const b = e.target.closest('.variant'); if (b) { selected = b.dataset.id; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+  $('date').addEventListener('change', render);
+  { const n = new Date(), p = (x) => String(x).padStart(2, '0'); $('date').value = `${n.getFullYear()}-${p(n.getMonth() + 1)}-${p(n.getDate())}`; }
+
+  // Maskottchen (vorgerenderte Sprites)
+  const poses = ['idle-neutral', 'cheer-happy', 'catch-surprised', 'idle-happy', 'idle-surprised', 'idle-sad', 'idle-wink'];
+  $('mascot').innerHTML = poses.map((p) => `<figure><img src="../dist/3d/sprites/piggy-mascot-${p}@2x.png" alt="Piggy ${p}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{textContent:'noch nicht gerendert'}))"><figcaption>${p}</figcaption></figure>`).join('')
+    + `<figure><img src="../dist/3d/piggy-idle.gif" alt="Idle-Animation" onerror="this.remove()"><figcaption>Idle-Animation</figcaption></figure>`;
+
+  // ---------------- Export / Import
+  function download(name, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2) + '\n'], { type: 'application/json' });
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: name });
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $('exportTokens').addEventListener('click', () => download('piggy.json', tokens));
+  $('exportStyle').addEventListener('click', () => download('style.json', style));
+  $('reset').addEventListener('click', () => { tokens = clone(D.tokens); style = clone(D.iconStyle); store.del('piggy.tokens'); store.del('piggy.style'); buildPaletteForm(); buildStyleForm(); changed(); });
+  $('importFile').addEventListener('change', async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const j = JSON.parse(await f.text());
+      if (j.primitive && j.semantic) { PB.resolveTokens(j); tokens = j; buildPaletteForm(); }
+      else if (j.palette && j.strokeWidth !== undefined) style = j;
+      else throw new Error('Weder Token-Datei noch Icon-Style erkannt');
+      buildStyleForm(); changed();
+    } catch (err) { alert('Import fehlgeschlagen: ' + err.message); }
+    e.target.value = '';
+  });
+
+  buildPaletteForm(); buildStyleForm(); changed();
+})();
+</script>
+</body>
+</html>

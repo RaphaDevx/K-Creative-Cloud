@@ -1,0 +1,32 @@
+{
+  "semantic": {
+    "bg": {
+      "base":    { "$value": "{color.neutral.50}",   "$type": "color", "$description": "Eggshell Canvas" },
+      "surface": { "$value": "{color.neutral.0}",    "$type": "color" },
+      "elevated":{ "$value": "{color.neutral.100}",  "$type": "color" },
+      "overlay": { "$value": "rgba(22,22,24,0.6)",   "$type": "color" }
+    },
+    "text": {
+      "primary":   { "$value": "{color.neutral.900}", "$type": "color" },
+      "secondary":  { "$value": "{color.neutral.500}", "$type": "color" },
+      "muted":     { "$value": "{color.neutral.300}", "$type": "color" },
+      "on-accent": { "$value": "{color.neutral.0}",   "$type": "color" }
+    },
+    "border": {
+      "default": { "$value": "{color.neutral.200}", "$type": "color" },
+      "strong":  { "$value": "{color.neutral.300}", "$type": "color" }
+    },
+    "accent": {
+      "default": { "$value": "{color.bordeaux.500}", "$type": "color" },
+      "soft":    { "$value": "rgba(122,28,48,0.06)", "$type": "color" },
+      "mid":     { "$value": "rgba(122,28,48,0.14)", "$type": "color" },
+      "ring":    { "$value": "rgba(122,28,48,0.28)", "$type": "color" }
+    },
+    "status": {
+      "success": { "$value": "{color.sage.500}",    "$type": "color" },
+      "warning": { "$value": "{color.rust.500}",    "$type": "color" },
+      "error":   { "$value": "{color.semantic.error}", "$type": "color" },
+      "info":    { "$value": "{color.kyanit.500}",  "$type": "color" }
+    }
+  }
+}

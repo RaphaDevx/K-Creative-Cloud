@@ -1,0 +1,1940 @@
+{
+ "$comment": "Piggy Icon-Quellen: Primitive auf 24er-Raster (Safe-Area 2). Rollen: base/detail/dot, 'in': liegt auf base (filled → Aussparung). 'ionicons' = ersetzt diese Namen (Migration).",
+ "icons": {
+  "home": {
+   "group": "nav",
+   "ionicons": [
+    "home",
+    "home-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "pts": [
+      [
+       4,
+       10.5
+      ],
+      [
+       12,
+       4
+      ],
+      [
+       20,
+       10.5
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       4,
+       20
+      ]
+     ],
+     "r": 3
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 15.5,
+     "x2": 12,
+     "y2": 20,
+     "in": true
+    }
+   ]
+  },
+  "receipt": {
+   "group": "nav",
+   "ionicons": [
+    "receipt",
+    "receipt-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 1.5,
+     "pts": [
+      [
+       5.5,
+       3
+      ],
+      [
+       18.5,
+       3
+      ],
+      [
+       18.5,
+       21
+      ],
+      [
+       16.3,
+       19.5
+      ],
+      [
+       14.2,
+       21
+      ],
+      [
+       12,
+       19.5
+      ],
+      [
+       9.8,
+       21
+      ],
+      [
+       7.7,
+       19.5
+      ],
+      [
+       5.5,
+       21
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 9,
+     "y1": 8,
+     "x2": 15,
+     "y2": 8,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 9,
+     "y1": 12,
+     "x2": 15,
+     "y2": 12,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 9,
+     "y1": 16,
+     "x2": 12.5,
+     "y2": 16,
+     "in": true
+    }
+   ]
+  },
+  "folder": {
+   "group": "nav",
+   "ionicons": [
+    "folder",
+    "folder-outline",
+    "folder-open-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 2.5,
+     "pts": [
+      [
+       3,
+       5.5
+      ],
+      [
+       9.5,
+       5.5
+      ],
+      [
+       11.5,
+       8
+      ],
+      [
+       21,
+       8
+      ],
+      [
+       21,
+       19
+      ],
+      [
+       3,
+       19
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 3.5,
+     "y1": 11.5,
+     "x2": 20.5,
+     "y2": 11.5,
+     "in": true
+    }
+   ]
+  },
+  "profile": {
+   "group": "nav",
+   "ionicons": [
+    "person",
+    "person-outline",
+    "person-circle",
+    "person-circle-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 12,
+     "cy": 8,
+     "r": 3.8
+    },
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M4.5,20.5 C4.5,16.4 7.9,13.5 12,13.5 C16.1,13.5 19.5,16.4 19.5,20.5 Z"
+    }
+   ]
+  },
+  "stats": {
+   "group": "nav",
+   "ionicons": [
+    "bar-chart",
+    "bar-chart-outline",
+    "stats-chart"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 3.5,
+     "y": 12,
+     "w": 4.5,
+     "h": 8.5
+    },
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 9.75,
+     "y": 7,
+     "w": 4.5,
+     "h": 13.5
+    },
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 16,
+     "y": 3.5,
+     "w": 4.5,
+     "h": 17
+    }
+   ]
+  },
+  "settings": {
+   "group": "nav",
+   "ionicons": [
+    "settings",
+    "settings-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "gear",
+     "cx": 12,
+     "cy": 12,
+     "ro": 9.5,
+     "ri": 7.2,
+     "teeth": 8
+    },
+    {
+     "role": "detail",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 2.8,
+     "in": true
+    }
+   ]
+  },
+  "scan": {
+   "group": "action",
+   "ionicons": [
+    "scan",
+    "scan-outline"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M3.5,8.5 V6.5 A3,3 0 0 1 6.5,3.5 H8.5"
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M15.5,3.5 H17.5 A3,3 0 0 1 20.5,6.5 V8.5"
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M20.5,15.5 V17.5 A3,3 0 0 1 17.5,20.5 H15.5"
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M8.5,20.5 H6.5 A3,3 0 0 1 3.5,17.5 V15.5"
+    },
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 8,
+     "y": 7,
+     "w": 8,
+     "h": 10,
+     "r": 1.5
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 6,
+     "y1": 12,
+     "x2": 18,
+     "y2": 12
+    }
+   ]
+  },
+  "camera": {
+   "group": "action",
+   "ionicons": [
+    "camera",
+    "camera-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 2.5,
+     "pts": [
+      [
+       3,
+       8
+      ],
+      [
+       7.5,
+       8
+      ],
+      [
+       9.2,
+       5.2
+      ],
+      [
+       14.8,
+       5.2
+      ],
+      [
+       16.5,
+       8
+      ],
+      [
+       21,
+       8
+      ],
+      [
+       21,
+       19.5
+      ],
+      [
+       3,
+       19.5
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "circle",
+     "cx": 12,
+     "cy": 13.5,
+     "r": 3.4,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 17.6,
+     "cy": 10.8,
+     "r": 0.9,
+     "in": true
+    }
+   ]
+  },
+  "gallery": {
+   "group": "action",
+   "ionicons": [
+    "images",
+    "images-outline",
+    "image-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 3,
+     "y": 4.5,
+     "w": 18,
+     "h": 15
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       4,
+       17
+      ],
+      [
+       9,
+       12
+      ],
+      [
+       13,
+       16
+      ],
+      [
+       15.5,
+       13.5
+      ],
+      [
+       20,
+       18
+      ]
+     ],
+     "r": 1.2,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 15.5,
+     "cy": 9,
+     "r": 1.7,
+     "in": true
+    }
+   ]
+  },
+  "split": {
+   "group": "action",
+   "ionicons": [
+    "git-branch-outline",
+    "cut-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M10.8,3.6 A8.5,8.5 0 0 0 10.8,20.4 Z"
+    },
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M13.2,3.6 A8.5,8.5 0 0 1 13.2,20.4 Z"
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 7.3,
+     "cy": 12,
+     "r": 1.2,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 16.7,
+     "cy": 12,
+     "r": 1.2,
+     "in": true
+    }
+   ]
+  },
+  "friends": {
+   "group": "action",
+   "ionicons": [
+    "people",
+    "people-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 16.5,
+     "cy": 8.5,
+     "r": 2.8
+    },
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M14.2,19.5 C14.2,16 15.3,13.6 17,13.6 C19.4,13.6 21.5,15.8 21.5,19.5 Z"
+    },
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 9,
+     "cy": 8.5,
+     "r": 3.5
+    },
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M2.5,20 C2.5,16.2 5.4,13.5 9,13.5 C12.6,13.5 15.5,16.2 15.5,20 Z"
+    }
+   ]
+  },
+  "friend-add": {
+   "group": "action",
+   "ionicons": [
+    "person-add",
+    "person-add-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 9.5,
+     "cy": 8,
+     "r": 3.6
+    },
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M2.5,20 C2.5,16.2 5.6,13.5 9.5,13.5 C13.4,13.5 16.5,16.2 16.5,20 Z"
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 19,
+     "y1": 6,
+     "x2": 19,
+     "y2": 12
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 16,
+     "y1": 9,
+     "x2": 22,
+     "y2": 9
+    }
+   ]
+  },
+  "friend-remove": {
+   "group": "action",
+   "ionicons": [
+    "person-remove-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 9.5,
+     "cy": 8,
+     "r": 3.6
+    },
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M2.5,20 C2.5,16.2 5.6,13.5 9.5,13.5 C13.4,13.5 16.5,16.2 16.5,20 Z"
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 16,
+     "y1": 9,
+     "x2": 22,
+     "y2": 9
+    }
+   ]
+  },
+  "add": {
+   "group": "action",
+   "ionicons": [
+    "add"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 5,
+     "x2": 12,
+     "y2": 19
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 5,
+     "y1": 12,
+     "x2": 19,
+     "y2": 12
+    }
+   ]
+  },
+  "add-circle": {
+   "group": "action",
+   "ionicons": [
+    "add-circle",
+    "add-circle-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 9
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 8,
+     "x2": 12,
+     "y2": 16,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 8,
+     "y1": 12,
+     "x2": 16,
+     "y2": 12,
+     "in": true
+    }
+   ]
+  },
+  "share": {
+   "group": "action",
+   "ionicons": [
+    "share",
+    "share-outline",
+    "share-social-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 5,
+     "y": 10,
+     "w": 14,
+     "h": 11
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 3.5,
+     "x2": 12,
+     "y2": 9
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 10.5,
+     "x2": 12,
+     "y2": 14.5,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       8.8,
+       6.5
+      ],
+      [
+       12,
+       3.3
+      ],
+      [
+       15.2,
+       6.5
+      ]
+     ],
+     "r": 0.8
+    }
+   ]
+  },
+  "send": {
+   "group": "action",
+   "ionicons": [
+    "paper-plane",
+    "paper-plane-outline",
+    "send"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 1.5,
+     "pts": [
+      [
+       3.5,
+       11
+      ],
+      [
+       20.5,
+       3.5
+      ],
+      [
+       13.5,
+       20.5
+      ],
+      [
+       11,
+       13
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 11,
+     "y1": 13,
+     "x2": 16,
+     "y2": 8,
+     "in": true
+    }
+   ]
+  },
+  "trash": {
+   "group": "action",
+   "ionicons": [
+    "trash",
+    "trash-outline"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 4,
+     "y1": 6.5,
+     "x2": 20,
+     "y2": 6.5
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M9,6.5 V5 A1.5,1.5 0 0 1 10.5,3.5 H13.5 A1.5,1.5 0 0 1 15,5 V6.5"
+    },
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 2,
+     "pts": [
+      [
+       6,
+       6.5
+      ],
+      [
+       18,
+       6.5
+      ],
+      [
+       17,
+       20.5
+      ],
+      [
+       7,
+       20.5
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 10,
+     "y1": 10.5,
+     "x2": 10,
+     "y2": 16.5,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 14,
+     "y1": 10.5,
+     "x2": 14,
+     "y2": 16.5,
+     "in": true
+    }
+   ]
+  },
+  "edit": {
+   "group": "action",
+   "ionicons": [
+    "pencil",
+    "pencil-outline",
+    "create-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 1.2,
+     "pts": [
+      [
+       15,
+       4.5
+      ],
+      [
+       19.5,
+       9
+      ],
+      [
+       9,
+       19.5
+      ],
+      [
+       4.5,
+       19.5
+      ],
+      [
+       4.5,
+       15
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 13,
+     "y1": 6.5,
+     "x2": 17.5,
+     "y2": 11,
+     "in": true
+    }
+   ]
+  },
+  "search": {
+   "group": "action",
+   "ionicons": [
+    "search",
+    "search-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 10.5,
+     "cy": 10.5,
+     "r": 6.5
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 15.5,
+     "y1": 15.5,
+     "x2": 20,
+     "y2": 20
+    }
+   ]
+  },
+  "filter": {
+   "group": "action",
+   "ionicons": [
+    "filter",
+    "filter-outline",
+    "funnel-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 1.5,
+     "pts": [
+      [
+       4,
+       5
+      ],
+      [
+       20,
+       5
+      ],
+      [
+       14,
+       12.5
+      ],
+      [
+       14,
+       19
+      ],
+      [
+       10,
+       17.5
+      ],
+      [
+       10,
+       12.5
+      ]
+     ]
+    }
+   ]
+  },
+  "swap": {
+   "group": "action",
+   "ionicons": [
+    "swap-vertical"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 8,
+     "y1": 19,
+     "x2": 8,
+     "y2": 5
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       4.5,
+       8.5
+      ],
+      [
+       8,
+       5
+      ],
+      [
+       11.5,
+       8.5
+      ]
+     ],
+     "r": 0.8
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 16,
+     "y1": 5,
+     "x2": 16,
+     "y2": 19
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       12.5,
+       15.5
+      ],
+      [
+       16,
+       19
+      ],
+      [
+       19.5,
+       15.5
+      ]
+     ],
+     "r": 0.8
+    }
+   ]
+  },
+  "check": {
+   "group": "status",
+   "ionicons": [
+    "checkmark"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       5,
+       12.5
+      ],
+      [
+       10,
+       17.5
+      ],
+      [
+       19,
+       7
+      ]
+     ],
+     "r": 1
+    }
+   ]
+  },
+  "check-circle": {
+   "group": "status",
+   "ionicons": [
+    "checkmark-circle",
+    "checkmark-circle-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 9
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       8,
+       12.3
+      ],
+      [
+       11,
+       15.3
+      ],
+      [
+       16.2,
+       9.2
+      ]
+     ],
+     "r": 0.8,
+     "in": true
+    }
+   ]
+  },
+  "close": {
+   "group": "status",
+   "ionicons": [
+    "close"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 6.5,
+     "y1": 6.5,
+     "x2": 17.5,
+     "y2": 17.5
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 17.5,
+     "y1": 6.5,
+     "x2": 6.5,
+     "y2": 17.5
+    }
+   ]
+  },
+  "close-circle": {
+   "group": "status",
+   "ionicons": [
+    "close-circle",
+    "close-circle-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 9
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 9,
+     "y1": 9,
+     "x2": 15,
+     "y2": 15,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 15,
+     "y1": 9,
+     "x2": 9,
+     "y2": 15,
+     "in": true
+    }
+   ]
+  },
+  "alert": {
+   "group": "status",
+   "ionicons": [
+    "alert-circle",
+    "alert-circle-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 9
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 7.5,
+     "x2": 12,
+     "y2": 12.5,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 12,
+     "cy": 16.2,
+     "r": 1.3,
+     "in": true
+    }
+   ]
+  },
+  "shield-check": {
+   "group": "status",
+   "ionicons": [
+    "shield-checkmark",
+    "shield-checkmark-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M12,3 L19,6 V11.5 C19,15.8 16,19.2 12,20.8 C8,19.2 5,15.8 5,11.5 V6 Z"
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       8.8,
+       12
+      ],
+      [
+       11.2,
+       14.4
+      ],
+      [
+       15.4,
+       9.8
+      ]
+     ],
+     "r": 0.8,
+     "in": true
+    }
+   ]
+  },
+  "chevron-back": {
+   "group": "nav",
+   "ionicons": [
+    "chevron-back"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       15,
+       5.5
+      ],
+      [
+       8.5,
+       12
+      ],
+      [
+       15,
+       18.5
+      ]
+     ],
+     "r": 1
+    }
+   ]
+  },
+  "chevron-forward": {
+   "group": "nav",
+   "ionicons": [
+    "chevron-forward"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       9,
+       5.5
+      ],
+      [
+       15.5,
+       12
+      ],
+      [
+       9,
+       18.5
+      ]
+     ],
+     "r": 1
+    }
+   ]
+  },
+  "chevron-down": {
+   "group": "nav",
+   "ionicons": [
+    "chevron-down"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       5.5,
+       9
+      ],
+      [
+       12,
+       15.5
+      ],
+      [
+       18.5,
+       9
+      ]
+     ],
+     "r": 1
+    }
+   ]
+  },
+  "arrow-up": {
+   "group": "nav",
+   "ionicons": [
+    "arrow-up"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 19,
+     "x2": 12,
+     "y2": 5
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       6.5,
+       10.5
+      ],
+      [
+       12,
+       5
+      ],
+      [
+       17.5,
+       10.5
+      ]
+     ],
+     "r": 1
+    }
+   ]
+  },
+  "arrow-down": {
+   "group": "nav",
+   "ionicons": [
+    "arrow-down"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 5,
+     "x2": 12,
+     "y2": 19
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       6.5,
+       13.5
+      ],
+      [
+       12,
+       19
+      ],
+      [
+       17.5,
+       13.5
+      ]
+     ],
+     "r": 1
+    }
+   ]
+  },
+  "card": {
+   "group": "object",
+   "ionicons": [
+    "card",
+    "card-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 2.5,
+     "y": 5.5,
+     "w": 19,
+     "h": 13
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 3,
+     "y1": 10,
+     "x2": 21,
+     "y2": 10,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 6.5,
+     "y1": 14.5,
+     "x2": 10,
+     "y2": 14.5,
+     "in": true
+    }
+   ]
+  },
+  "calendar": {
+   "group": "object",
+   "ionicons": [
+    "calendar",
+    "calendar-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 3.5,
+     "y": 5.5,
+     "w": 17,
+     "h": 15
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 8,
+     "y1": 3.5,
+     "x2": 8,
+     "y2": 7
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 16,
+     "y1": 3.5,
+     "x2": 16,
+     "y2": 7
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 4,
+     "y1": 10.5,
+     "x2": 20,
+     "y2": 10.5,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 8.5,
+     "cy": 14.5,
+     "r": 1.1,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 12,
+     "cy": 14.5,
+     "r": 1.1,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 15.5,
+     "cy": 14.5,
+     "r": 1.1,
+     "in": true
+    }
+   ]
+  },
+  "qr-code": {
+   "group": "object",
+   "ionicons": [
+    "qr-code",
+    "qr-code-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 3.5,
+     "y": 3.5,
+     "w": 7,
+     "h": 7,
+     "r": 2
+    },
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 13.5,
+     "y": 3.5,
+     "w": 7,
+     "h": 7,
+     "r": 2
+    },
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 3.5,
+     "y": 13.5,
+     "w": 7,
+     "h": 7,
+     "r": 2
+    },
+    {
+     "role": "dot",
+     "t": "rect",
+     "x": 13.5,
+     "y": 13.5,
+     "w": 3,
+     "h": 3,
+     "r": 0.8
+    },
+    {
+     "role": "dot",
+     "t": "rect",
+     "x": 17.5,
+     "y": 17.5,
+     "w": 3,
+     "h": 3,
+     "r": 0.8
+    },
+    {
+     "role": "dot",
+     "t": "rect",
+     "x": 17.5,
+     "y": 13.5,
+     "w": 3,
+     "h": 2,
+     "r": 0.8
+    },
+    {
+     "role": "dot",
+     "t": "rect",
+     "x": 13.5,
+     "y": 18.5,
+     "w": 2,
+     "h": 2,
+     "r": 0.8
+    }
+   ]
+  },
+  "link": {
+   "group": "object",
+   "ionicons": [
+    "link",
+    "link-outline"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M10,14 A4,4 0 0 0 15.66,14 L18.5,11.16 A4,4 0 0 0 12.84,5.5 L11.5,6.84"
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M14,10 A4,4 0 0 0 8.34,10 L5.5,12.84 A4,4 0 0 0 11.16,18.5 L12.5,17.16"
+    }
+   ]
+  },
+  "logout": {
+   "group": "object",
+   "ionicons": [
+    "log-out-outline"
+   ],
+   "shapes": [
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M10,4 H7 A2.5,2.5 0 0 0 4.5,6.5 V17.5 A2.5,2.5 0 0 0 7,20 H10"
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 10,
+     "y1": 12,
+     "x2": 20,
+     "y2": 12
+    },
+    {
+     "role": "detail",
+     "t": "poly",
+     "pts": [
+      [
+       16.5,
+       8.5
+      ],
+      [
+       20,
+       12
+      ],
+      [
+       16.5,
+       15.5
+      ]
+     ],
+     "r": 0.8
+    }
+   ]
+  },
+  "cloud": {
+   "group": "object",
+   "ionicons": [
+    "cloud",
+    "cloud-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M7,18.5 A4.2,4.2 0 0 1 6.5,10.1 A5.6,5.6 0 0 1 17.3,8.6 A4.9,4.9 0 0 1 17,18.5 Z"
+    }
+   ]
+  },
+  "sparkles": {
+   "group": "object",
+   "ionicons": [
+    "sparkles",
+    "sparkles-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "star",
+     "cx": 10,
+     "cy": 12,
+     "r": 7.5,
+     "inner": 0.36,
+     "spikes": 4
+    },
+    {
+     "role": "base",
+     "t": "star",
+     "cx": 18,
+     "cy": 6,
+     "r": 3.2,
+     "inner": 0.4,
+     "spikes": 4
+    }
+   ]
+  },
+  "document": {
+   "group": "object",
+   "ionicons": [
+    "document-attach-outline",
+    "document-outline",
+    "document-text-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 2,
+     "pts": [
+      [
+       6,
+       3
+      ],
+      [
+       14,
+       3
+      ],
+      [
+       19,
+       8
+      ],
+      [
+       19,
+       21
+      ],
+      [
+       6,
+       21
+      ]
+     ]
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M13.5,3.5 V8.5 H18.5",
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 9.5,
+     "y1": 13,
+     "x2": 15.5,
+     "y2": 13,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 9.5,
+     "y1": 16.5,
+     "x2": 13.5,
+     "y2": 16.5,
+     "in": true
+    }
+   ]
+  },
+  "key": {
+   "group": "object",
+   "ionicons": [
+    "key",
+    "key-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 8,
+     "cy": 12,
+     "r": 4.2
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12.2,
+     "y1": 12,
+     "x2": 20.5,
+     "y2": 12
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 17,
+     "y1": 12,
+     "x2": 17,
+     "y2": 15
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 20.5,
+     "y1": 12,
+     "x2": 20.5,
+     "y2": 14.5
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 8,
+     "cy": 12,
+     "r": 1.2,
+     "in": true
+    }
+   ]
+  },
+  "phone": {
+   "group": "object",
+   "ionicons": [
+    "phone-portrait-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 6.5,
+     "y": 2.5,
+     "w": 11,
+     "h": 19
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 10.5,
+     "y1": 18,
+     "x2": 13.5,
+     "y2": 18,
+     "in": true
+    }
+   ]
+  },
+  "tag": {
+   "group": "object",
+   "ionicons": [
+    "pricetag",
+    "pricetag-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 2,
+     "pts": [
+      [
+       3.5,
+       4.5
+      ],
+      [
+       11,
+       3.5
+      ],
+      [
+       20.5,
+       13
+      ],
+      [
+       13,
+       20.5
+      ],
+      [
+       3.5,
+       11
+      ]
+     ]
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 8,
+     "cy": 8,
+     "r": 1.6,
+     "in": true
+    }
+   ]
+  },
+  "wallet": {
+   "group": "object",
+   "ionicons": [
+    "wallet",
+    "wallet-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "rect",
+     "x": 3,
+     "y": 6,
+     "w": 18,
+     "h": 14
+    },
+    {
+     "role": "detail",
+     "t": "path",
+     "d": "M5,6 L15.5,3.5 A1.5,1.5 0 0 1 17.3,5 V6"
+    },
+    {
+     "role": "detail",
+     "t": "rect",
+     "x": 14.5,
+     "y": 11,
+     "w": 6.5,
+     "h": 4.5,
+     "r": 2,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 17,
+     "cy": 13.25,
+     "r": 0.9,
+     "in": true
+    }
+   ]
+  },
+  "coin": {
+   "group": "brand",
+   "ionicons": [],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 9
+    },
+    {
+     "role": "detail",
+     "t": "circle",
+     "cx": 12,
+     "cy": 12,
+     "r": 5.5,
+     "thin": true,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 12,
+     "y1": 9.5,
+     "x2": 12,
+     "y2": 14.5,
+     "in": true
+    }
+   ]
+  },
+  "piggy": {
+   "group": "brand",
+   "ionicons": [],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 1.2,
+     "pts": [
+      [
+       4.2,
+       9
+      ],
+      [
+       4.8,
+       3.6
+      ],
+      [
+       9,
+       6.2
+      ]
+     ]
+    },
+    {
+     "role": "base",
+     "t": "poly",
+     "closed": true,
+     "r": 1.2,
+     "pts": [
+      [
+       19.8,
+       9
+      ],
+      [
+       19.2,
+       3.6
+      ],
+      [
+       15,
+       6.2
+      ]
+     ]
+    },
+    {
+     "role": "base",
+     "t": "ellipse",
+     "cx": 12,
+     "cy": 13,
+     "rx": 8.5,
+     "ry": 7.5
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 10.3,
+     "y1": 7.4,
+     "x2": 13.7,
+     "y2": 7.4,
+     "in": true
+    },
+    {
+     "role": "detail",
+     "t": "ellipse",
+     "cx": 12,
+     "cy": 15.3,
+     "rx": 3.1,
+     "ry": 2.2,
+     "thin": true,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 8.6,
+     "cy": 11.6,
+     "r": 1.15,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 15.4,
+     "cy": 11.6,
+     "r": 1.15,
+     "in": true
+    }
+   ]
+  },
+  "piggy-bank": {
+   "group": "brand",
+   "ionicons": [
+    "cash-outline",
+    "wallet-outline"
+   ],
+   "shapes": [
+    {
+     "role": "base",
+     "t": "path",
+     "d": "M4,12.5 C4,8.4 7.6,5.5 12,5.5 C15,5.5 17.4,6.7 18.6,8.6 L21,8 L20.2,11.4 C20.6,12.3 20.5,13.6 20,14.7 L19,15.5 V19 H16.2 L15.6,17.4 C13.4,18 11,18 8.6,17.4 L8,19 H5.4 V15.6 C4.5,14.8 4,13.7 4,12.5 Z"
+    },
+    {
+     "role": "detail",
+     "t": "line",
+     "x1": 10,
+     "y1": 8.3,
+     "x2": 13.5,
+     "y2": 8.3,
+     "in": true
+    },
+    {
+     "role": "dot",
+     "t": "circle",
+     "cx": 16.5,
+     "cy": 11,
+     "r": 1,
+     "in": true
+    }
+   ]
+  }
+ }
+}

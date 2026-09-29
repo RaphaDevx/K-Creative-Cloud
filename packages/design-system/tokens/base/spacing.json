@@ -1,0 +1,14 @@
+{
+  "spacing": {
+    "0":   { "$value": "0px",   "$type": "dimension" },
+    "xs":  { "$value": "4px",   "$type": "dimension", "$description": "Badges, Icon-Padding" },
+    "sm":  { "$value": "8px",   "$type": "dimension", "$description": "Inneres Komponenten-Padding" },
+    "md":  { "$value": "16px",  "$type": "dimension", "$description": "Standard-Abstand zwischen Elementen" },
+    "lg":  { "$value": "24px",  "$type": "dimension", "$description": "Karten- und Container-Padding" },
+    "xl":  { "$value": "32px",  "$type": "dimension", "$description": "Abstand zwischen Inhaltsblöcken" },
+    "2xl": { "$value": "48px",  "$type": "dimension", "$description": "Sektionsabstände" },
+    "3xl": { "$value": "64px",  "$type": "dimension", "$description": "Page-Sections" },
+    "4xl": { "$value": "96px",  "$type": "dimension" },
+    "5xl": { "$value": "128px", "$type": "dimension" }
+  }
+}

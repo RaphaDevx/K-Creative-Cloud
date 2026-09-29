@@ -1,0 +1,87 @@
+{
+  "$schema": "https://k-creative.local/schemas/project-v1.json",
+  "id": "k_learning_brand",
+  "name": "K-Learning Brand Identity",
+  "version": "1.0.0",
+  "created": "2026-08-13",
+  "status": "active",
+
+  "brand_equity_ref": "../../_global_brand_equity",
+
+  "context": {
+    "client": "K-Learning",
+    "mission": "Wissenschaftliches Lernen gamifiziert für Studierende",
+    "audience": "Studierende 18–28, HSG, ETH, Lehramt",
+    "personality": ["intelligent", "fokussiert", "nicht-gamifiziert", "akademisch"],
+    "tone_of_voice": "Klar, direkt, akademisch. Kein Marketing-Sprech.",
+    "brief": "Brand Identity für eine Lernplattform die LaTeX, Formelblätter und MindMaps vereint. Kernfarbe K-Violet #6C47FF."
+  },
+
+  "brand": {
+    "name": "K-Learning",
+    "tagline": "Lerne wie ein Profi",
+    "colors": {
+      "primary": "#6C47FF",
+      "primary_soft": "#A855F7",
+      "success": "#3DD68C",
+      "warning": "#FFB347",
+      "error": "#FF6B6B",
+      "bg_dark": "#0D0D16",
+      "bg_surface": "#18162A"
+    },
+    "fonts": {
+      "ui": "Nunito",
+      "content": "Latin Modern Roman",
+      "mono": "JetBrains Mono"
+    },
+    "design_tokens_ref": "/home/raphael/K-Learning/branding/tokens.json"
+  },
+
+  "chapters": [
+    {
+      "id": "01_logo",
+      "name": "Logo Primary",
+      "status": "open",
+      "tool": "inkscape",
+      "outputs": ["logo_primary.svg", "logo_primary.png"],
+      "brief": "Abstraktes K, Gradient K-Violet → Purple, clean vector, skalierbar"
+    },
+    {
+      "id": "02_icons",
+      "name": "App Icons",
+      "status": "open",
+      "tool": "blender+inkscape",
+      "outputs": ["icon_1024.png", "icon_512.png", "icon.glb"],
+      "brief": "Rounded rectangle (iOS-Stil), K-Violet Material, 3D-Render + Flat-Version"
+    },
+    {
+      "id": "03_sound_logo",
+      "name": "Sound Logo",
+      "status": "open",
+      "tool": "lmms",
+      "outputs": ["sound_logo.wav", "sound_logo.mp3"],
+      "brief": "3-Ton-Motiv aufsteigend, 1.2s, minimal, modern"
+    },
+    {
+      "id": "04_motion",
+      "name": "Motion Logo",
+      "status": "open",
+      "tool": "blender+kdenlive",
+      "outputs": ["logo_animation.mp4", "logo_animation.webm"],
+      "brief": "K-Form baut sich auf, Particle-Effekt K-Violet, 2s, loopfähig"
+    }
+  ],
+
+  "pipeline": {
+    "render_engine": "blender",
+    "blender_version": "4.0.2",
+    "export_formats": ["glb", "png", "svg"],
+    "output_dir": "./outputs",
+    "renders_dir": "/home/raphael/K-Creative-Cloud/renders/k_learning_brand"
+  },
+
+  "llm_context": {
+    "system_prompt": "Du bist Brand Designer für K-Learning. Farbe immer #6C47FF. Stil: minimalistisch, akademisch, kein Kitsch. Bevorzuge SVG/GLB-Ausgaben. Rendere headless über bpy oder Inkscape CLI.",
+    "asset_graph_ref": "./asset_manifest.json"
+  }
+}

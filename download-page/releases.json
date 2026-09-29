@@ -1,0 +1,41 @@
+{
+  "r2_base": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev",
+  "products": {
+    "k-creative": {
+      "version": "0.2.9",
+      "arm64": "k-creative/K-Creative Studio-0.2.9-arm64.dmg",
+      "x64": "k-creative/K-Creative Studio-0.2.9.dmg",
+      "note": "macOS 12+ \u00b7 Apple Silicon + Intel \u00b7 Auto-Update"
+    },
+    "k-daw": {
+      "version": "0.2.0",
+      "arm64": "k-daw/K-DAW-0.2.0-arm64.dmg",
+      "x64": "k-daw/K-DAW-0.2.0.dmg",
+      "note": "macOS 12+ \u00b7 Apple Silicon + Intel \u00b7 Auto-Update"
+    },
+    "k-dev-dashboard": {
+      "version": "1.0.0",
+      "arm64": "k-dev-dashboard/K-Dev Dashboard-1.0.0-arm64.dmg",
+      "note": "macOS 12+ \u00b7 Apple Silicon"
+    },
+    "k-ai-dashboard": {
+      "version": "1.1.0",
+      "arm64": "k-ai-dashboard/K-AI Dashboard-1.1.0-arm64.dmg",
+      "note": "macOS 12+ \u00b7 Signed & Notarized \u00b7 Auto-Update"
+    },
+    "k-research": {
+      "version": "1.0.0",
+      "arm64": "k-research/K-Research-1.0.0-arm64.dmg",
+      "note": "macOS 12+ \u00b7 Apple Silicon \u00b7 Signed & Notarized"
+    },
+    "k-cloud": {
+      "version": "1.1.4",
+      "universal": "k-cloud/K-Cloud-1.1.4.dmg",
+      "sha256": "a0f54b7c6fb15803a1b6e6a14e20d24102b29c48762fa79951b01e6c8f906230",
+      "linux_x86_64": "k-cloud/k-cloud-1.3.0-linux-x86_64",
+      "sha256_linux": "6caffb45fc46a4c32f629ac5f93b65940430350205ccdd561563b4df643801e2",
+      "note": "macOS 12+ \u00b7 Linux x86_64 \u00b7 Signiert & Notarisiert",
+      "version_linux": "1.3.0"
+    }
+  }
+}

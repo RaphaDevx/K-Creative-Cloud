@@ -1,6 +1,7 @@
 """FastAPI web server — KI-DAW backend."""
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -21,13 +22,14 @@ else:
     _DATA   = Path(__file__).parent.parent
     sys.path.insert(0, str(_BUNDLE.parent / "scripts"))
 
-WEB_DIR      = _BUNDLE / "web"
+WEB_DIR      = _DATA   / "web"
 RENDERS_DIR  = _DATA   / "renders"
 DOWNLOADS_DIR = _DATA  / "downloads"
 
 from music_ai import generate_music
 from midi_generator import list_renders, midi_to_wav, music_to_midi
 from downloader import start_download, get_job, list_downloads
+from bandcamp_free import get_bandcamp_info, is_bandcamp
 from midi_learn import (
     INTERNAL_EVENTS, ALL_EVENTS,
     load_mapping, save_mapping, delete_mapping, list_mappings,
@@ -80,20 +82,108 @@ async def api_download_status(job_id: str):
     return job
 
 
+_GRADE_ORDER = {"CLUB-READY": 0, "GOOD": 1, "MEDIUM": 2, "LOW": 3, None: 4, "unknown": 4}
+
 @app.get("/api/downloads")
-async def api_downloads():
+async def api_downloads(sort: str = "date", order: str = "desc"):
     files = list_downloads()
-    # Attach existing quality tags if present
-    for f in files:
+
+    # Attach quality from cache (fast) or ID3 tags (MP3 fallback)
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from analyze_quality import get_cached, CACHE_FILE
+        cache = {}
         try:
-            from mutagen.id3 import ID3
-            tags = ID3(str(DOWNLOADS_DIR / f["name"]))
-            f["quality"] = str(tags.get("TXXX:QUALITY", "?"))
-            f["freq_ceiling"] = str(tags.get("TXXX:FREQ_CEILING", ""))
+            import json as _json
+            cache = _json.loads(CACHE_FILE.read_text())
         except Exception:
-            f["quality"] = None
-            f["freq_ceiling"] = None
+            pass
+    except Exception:
+        cache = {}
+
+    for f in files:
+        cached = cache.get(f["name"])
+        if cached:
+            f["quality"] = cached.get("grade")
+            f["freq_ceiling"] = f'{cached.get("ceiling_khz", "")} kHz' if cached.get("ceiling_khz") else ""
+        else:
+            # Fallback: try ID3 tag for MP3
+            try:
+                from mutagen.id3 import ID3
+                tags = ID3(str(DOWNLOADS_DIR / f["name"]))
+                q = tags.get("TXXX:QUALITY")
+                f["quality"] = str(q) if q else None
+                fc = tags.get("TXXX:FREQ_CEILING")
+                f["freq_ceiling"] = str(fc) if fc else None
+            except Exception:
+                f["quality"] = None
+                f["freq_ceiling"] = None
+
+    # Sort
+    rev = order == "desc"
+    if sort == "quality":
+        files.sort(key=lambda x: _GRADE_ORDER.get(x.get("quality"), 4), reverse=not rev)
+    elif sort == "name":
+        files.sort(key=lambda x: x["name"].lower(), reverse=rev)
+    elif sort == "size":
+        files.sort(key=lambda x: x["size"], reverse=rev)
+    elif sort == "type":
+        files.sort(key=lambda x: x["type"], reverse=rev)
+    else:  # date (default)
+        files.sort(key=lambda x: x["mtime"], reverse=rev)
+
     return {"files": files}
+
+
+USB_MOUNT = Path("/mnt/kdj")
+
+@app.post("/api/usb/copy")
+async def api_usb_copy(body: dict = {}):
+    """Copy selected files (or all) to mounted K-DJ USB stick."""
+    import asyncio, shutil
+    filenames = body.get("files")  # None = copy all
+    if not USB_MOUNT.exists() or not USB_MOUNT.is_mount():
+        return JSONResponse({"error": "K-DJ Stick nicht eingehängt (/mnt/kdj)"}, status_code=503)
+
+    files = list_downloads()
+    if filenames:
+        files = [f for f in files if f["name"] in filenames]
+
+    copied, skipped = [], []
+    for f in files:
+        src = DOWNLOADS_DIR / f["name"]
+        dst = USB_MOUNT / f["name"]
+        if not src.exists():
+            continue
+        if dst.exists() and dst.stat().st_size == src.stat().st_size:
+            skipped.append(f["name"])
+            continue
+        shutil.copy2(src, dst)
+        copied.append(f["name"])
+
+    return {"copied": len(copied), "skipped": len(skipped), "files": copied}
+
+@app.get("/api/usb/status")
+async def api_usb_status():
+    if not USB_MOUNT.exists() or not USB_MOUNT.is_mount():
+        return {"mounted": False}
+    stat = shutil.disk_usage(str(USB_MOUNT))
+    return {
+        "mounted": True,
+        "total_gb": round(stat.total / 1e9, 1),
+        "used_gb":  round(stat.used  / 1e9, 1),
+        "free_gb":  round(stat.free  / 1e9, 1),
+    }
+
+@app.get("/api/bandcamp/info")
+async def api_bandcamp_info(url: str):
+    """Gibt Infos über eine Bandcamp-URL zurück (Titel, ob Free/NaYP, Tracks)."""
+    if not is_bandcamp(url):
+        return JSONResponse({"error": "Keine Bandcamp-URL"}, status_code=400)
+    import asyncio
+    loop = asyncio.get_event_loop()
+    info = await loop.run_in_executor(None, get_bandcamp_info, url)
+    return info
 
 
 @app.post("/api/analyze/{filename}")

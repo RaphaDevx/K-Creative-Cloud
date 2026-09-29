@@ -1,0 +1,14 @@
+{
+  "$comment": "Icon-Style-Definition. Palette-Werte sind Token-Pfade in brand/tokens/piggy.json (aufgelöst). Rund & weich: runde Enden/Ecken, grosser Eckenradius.",
+  "name": "piggy-soft",
+  "grid": 24,
+  "safeArea": 2,
+  "strokeWidth": 2,
+  "cornerRadius": 3,
+  "fill": "duotone",
+  "palette": {
+    "primary":   "component.icon.primary",
+    "secondary": "component.icon.secondary",
+    "onPrimary": "component.icon.onPrimary"
+  }
+}

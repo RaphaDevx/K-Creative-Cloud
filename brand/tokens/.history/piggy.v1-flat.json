@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "project": "piggy",
+    "target": "expo-react-native",
+    "note": "Single Source of Truth. Änderungen hier, dann: export-assets.sh piggy"
+  },
+  "colors": {
+    "bg":            "#FAFAF9",
+    "bgCard":        "#FFFFFF",
+    "bgSoft":        "#F5F3EF",
+    "bgAccent":      "#FFF5E6",
+    "bgPink":        "#FFF0F4",
+    "textPrimary":   "#1A1A1A",
+    "textSecondary": "#6B7280",
+    "textTertiary":  "#9CA3AF",
+    "gold":          "#FF9F0A",
+    "goldSoft":      "#FFE4A8",
+    "pink":          "#FFB8C6",
+    "pinkSoft":      "#FFDCE6",
+    "success":       "#34C759",
+    "error":         "#FF3B30",
+    "warning":       "#FF9F0A",
+    "border":        "#EDE9E3",
+    "borderSoft":    "#F5F3EF"
+  },
+  "radius": {
+    "xs":  8,
+    "sm":  12,
+    "md":  16,
+    "lg":  20,
+    "xl":  24,
+    "xxl": 32
+  },
+  "fontSize": {
+    "xs":   11,
+    "sm":   13,
+    "md":   15,
+    "lg":   17,
+    "xl":   22,
+    "xxl":  28,
+    "hero": 42
+  },
+  "shadow": {
+    "ios": {
+      "color":   "#00000020",
+      "offsetX": 0,
+      "offsetY": 2,
+      "opacity": 1,
+      "radius":  12
+    },
+    "android": {
+      "elevation": 3
+    },
+    "default": {
+      "color":   "#00000015",
+      "offsetX": 0,
+      "offsetY": 2,
+      "opacity": 1,
+      "radius":  8
+    }
+  },
+  "icon": {
+    "source": "brand/assets/piggy/icon-master.png",
+    "note": "1024x1024 PNG ablegen. export-assets.sh generiert icon.png, adaptive-icon.png, splash-icon.png"
+  }
+}

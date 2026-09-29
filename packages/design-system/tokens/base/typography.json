@@ -1,0 +1,44 @@
+{
+  "typography": {
+    "scale": {
+      "base": { "$value": "16px", "$type": "dimension", "$description": "Basis-Schriftgröße" },
+      "ratio": { "$value": "1.25", "$type": "number", "$description": "Major Third — Standard für Mobile & Web" }
+    },
+    "size": {
+      "2xs": { "$value": "10px",    "$type": "dimension", "$description": "16 / 1.25^2.8" },
+      "xs":  { "$value": "12px",    "$type": "dimension" },
+      "sm":  { "$value": "13px",    "$type": "dimension" },
+      "md":  { "$value": "16px",    "$type": "dimension", "$description": "Base" },
+      "lg":  { "$value": "20px",    "$type": "dimension", "$description": "16 × 1.25^1" },
+      "xl":  { "$value": "25px",    "$type": "dimension", "$description": "16 × 1.25^2" },
+      "2xl": { "$value": "31px",    "$type": "dimension", "$description": "16 × 1.25^3" },
+      "3xl": { "$value": "39px",    "$type": "dimension", "$description": "16 × 1.25^4" },
+      "4xl": { "$value": "49px",    "$type": "dimension", "$description": "16 × 1.25^5" }
+    },
+    "lineHeight": {
+      "xs":  { "$value": "16px", "$type": "dimension", "$description": "für 10–11px Text" },
+      "sm":  { "$value": "20px", "$type": "dimension", "$description": "für 13px Text" },
+      "md":  { "$value": "24px", "$type": "dimension", "$description": "für 16px Text" },
+      "lg":  { "$value": "28px", "$type": "dimension", "$description": "für 20px Text" },
+      "xl":  { "$value": "36px", "$type": "dimension", "$description": "für 25px Text" }
+    },
+    "weight": {
+      "light":    { "$value": "300", "$type": "fontWeight" },
+      "regular":  { "$value": "400", "$type": "fontWeight" },
+      "medium":   { "$value": "500", "$type": "fontWeight" },
+      "semibold": { "$value": "600", "$type": "fontWeight" },
+      "bold":     { "$value": "700", "$type": "fontWeight" }
+    },
+    "family": {
+      "sans": { "$value": "'DM Sans', -apple-system, 'Helvetica Neue', sans-serif", "$type": "fontFamily" },
+      "ui":   { "$value": "'Inter', -apple-system, 'Helvetica Neue', sans-serif", "$type": "fontFamily" },
+      "mono": { "$value": "'JetBrains Mono', 'Menlo', 'Monaco', monospace", "$type": "fontFamily" }
+    },
+    "letterSpacing": {
+      "tight":  { "$value": "-0.02em", "$type": "dimension" },
+      "normal": { "$value": "0em",     "$type": "dimension" },
+      "wide":   { "$value": "0.05em",  "$type": "dimension" },
+      "wider":  { "$value": "0.1em",   "$type": "dimension" }
+    }
+  }
+}
