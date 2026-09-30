@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: gimp-mcp
-Version: 0.1.0
-Summary: GIMP MCP integration for external control of GIMP 3.2
-License-Expression: MIT
-Requires-Python: >=3.11
-Description-Content-Type: text/markdown
-Requires-Dist: mcp
-Requires-Dist: fastmcp

@@ -89,3 +89,7 @@ venv/
 # --- Ende K-Dev Phase 1 ---
 K-DAW/downloads
 K-DAW/stems
+
+# Build-Metadaten / lokale Claude-Laufzeitdateien
+*.egg-info/
+.claude/scheduled_tasks.lock

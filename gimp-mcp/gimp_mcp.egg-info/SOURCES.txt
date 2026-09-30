@@ -1,8 +1,0 @@
-gimp_mcp_server.py
-pyproject.toml
-gimp_mcp.egg-info/PKG-INFO
-gimp_mcp.egg-info/SOURCES.txt
-gimp_mcp.egg-info/dependency_links.txt
-gimp_mcp.egg-info/entry_points.txt
-gimp_mcp.egg-info/requires.txt
-gimp_mcp.egg-info/top_level.txt
