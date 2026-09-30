@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: kdenlive-mcp
+Version: 0.1.0
+Summary: Kdenlive MCP — MLT-XML project control + CLI rendering
+Requires-Python: >=3.10
+Requires-Dist: mcp[cli]>=1.3.0
+Requires-Dist: fastmcp>=2.0.0

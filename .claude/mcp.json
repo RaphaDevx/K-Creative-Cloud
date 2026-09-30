@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "blender": {
+      "command": "uv",
+      "args": ["run", "--directory", "/home/raphael/K-Creative-Cloud/Blender/mcp", "blender-mcp"],
+      "env": {
+        "BLENDER_HOST": "localhost",
+        "BLENDER_PORT": "9876",
+        "BLENDER_MCP_DISABLE_TELEMETRY": "true"
+      }
+    },
+    "gimp": {
+      "command": "uv",
+      "args": ["run", "--python", "3.12", "--directory", "/home/raphael/K-Creative-Cloud/gimp-mcp", "gimp_mcp_server.py"]
+    },
+    "inkscape": {
+      "command": "uv",
+      "args": ["run", "--python", "3.12", "--directory", "/home/raphael/K-Creative-Cloud/inkscape-mcp", "inkscape-mcp"]
+    },
+    "freecad": {
+      "command": "uv",
+      "args": ["run", "--directory", "/home/raphael/K-Creative-Cloud/freecad-mcp", "python3", "src/freecad_bridge.py"],
+      "env": { "FREECAD_HOST": "localhost", "FREECAD_PORT": "9878" }
+    },
+    "kdenlive": {
+      "command": "uv",
+      "args": ["run", "--directory", "/home/raphael/K-Creative-Cloud/kdenlive-mcp", "python3", "server.py"]
+    },
+    "lmms": {
+      "command": "uv",
+      "args": ["run", "--directory", "/home/raphael/K-Creative-Cloud/lmms-mcp", "python3", "server.py"]
+    },
+    "video-shorts": {
+      "command": "/storage/projekte/ki_pipeline_env_312/bin/python3",
+      "args": ["/home/raphael/K-Creative-Cloud/video-shorts-mcp/server.py"]
+    }
+  }
+}

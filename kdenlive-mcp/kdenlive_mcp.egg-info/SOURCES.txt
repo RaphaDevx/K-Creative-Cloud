@@ -1,0 +1,7 @@
+pyproject.toml
+server.py
+kdenlive_mcp.egg-info/PKG-INFO
+kdenlive_mcp.egg-info/SOURCES.txt
+kdenlive_mcp.egg-info/dependency_links.txt
+kdenlive_mcp.egg-info/requires.txt
+kdenlive_mcp.egg-info/top_level.txt

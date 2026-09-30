@@ -1,0 +1,2 @@
+[console_scripts]
+freecad-mcp = freecad_bridge:main
