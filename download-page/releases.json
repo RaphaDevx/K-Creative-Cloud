@@ -14,8 +14,8 @@
       "note": "macOS 12+ \u00b7 Apple Silicon + Intel \u00b7 Auto-Update"
     },
     "k-dev-dashboard": {
-      "version": "2.0.0",
-      "arm64": "k-dev-dashboard-tauri/K-Dev-Dashboard-2.0.0-aarch64.dmg",
+      "version": "2.0.1",
+      "arm64": "k-dev-dashboard-tauri/K-Dev-Dashboard-2.0.1-aarch64.dmg",
       "note": "macOS 12+ \u00b7 Apple Silicon \u00b7 Rust/Tauri \u00b7 Signiert & Notarisiert \u00b7 Auto-Update"
     },
     "k-ai-dashboard": {
