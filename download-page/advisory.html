@@ -378,6 +378,9 @@ svg { flex-shrink: 0; }
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           macOS (arm64)
         </a>
+        <a id="kdev-btn-x64" href="#" class="btn btn-ghost disabled">
+          Intel (x64)
+        </a>
         <a href="https://github.com/RaphaDevx/K-Creative-Cloud/releases" class="btn btn-ghost" target="_blank">
           Releases
         </a>
@@ -604,6 +607,7 @@ svg { flex-shrink: 0; }
     set('kdaw-version', 'textContent', `v${p['k-daw'].version} · ${p['k-daw'].note}`);
 
     set('kdev-btn-mac', 'href', url(p['k-dev-dashboard'].arm64)); rm('kdev-btn-mac', 'disabled');
+    if (p['k-dev-dashboard'].x64) { set('kdev-btn-x64', 'href', url(p['k-dev-dashboard'].x64)); rm('kdev-btn-x64', 'disabled'); }
     set('kdev-version', 'textContent', `v${p['k-dev-dashboard'].version} · ${p['k-dev-dashboard'].note}`);
 
     set('kai-btn-mac', 'href', url(p['k-ai-dashboard'].arm64));
