@@ -6,6 +6,16 @@ Serves the studio UI and provides APIs for:
 - Render output gallery
 - WebSocket for terminal relay
 """
+import sys
+if __name__ == "__main__" and "--pty-child" in sys.argv:
+    from creative_pty import run
+    run(sys.argv[sys.argv.index("--pty-child") + 1:])
+
+if __name__ == "__main__" and "--mcp" in sys.argv:
+    from creative_mcp import mcp
+    mcp.run(transport="stdio")
+    raise SystemExit(0)
+
 import asyncio
 import base64
 import json
@@ -31,18 +41,19 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="K-Creative Studio")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+from creative_security import LocalSecurity
+app.add_middleware(LocalSecurity)
 
 import sys as _sys
 
 # Support PyInstaller bundle: __file__ is unreliable in frozen mode
 if getattr(_sys, 'frozen', False):
-    ROOT = Path(_sys.executable).parent
+    ROOT = Path(getattr(_sys, "_MEIPASS", Path(_sys.executable).parent))
 else:
     ROOT = Path(__file__).parent
 
 HOME         = Path.home()
-K_DIR        = Path(os.environ.get("K_CREATIVE_DIR", HOME / "K-Creative"))
+K_DIR        = Path(os.environ.get("K_CREATIVE_DIR", ROOT.parent))
 ASSETS_DIR   = K_DIR / "assets"
 PROJECTS_DIR = K_DIR
 RENDERS_DIR  = K_DIR / "renders"
@@ -105,14 +116,16 @@ async def serve_live():
 @app.get("/static/{path:path}")
 @app.head("/static/{path:path}")
 async def serve_static(path: str):
-    file_path = ROOT / "static" / path
+    file_path = (ROOT / "static" / path).resolve()
+    if not file_path.is_relative_to((ROOT / "static").resolve()):
+        raise HTTPException(403)
     if not file_path.exists():
         raise HTTPException(404)
     return FileResponse(file_path)
 
 
 # ── Design System API ─────────────────────────────────────────
-DS_ROOT = Path("/home/raphael/K-Creative-Cloud/packages/design-system")
+DS_ROOT = Path(os.environ.get("K_CREATIVE_RESOURCES", ROOT.parent)) / "packages/design-system"
 
 @app.get("/api/design-system/tokens")
 async def get_all_tokens():
@@ -440,7 +453,8 @@ async def take_screenshot(window: Optional[str] = None):
 
 # ── File Browser API ──────────────────────────────────────────
 @app.get("/api/files")
-async def list_files(path: str = "/home/raphael/K-Creative-Cloud/designer/assets"):
+async def list_files(path: str = ""):
+    path = path or str(K_DIR / "designer/assets")
     base = Path(path)
     if not base.exists():
         return JSONResponse({"files": [], "error": "Path not found"})
@@ -464,7 +478,7 @@ async def read_file(path: str):
     if not p.exists() or not p.is_file():
         raise HTTPException(404, "File not found")
     # Security: stay within allowed dirs
-    allowed = [HOME, Path("/home/raphael/K-Creative-Cloud")]
+    allowed = [HOME, Path(str(ROOT.parent))]
     if not any(str(p).startswith(str(a)) for a in allowed):
         raise HTTPException(403, "Access denied")
     # Serve image directly
@@ -487,14 +501,14 @@ async def read_file(path: str):
 async def list_projects():
     """List projects = subdirs of designer/assets with metadata."""
     projects = []
-    registry_path = Path("/home/raphael/K-Creative-Cloud/designer/registry/asset-registry.md")
+    registry_path = K_DIR / "designer/registry/asset-registry.md"
     registry = ""
     if registry_path.exists():
         async with aiofiles.open(registry_path, "r") as f:
             registry = await f.read()
 
     # Scan K-Learning branding
-    klearning = Path("/home/raphael/K-Learning/branding")
+    klearning = Path(os.environ.get("K_LEARNING_BRAND_DIR", K_DIR / "brand/k-learning"))
     if klearning.exists():
         projects.append({
             "id": "k-learning",
@@ -526,7 +540,7 @@ async def get_context(project: str):
     ctx = {"files": [], "tokens": None, "guide": None}
 
     if project == "k-learning":
-        brand_dir = Path("/home/raphael/K-Learning/branding")
+        brand_dir = Path(os.environ.get("K_LEARNING_BRAND_DIR", K_DIR / "brand/k-learning"))
         # Tokens
         tokens_path = brand_dir / "tokens.json"
         if tokens_path.exists():
@@ -559,22 +573,35 @@ async def terminal_ws(websocket: WebSocket, session_id: str):
 
     # Start PTY with bash in the right directory
     tool_dirs = {
-        "blender": "/home/raphael/K-Creative-Cloud/Blender",
-        "gimp": "/home/raphael/K-Creative-Cloud",
-        "inkscape": "/home/raphael/K-Creative-Cloud",
-        "lmms": "/home/raphael/K-Creative-Cloud",
-        "designer": "/home/raphael/K-Creative-Cloud/designer",
-        "global": "/home/raphael/K-Creative-Cloud",
+        "blender": str(ROOT.parent / "Blender"),
+        "gimp": str(ROOT.parent),
+        "inkscape": str(ROOT.parent),
+        "lmms": str(ROOT.parent),
+        "designer": str(ROOT.parent / "designer"),
+        "global": str(ROOT.parent),
     }
-    cwd = tool_dirs.get(session_id, "/home/raphael/K-Creative-Cloud")
+    cwd = tool_dirs.get(session_id, str(ROOT.parent))
 
+    command = ["/bin/bash", "--login"]
+    if session_id.startswith("agent-"):
+        from creative_agent import command as agent_command
+        try:
+            command = agent_command(session_id.removeprefix("agent-"))
+        except ValueError as exc:
+            await websocket.send_json({"type": "error", "message": str(exc)})
+            await websocket.close(code=1008)
+            return
+    cwd = str(K_DIR) if session_id.startswith("agent-") else cwd
+    Path(cwd).mkdir(parents=True, exist_ok=True)
     master_fd, slave_fd = pty.openpty()
+    wrapper = [sys.executable, "--pty-child"] if getattr(sys, "frozen", False) else [sys.executable, str(ROOT / "creative_pty.py")]
     proc = subprocess.Popen(
-        ["/bin/bash", "--login"],
+        wrapper + command,
         stdin=slave_fd, stdout=slave_fd, stderr=slave_fd,
         cwd=cwd,
-        env={**os.environ, "TERM": "xterm-256color", "COLUMNS": "120", "LINES": "40"},
+        env={**os.environ, "TERM": "xterm-256color", "COLUMNS": "120", "LINES": "40", "K_CREATIVE_URL": "http://127.0.0.1:" + os.environ.get("K_CREATIVE_PORT", "47200")},
         close_fds=True,
+        start_new_session=True,
     )
     os.close(slave_fd)
 
@@ -610,19 +637,27 @@ async def terminal_ws(websocket: WebSocket, session_id: str):
             if msg["type"] == "input":
                 os.write(master_fd, base64.b64decode(msg["data"]))
             elif msg["type"] == "resize":
-                cols, rows = msg.get("cols", 120), msg.get("rows", 40)
+                cols, rows = max(1, min(500, int(msg.get("cols", 120)))), max(1, min(200, int(msg.get("rows", 40))))
                 size = struct.pack("HHHH", rows, cols, 0, 0)
                 fcntl.ioctl(master_fd, termios.TIOCSWINSZ, size)
     except (WebSocketDisconnect, Exception):
         pass
     finally:
         output_task.cancel()
-        proc.terminate()
+        try:
+            os.killpg(proc.pid, 15)
+        except ProcessLookupError:
+            pass
+        try:
+            await asyncio.to_thread(proc.wait, timeout=3)
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, 9)
+            await asyncio.to_thread(proc.wait)
         os.close(master_fd)
 
 
 # ── Project & Workspace API ───────────────────────────────────
-WORKSPACE = Path("/home/raphael/K-Creative-Cloud/workspace")
+WORKSPACE = K_DIR / "workspace"
 WORKERS   = Path(__file__).parent / "workers"
 
 @app.get("/api/workspace/projects")
@@ -1191,6 +1226,9 @@ async def canvas_get_state():
     except asyncio.TimeoutError:
         raise HTTPException(504, "Canvas did not respond in time")
 
+
+from creative_api import router as creative_router
+app.include_router(creative_router)
 
 if __name__ == "__main__":
     port = int(os.environ.get("K_CREATIVE_PORT", "47200"))

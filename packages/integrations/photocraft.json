@@ -1,0 +1,12 @@
+{
+  "id": "photocraft",
+  "kind": "photo",
+  "adapter": "packages/experimental/photocraft/adapter.py",
+  "review_status": "candidate",
+  "acceptance_evidence": null,
+  "source": "https://github.com/storytold/photocraft",
+  "notes": "Not installed or tested; default engines retained until comparison",
+  "source_revision": "ed7df56a2455375240959bae6e5273a71d858d84",
+  "source_version": "0.8.2",
+  "evaluation_document": "docs/creative-native/ARTCRAFT-EVALUATION.md"
+}

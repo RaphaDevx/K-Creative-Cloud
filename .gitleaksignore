@@ -3,3 +3,7 @@
 blender-mcp/addon.py:generic-api-key:33
 # K-Dev Phase 1: Supabase publishable (anon) Key ist oeffentlich by design
 remotion-mcp/deploy_om_reels.py:generic-api-key:14
+
+# Reviewed vendored @xterm/xterm 6.0.0: FourKeyMap/SequencerByKey = void 0
+# are minified JavaScript exports, not credentials (both matches at line 1).
+studio/static/creative/vendor/xterm.js:generic-api-key:1

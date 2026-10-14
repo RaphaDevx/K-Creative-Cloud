@@ -93,3 +93,10 @@ K-DAW/stems
 # Build-Metadaten / lokale Claude-Laufzeitdateien
 *.egg-info/
 .claude/scheduled_tasks.lock
+
+# Native editor runtime state
+workspace/native-projects/
+workspace/native-media/
+
+# Local music catalog created by studio
+/dj_library.db

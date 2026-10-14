@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>K-Creative · Workspace</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%23191c1f%27/%3E%3Ctext x=%276%27 y=%2725%27 fill=%27%2395dbb8%27 font-size=%2725%27%3EK%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/static/creative/vendor/xterm.css" />
+    <link rel="stylesheet" href="/static/creative/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#stage">Skip to creative workspace</a>
+    <header>
+      <a class="logo" href="/" aria-label="K-Creative home">K<span>✳</span></a>
+      <div class="identity">
+        <strong>K-CREATIVE</strong><small>One project. Every medium.</small>
+      </div>
+      <select id="projects" aria-label="Open project">
+        <option>Loading projects…</option></select
+      ><button id="new">＋ New project</button><span class="spacer"></span
+      ><span id="saved" class="status" role="status">Connecting</span
+      ><button id="export" class="primary">Export ↗</button>
+    </header>
+    <nav class="modes" aria-label="Editors">
+      <button data-mode="photo" class="active">
+        ◈ <b>K-Photo</b><small>IMAGE & DESIGN</small></button
+      ><button data-mode="video">
+        ▣ <b>K-Video</b><small>EDIT & MOTION</small></button
+      ><button data-mode="audio">
+        ♫ <b>K-DAW</b><small>SOUND & MUSIC</small></button
+      ><span class="spacer"></span
+      ><button id="undo" aria-label="Undo" title="Undo Ctrl/Cmd Z">↶</button
+      ><button id="redo" aria-label="Redo" title="Redo Ctrl/Cmd Shift Z">↷</button
+      ><button id="console-toggle">⌘ AI & Terminal</button>
+    </nav>
+    <main>
+      <aside class="library" aria-label="Project library and creative tools">
+        <div class="panel-title">
+          Project library <button id="import">＋ Import</button>
+        </div>
+        <input
+          id="file"
+          type="file"
+          accept="image/*,video/*,audio/*,.blend"
+          hidden
+        />
+        <div id="assets"></div>
+        <section class="brand">
+          <div class="panel-title">Brand identity</div>
+          <label>Name<input id="brand-name" placeholder="Your brand" /></label
+          ><label
+            >Accent<input
+              id="brand-color"
+              type="color"
+              value="#95dbb8" /></label
+          ><button id="brand-save">Save brand</button
+          ><small>Shared across design, video and sound.</small>
+        </section>
+        <section class="speech">
+          <div class="panel-title">Voiceover</div>
+          <label
+            >Speech<textarea
+              id="speech-text"
+              placeholder="Write an English voiceover…"
+              rows="3"
+            ></textarea></label
+          ><label
+            >Voice<select id="speech-voice">
+              <option value="af_heart">Heart · American English</option>
+              <option value="am_adam">Adam · American English</option>
+              <option value="bf_emma">Emma · British English</option>
+            </select></label
+          ><button id="speech-create" disabled>Generate voiceover</button
+          ><small id="speech-info">Checking local TTS…</small>
+        </section>
+        <section class="image-generator">
+          <div class="panel-title">Image generation</div>
+          <label
+            >Prompt<textarea
+              id="image-prompt"
+              rows="3"
+              placeholder="Describe the image you want to create…"
+            ></textarea>
+          </label>
+          <label
+            >Checkpoint<select
+              id="image-checkpoint"
+              aria-label="Image model checkpoint"
+            >
+              <option>No model connected</option>
+            </select></label
+          >
+          <button id="image-generate" disabled>Generate image</button>
+          <small id="image-generator-info">Checking local ComfyUI…</small>
+        </section>
+        <section class="workflow-section" aria-labelledby="workflow-heading">
+          <div class="panel-title" id="workflow-heading">Creative workflows</div>
+          <label for="workflow-kind">What are you creating?</label>
+          <select id="workflow-kind" aria-describedby="workflow-info">
+            <option value="photo">Photo &amp; image</option>
+            <option value="vector">Vector &amp; illustration</option>
+            <option value="video">Video</option>
+            <option value="reel">Reel &amp; short video</option>
+            <option value="screen">Screen recording</option>
+            <option value="statistics">Statistics &amp; charts</option>
+            <option value="audio">Audio</option>
+            <option value="music">Music</option>
+            <option value="speech">Speech &amp; voiceover</option>
+            <option value="3d">3D &amp; rendering</option>
+            <option value="cad">CAD &amp; technical design</option>
+          </select>
+          <div id="workflow-tools" aria-live="polite">Loading creative tools…</div>
+          <small id="workflow-info">Choose a medium to find the tools for your project.</small>
+        </section>
+        <section class="native-tools">
+          <div class="panel-title">Desktop editors</div>
+          <div id="native-tools">Checking installed applications…</div>
+          <small
+            >Open full desktop editors. These use their own project
+            formats.</small
+          >
+        </section>
+        <div class="library-footer" id="capabilities">Checking engines…</div>
+      </aside>
+      <section class="workspace">
+        <div class="toolbar">
+          <span id="workspace-title">Design canvas</span
+          ><span class="spacer"></span>
+          <div id="tools"></div>
+        </div>
+        <div id="stage" tabindex="-1" aria-label="Creative workspace"></div>
+        <div id="sequence"></div>
+        <div class="transport">
+          <button id="play">▶ Play</button><button id="stop">■ Stop</button
+          ><span id="time">00:00.00</span><span class="spacer"></span
+          ><label
+            >BPM
+            <input
+              id="bpm"
+              type="number"
+              min="20"
+              max="300"
+              value="120" /></label
+          ><span id="dimensions">1280 × 720</span>
+        </div>
+      </section>
+      <aside class="inspector" aria-label="Composition inspector">
+        <div class="panel-title">Inspector</div>
+        <div id="inspector"></div>
+        <div class="panel-title">Composition</div>
+        <div id="entities"></div>
+      </aside>
+    </main>
+    <section id="console" hidden>
+      <div class="console-head">
+        <b>AI NATIVE WORKSPACE</b><span>GUI and MCP use the same actions</span
+        ><label class="agent-select"
+          >Session<select id="terminal-agent" aria-label="Terminal session">
+            <option value="shell">Shell</option>
+            <option value="codex" disabled>Codex · checking</option>
+            <option value="claude" disabled>Claude · checking</option>
+          </select></label
+        ><button id="terminal-connect">Connect terminal</button
+        ><button id="terminal-disconnect" disabled>Disconnect</button>
+      </div>
+      <div class="console-grid">
+        <div>
+          <label for="action-json">Canonical action · JSON</label
+          ><textarea id="action-json" spellcheck="false">
+{"action":"project.settings","params":{"bpm":120}}</textarea
+          ><button id="action-run">Run action</button>
+          <pre id="action-log">
+Select or create a project to begin. This action console does not include an LLM provider.</pre>
+        </div>
+        <div>
+          <div id="terminal-output" aria-label="Interactive terminal"></div>
+          <small class="terminal-hint"
+            >Real local CLI session. Codex / Claude require their own account
+            login. Agent sessions receive the Creative MCP tools.</small
+          >
+          <form id="terminal-form">
+            <input
+              id="terminal-input"
+              placeholder="Terminal command"
+              autocomplete="off"
+              aria-label="Terminal command"
+            /><button>Send ↵</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <span id="message" role="status">Ready</span
+      ><span>RUST PROJECT CORE · LOCAL MEDIA</span>
+    </footer>
+    <dialog id="new-dialog">
+      <form id="new-form">
+        <h2>A new creative space.</h2>
+        <p>Your images, edits and music stay together.</p>
+        <label
+          >Project name<input
+            id="project-name"
+            required
+            placeholder="Untitled project"
+            autofocus /></label
+        ><label
+          >Canvas<select id="project-size">
+            <option value="1280,720">YouTube · 1280 × 720</option>
+            <option value="1080,1920">Reel · 1080 × 1920</option>
+            <option value="1080,1080">Square · 1080 × 1080</option>
+          </select></label
+        >
+        <div>
+          <button type="button" id="cancel-new">Cancel</button
+          ><button class="primary">Create project</button>
+        </div>
+      </form>
+    </dialog>
+    <script src="/static/creative/vendor/xterm.js"></script>
+    <script src="/static/creative/vendor/addon-fit.js"></script>
+    <script src="/static/creative/app.js"></script>
+  </body>
+</html>
