@@ -146,7 +146,7 @@ function render() {
   }[mode];
   $("tools").innerHTML =
     mode === "photo"
-      ? '<button data-tool="rect">＋ Shape</button><button data-tool="text">＋ Text</button>'
+      ? '<button data-tool="rect">＋ Rectangle</button><button data-tool="ellipse">＋ Ellipse</button><button data-tool="polygon">＋ Polygon</button><button data-tool="text">＋ Text</button>'
       : mode === "video"
         ? '<button data-tool="split">Split selected</button>'
         : '<button data-tool="note">＋ Note</button><button data-tool="lmms-render">Render with LMMS</button><button data-tool="lmms-open">Open in LMMS</button>';
@@ -177,6 +177,8 @@ function render() {
   else drawAudio();
   renderEntities();
   renderInspector();
+  if (typeof renderBrandIdentity === "function") renderBrandIdentity();
+  if (typeof assistantProjectChanged === "function") assistantProjectChanged(project?.id);
 }
 async function insertAsset(id) {
   if (!project) throw Error("Create a project first.");
@@ -218,9 +220,10 @@ async function insertAsset(id) {
 async function tool(kind) {
   if (kind === "lmms-render" || kind === "lmms-open")
     return runLmms(kind === "lmms-render");
-  if (kind === "rect" || kind === "text") {
+  if (["rect", "text", "ellipse", "polygon"].includes(kind)) {
     await act("layer.add", {
       kind,
+      ...(kind === "polygon" ? { points: [[0, 1], [0.5, 0], [1, 1]] } : {}),
       name: kind === "text" ? "Title" : "Shape",
       x: Math.round(project.width * 0.1),
       y: Math.round(project.height * 0.15),
@@ -328,7 +331,10 @@ function renderInspector() {
       `<div class="field-row">${field("x", e.x)}${field("y", e.y)}${field("width", e.width)}${field("height", e.height)}</div>` +
       field("opacity", e.opacity, "number", 'min="0" max="1" step="0.05"') +
       (e.kind === "text" ? field("text", e.text, "text") : "") +
-      (e.kind !== "image" ? field("color", e.color || "#95dbb8", "color") : "");
+      (e.kind !== "image" ? field("color", e.color || "#95dbb8", "color") :
+        field("brightness", e.brightness ?? 1, "number", 'min="0" max="4" step="0.1"') +
+        field("contrast", e.contrast ?? 1, "number", 'min="0" max="4" step="0.1"') +
+        field("saturation", e.saturation ?? 1, "number", 'min="0" max="4" step="0.1"'));
   else if (selected.type === "clip")
     fields =
       field("start", e.start, "number", 'min="0" step="0.1"') +
@@ -395,6 +401,7 @@ function drawPhoto() {
         try {
           await img.decode();
           if (project.revision !== revision || mode !== "photo") return;
+          ctx.filter = `brightness(${l.brightness ?? 1}) contrast(${l.contrast ?? 1}) saturate(${l.saturation ?? 1})`;
           ctx.drawImage(img, l.x, l.y, l.width, l.height);
         } catch {
           status("Image preview unavailable: " + l.name, true);
@@ -407,7 +414,19 @@ function drawPhoto() {
         ctx.fillText(l.text || "", l.x, l.y, l.width);
       } else {
         ctx.fillStyle = l.color || "#95dbb8";
-        ctx.fillRect(l.x, l.y, l.width, l.height);
+        if (l.kind === "ellipse") {
+          ctx.beginPath();
+          ctx.ellipse(l.x + l.width / 2, l.y + l.height / 2, l.width / 2, l.height / 2, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (l.kind === "polygon") {
+          ctx.beginPath();
+          (l.points || []).forEach(([x, y], i) => {
+            const point = [l.x + x * l.width, l.y + y * l.height];
+            i ? ctx.lineTo(...point) : ctx.moveTo(...point);
+          });
+          ctx.closePath();
+          ctx.fill();
+        } else ctx.fillRect(l.x, l.y, l.width, l.height);
       }
       ctx.restore();
       if (selected?.id === l.id) {

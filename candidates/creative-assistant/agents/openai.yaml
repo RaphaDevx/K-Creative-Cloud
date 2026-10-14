@@ -1,0 +1,4 @@
+interface:
+  display_name: "Creative Assistant"
+  short_description: "Sprache, Skizzen und Brand identity in K-Creative"
+  default_prompt: "Nutze $creative-assistant, um meinen Auftrag mit dem aktuellen K-Creative-Projekt umzusetzen oder entscheidende Unklarheiten zu klären."

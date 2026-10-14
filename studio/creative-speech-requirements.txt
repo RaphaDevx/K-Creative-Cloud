@@ -1,0 +1,8 @@
+# Local dictation adapter. Model weights are separately provisioned.
+faster-whisper==1.2.1
+# 1.2.1 is tested with PyAV 16; PyAV 19 removes an API used by its file decoder.
+av==16.1.0
+ctranslate2==4.8.3
+huggingface-hub==2.2.0
+tokenizers==0.23.3
+tqdm==4.70.1

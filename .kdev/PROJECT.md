@@ -23,6 +23,7 @@ per Sync in die Ziel-App.
 - `scripts/export-assets.sh` — sync-design-Pipeline (Targets ios/web/dmg/brand) in K-Dev-Projekte.
 - `designer/` — Asset-Registry + Tool-Guide; `designer/assets/` hält Kopien der Kern-Assets.
 - `Blender/`, `inkscape-mcp/`, `gimp-mcp/`, `lmms-mcp/`, `kdenlive-mcp/`, `remotion-mcp/` — Werkzeug-Anbindungen.
+- `studio/creative_assistant*` — integrierte Sprache/Skizzen/Provider-Planung über native Rust-Batches; `studio/creative_brand.py` — validierte Brand identity und versionierter Token-/Social-Media-Export in `workspace/brand-projects/<project-id>/`.
 - Kopplungen: Resolver-Logik existiert in `lib/tokens.js` und generiert in `Piggy/src/brand/variants/variants.ts`
   (Parität per `tools/test.js`); Icon-Rollenlogik in `lib/icons.js` und generiert in `PiggyIcon.tsx`.
 - Entscheidungen: `docs/adr/0001-varianten-als-datenschicht.md`.

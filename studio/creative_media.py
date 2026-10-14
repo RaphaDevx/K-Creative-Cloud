@@ -13,7 +13,7 @@ import uuid
 import wave
 
 import numpy as np
-from PIL import Image, ImageColor, ImageDraw, ImageFont
+from PIL import ImageEnhance, Image, ImageColor, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 _MODEL_CANDIDATES = [ROOT / 'models', ROOT / 'kokoro-tts', Path(getattr(sys, '_MEIPASS', ROOT)) / 'models', Path(sys.executable).resolve().parent / 'resources/models']
@@ -69,8 +69,8 @@ def _font(size):
     return ImageFont.load_default()
 
 
-def _photo(project):
-    canvas = Image.new('RGBA', _size(project), '#181820')
+def _photo(project, background='#ffffff'):
+    canvas = Image.new('RGBA', _size(project), background)
     for layer in project.get('layers', []):
         x, y = int(layer.get('x', 0)), int(layer.get('y', 0))
         w, h = int(layer.get('width', 320)), int(layer.get('height', 180))
@@ -81,11 +81,25 @@ def _photo(project):
         if kind == 'image':
             with Image.open(layer['path']) as source:
                 bitmap = source.convert('RGBA').resize((w, h), Image.Resampling.LANCZOS)
+                alpha = bitmap.getchannel('A')
+                rgb = bitmap.convert('RGB')
+                for key, enhancer in [('brightness', ImageEnhance.Brightness), ('contrast', ImageEnhance.Contrast), ('saturation', ImageEnhance.Color)]:
+                    rgb = enhancer(rgb).enhance(_number(layer.get(key, 1), 0, 4))
+                bitmap = rgb.convert('RGBA')
+                bitmap.putalpha(alpha)
         else:
             bitmap = Image.new('RGBA', (w, h))
             color = ImageColor.getcolor(layer.get('color', '#ffffff'), 'RGBA')
             if kind == 'rect':
                 bitmap.paste(color, (0, 0, w, h))
+            elif kind == 'ellipse':
+                ImageDraw.Draw(bitmap).ellipse((0, 0, w - 1, h - 1), fill=color)
+            elif kind == 'polygon':
+                points = [(round(_number(x, 0, 1) * (w - 1)),
+                           round(_number(y, 0, 1) * (h - 1))) for x, y in layer['points']]
+                if not 3 <= len(points) <= 256:
+                    raise ValueError('Polygon needs 3..256 points')
+                ImageDraw.Draw(bitmap).polygon(points, fill=color)
             elif kind == 'text':
                 font = _font(max(8, min(h, 64)))
                 ImageDraw.Draw(bitmap).text((0, 0), layer.get('text', ''), font=font, fill=color)
@@ -177,7 +191,7 @@ def export_project(project: dict, kind: str, output_dir) -> str:
         assets = {a['id']: a for a in project.get('assets', [])}
         with tempfile.TemporaryDirectory() as scratch:
             background, audio = Path(scratch) / 'background.png', Path(scratch) / 'audio.wav'
-            _photo(project).convert('RGB').save(background)
+            _photo(project, '#181820').convert('RGB').save(background)
             _mix(project, audio)
             args = ['ffmpeg', '-v', 'error', '-loop', '1', '-framerate', str(fps), '-i', str(background)]
             filters = ['[0:v]format=yuv420p[base]']

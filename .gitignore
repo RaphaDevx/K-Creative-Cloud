@@ -100,3 +100,9 @@ workspace/native-media/
 
 # Local music catalog created by studio
 /dj_library.db
+
+# Local assistant speech models
+/workspace/models/
+
+# Generated shared brand packages
+/workspace/brand-projects/

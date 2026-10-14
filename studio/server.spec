@@ -6,8 +6,9 @@ root = Path(SPECPATH)
 datas = [(str(root / name), name if (root / name).is_dir() else '.')
          for name in ['index.html', 'live.html', 'static'] if (root / name).exists()]
 datas.append((str(root.parent / 'packages/integrations'), 'packages/integrations'))
+datas.append((str(root.parent / 'candidates/creative-assistant'), 'candidates/creative-assistant'))
 binaries = []
-hidden = ['creative_discovery', 'creative_api', 'creative_media', 'creative_runtime', 'creative_pty', 'creative_agent', 'creative_mcp', 'creative_generators', 'creative_lmms', 'creative_security', 'creative_automation', 'aiofiles',
+hidden = ['creative_brand', 'creative_assistant', 'creative_assistant_api', 'creative_primitives', 'creative_discovery', 'creative_api', 'creative_media', 'creative_runtime', 'creative_pty', 'creative_agent', 'creative_mcp', 'creative_generators', 'creative_lmms', 'creative_security', 'creative_automation', 'aiofiles',
           'python_multipart', 'multipart', 'anyio._backends._asyncio', 'sqlite3']
 for package in ['uvicorn', 'fastapi', 'starlette', 'PIL', 'numpy', 'soundfile',
                 'kokoro_onnx', 'onnxruntime', 'phonemizer', 'espeakng_loader', 'mcp']:
@@ -15,6 +16,14 @@ for package in ['uvicorn', 'fastapi', 'starlette', 'PIL', 'numpy', 'soundfile',
     datas.extend(package_datas)
     binaries.extend(package_binaries)
     hidden.extend(package_hidden)
+# Local dictation is optional, but bundle its native dependencies when installed.
+import importlib.util
+if importlib.util.find_spec('faster_whisper'):
+    for package in ['faster_whisper', 'ctranslate2', 'av', 'tokenizers', 'huggingface_hub']:
+        package_datas, package_binaries, package_hidden = collect_all(package)
+        datas.extend(package_datas)
+        binaries.extend(package_binaries)
+        hidden.extend(package_hidden)
 a = Analysis([str(root / 'server.py')], pathex=[str(root)], binaries=binaries,
              datas=datas, hiddenimports=hidden, hookspath=[], runtime_hooks=[],
              excludes=['tkinter', 'matplotlib', 'pytest'], noarchive=False)

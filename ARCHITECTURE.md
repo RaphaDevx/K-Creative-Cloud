@@ -34,3 +34,9 @@ Update contract, core schemas, UI and tests together for changed actions. Keep o
 Output skills use scripts/creative_tools.py for kind-filtered adapter discovery; packages/integrations JSONs are inert metadata. Candidate engines require review and representative tests, and accepted still requires runtime probe. Canonical recording adapter: packages/screen-recording/tutorial.py. K-AI launchers preserve former entrypoints. No second project-state authority.
 
 Shared discovery implementation: studio/creative_discovery.py. scripts/creative_tools.py is a compatibility CLI; GET /api/creative/workflows and MCP creative_workflows expose the same inventory to the dashboard and agents. No editor state or runtime readiness is inferred from discovery.
+
+## Integrated assistant and branding
+
+studio/creative_assistant.py plans data-only actions through Codex/Claude/Qwen CLI, compatible API or Ollama. Speech uses local configured Whisper; sketches are explicit references. creative_assistant_api.py shares jobs/state with creative_api.py; Rust project.batch commits one revision with one undo and an expected_revision guard. creative_primitives.py runs fixed Blender recipes for editable sources and previews. No generated scripts run.
+
+Brand identity remains inside project.brand. creative_brand.py validates roles/type/voice/layout/assumptions and writes immutable revision folders with editable identity.json, semantic tokens, CSS, style guide/preview, palette SVG and social-media/brand.json. External tool changes import through the same native brand.update/batch. Existing Piggy token sources are untouched. See ADR 0004/0005.

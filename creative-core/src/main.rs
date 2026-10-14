@@ -43,6 +43,10 @@ fn schema(action: &str) -> Value {
             ("fps", "number", false),
             ("bpm", "number", false),
         ],
+        "project.batch" => vec![
+            ("commands", "array", true),
+            ("expected_revision", "integer", true),
+        ],
         "brand.update" => vec![("brand", "object", true)],
         "asset.add" => vec![
             ("path", "string", true),
@@ -61,6 +65,10 @@ fn schema(action: &str) -> Value {
             ("color", "string", false),
             ("text", "string", false),
             ("path", "string", false),
+            ("points", "array", false),
+            ("brightness", "number", false),
+            ("contrast", "number", false),
+            ("saturation", "number", false),
         ],
         "clip.add" | "clip.update" => vec![
             ("id", "string", action.ends_with("update")),
@@ -94,7 +102,7 @@ fn schema(action: &str) -> Value {
             s["enum"] = if action.starts_with("asset") {
                 json!(["image", "video", "audio", "blender"])
             } else {
-                json!(["rect", "text", "image"])
+                json!(["rect", "text", "image", "ellipse", "polygon"])
             };
         }
         if kind == "string" && key != "text" {
@@ -129,6 +137,10 @@ fn schema(action: &str) -> Value {
                 s["minimum"] = json!(0);
                 s["maximum"] = json!(1);
             }
+            "brightness" | "contrast" | "saturation" => {
+                s["minimum"] = json!(0);
+                s["maximum"] = json!(4);
+            }
             "volume" => {
                 s["minimum"] = json!(0);
                 s["maximum"] = json!(4);
@@ -153,6 +165,7 @@ const ACTIONS: &[&str] = &[
     "project.get",
     "project.rename",
     "project.settings",
+    "project.batch",
     "brand.update",
     "asset.add",
     "layer.add",
@@ -193,6 +206,7 @@ fn validate(c: &Command) -> Result<()> {
             "integer" => v.as_i64().is_some(),
             "number" => v.as_f64().map(|x| x.is_finite()).unwrap_or(false),
             "object" => v.is_object(),
+            "array" => v.is_array(),
             _ => false,
         };
         if !valid {
@@ -212,12 +226,55 @@ fn validate(c: &Command) -> Result<()> {
                 "track" => n >= 0.0 && n <= 1024.0,
                 "duration" => n > 0.0 && n <= 1_000_000_000.0,
                 "opacity" | "velocity" => n >= 0.0 && n <= 1.0,
-                "volume" => n >= 0.0 && n <= 4.0,
+                "brightness" | "contrast" | "saturation" | "volume" => n >= 0.0 && n <= 4.0,
                 "pitch" => n >= 0.0 && n <= 127.0,
                 _ => true,
             };
             if !valid {
                 return Err(format!("Out of range {key}"));
+            }
+        }
+    }
+    if c.action == "project.batch" {
+        let commands = c.params["commands"]
+            .as_array()
+            .ok_or("commands must be array")?;
+        if commands.is_empty() || commands.len() > 64 {
+            return Err("Batch requires 1..64 commands".into());
+        }
+        for value in commands {
+            let command: Command =
+                serde_json::from_value(value.clone()).map_err(|e| e.to_string())?;
+            if command.action == "project.batch"
+                || command.action.starts_with("history.")
+                || matches!(
+                    command.action.as_str(),
+                    "project.create" | "project.get" | "project.list" | "system.actions"
+                )
+                || command.project_id.is_some()
+            {
+                return Err(
+                    "Only project mutation commands without project_id may be batched".into(),
+                );
+            }
+            validate(&command)?;
+        }
+    }
+    if let Some(points) = c.params.get("points") {
+        let points = points.as_array().ok_or("points must be array")?;
+        if !(3..=256).contains(&points.len()) {
+            return Err("Polygon needs 3..256 points".into());
+        }
+        for point in points {
+            let pair = point.as_array().ok_or("Point must be [x,y]")?;
+            if pair.len() != 2
+                || pair.iter().any(|v| {
+                    !v.as_f64()
+                        .map(|n| n.is_finite() && (0.0..=1.0).contains(&n))
+                        .unwrap_or(false)
+                })
+            {
+                return Err("Polygon coordinates must be normalized 0..1".into());
             }
         }
     }
@@ -285,6 +342,9 @@ fn execute(store: &Path, c: Command) -> Result<Value> {
     if a == "project.get" {
         return Ok(r.project);
     }
+    if a == "project.batch" && p["expected_revision"].as_u64() != r.project["revision"].as_u64() {
+        return Err("Project changed; request a new plan".into());
+    }
     let rev = r.project["revision"]
         .as_u64()
         .ok_or("Invalid revision")?
@@ -301,7 +361,15 @@ fn execute(store: &Path, c: Command) -> Result<Value> {
         r.project = previous;
     } else {
         let previous = r.project.clone();
-        mutate(&mut r.project, a, &p)?;
+        if a == "project.batch" {
+            for command in p["commands"].as_array().unwrap() {
+                let command: Command =
+                    serde_json::from_value(command.clone()).map_err(|e| e.to_string())?;
+                mutate(&mut r.project, &command.action, &command.params)?;
+            }
+        } else {
+            mutate(&mut r.project, a, &p)?;
+        }
         r.undo.push(previous);
         if r.undo.len() > 100 {
             r.undo.remove(0);
@@ -356,6 +424,9 @@ fn mutate(project: &mut Value, a: &str, p: &Value) -> Result<()> {
                             entity[key] = value;
                         }
                     }
+                    if entity["kind"] == "polygon" && entity.get("points").is_none() {
+                        return Err("Polygon layer needs points".into());
+                    }
                     if entity["kind"] == "image" && entity.get("path").is_none() {
                         return Err("Image layer needs path".into());
                     }
@@ -406,6 +477,12 @@ fn mutate(project: &mut Value, a: &str, p: &Value) -> Result<()> {
                         if k != "id" {
                             entity[k] = v.clone();
                         }
+                    }
+                    if collection == "layers"
+                        && entity["kind"] == "polygon"
+                        && entity.get("points").is_none()
+                    {
+                        return Err("Polygon layer needs points".into());
                     }
                     if collection == "layers"
                         && entity["kind"] == "image"
@@ -604,5 +681,46 @@ mod tests {
         );
         assert!(run(&s, Some("../../bad"), "project.get", json!({})).is_err());
         assert!(run(&s, None, "bogus", json!({})).is_err());
+    }
+    #[test]
+    fn atomic_batch_shapes_revision_and_undo() {
+        let dir = std::env::temp_dir().join(id());
+        let run = |a: &str, p: Value, pid: Option<String>| {
+            execute(
+                &dir,
+                Command {
+                    action: a.into(),
+                    params: p,
+                    project_id: pid,
+                },
+            )
+        };
+        let project = run("project.create", json!({"name":"AI batch"}), None).unwrap();
+        let pid = Some(project["id"].as_str().unwrap().to_string());
+        let batch = json!({"expected_revision":0,"commands":[
+            {"action":"layer.add","params":{"kind":"ellipse","name":"Circle"}},
+            {"action":"layer.add","params":{"kind":"polygon","name":"Peak","points":[[0,1],[0.5,0],[1,1]]}}
+        ]});
+        let edited = run("project.batch", batch.clone(), pid.clone()).unwrap();
+        assert_eq!(edited["layers"].as_array().unwrap().len(), 2);
+        assert_eq!(edited["revision"], 1);
+        assert!(run("project.batch", batch, pid.clone()).is_err());
+        let undone = run("history.undo", json!({}), pid.clone()).unwrap();
+        assert_eq!(undone["layers"].as_array().unwrap().len(), 0);
+        let failed = json!({"expected_revision":2,"commands":[
+            {"action":"layer.add","params":{"kind":"ellipse","name":"First"}},
+            {"action":"layer.update","params":{"id":"missing","color":"#fff"}}
+        ]});
+        assert!(run("project.batch", failed, pid.clone()).is_err());
+        let read = run("project.get", json!({}), pid.clone()).unwrap();
+        assert_eq!(read["revision"], 2);
+        assert_eq!(read["layers"].as_array().unwrap().len(), 0);
+        assert!(run(
+            "layer.add",
+            json!({"kind":"polygon","name":"Bad","points":[[0,0],[2,0],[0,1]]}),
+            pid
+        )
+        .is_err());
+        fs::remove_dir_all(dir).unwrap();
     }
 }

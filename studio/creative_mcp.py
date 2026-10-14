@@ -112,5 +112,47 @@ def creative_lmms_export(project_id: str, render: bool = True) -> dict:
     return request('/api/creative/lmms', dict(project_id=project_id, render=render))
 
 
+
+
+@mcp.tool()
+def creative_assistant_capabilities() -> dict:
+    """Inspect installed assistant providers, local speech and editable shapes."""
+    return request('/api/creative/assistant/capabilities')
+
+
+@mcp.tool()
+def creative_assistant_plan(project_id: str, text: str, provider: str = 'builtin',
+                            sketch: str = '', selected: dict | None = None,
+                            history: list | None = None) -> dict:
+    """Plan native edits or clarification/help. Returns job; no mutations until apply."""
+    return request('/api/creative/assistant/plan', dict(project_id=project_id, text=text,
+                   provider=provider, sketch=sketch or None, selected=selected, history=history or []))
+
+
+@mcp.tool()
+def creative_assistant_apply(plan_id: str) -> dict:
+    """Apply a validated plan as one undoable native edit; stale plans fail."""
+    return request('/api/creative/assistant/apply', {'plan_id': plan_id})
+
+
+
+@mcp.tool()
+def creative_brand_create(project_id: str, preset: str = 'y2k', name: str = '', brief: str = '', audience: str = '', goal: str = '') -> dict:
+    """Create editable local Y2K/colorful/minimal brand foundations, as one undo step."""
+    return request('/api/creative/brand/create', dict(project_id=project_id, preset=preset, name=name, brief=brief, audience=audience, goal=goal))
+
+
+@mcp.tool()
+def creative_brand_export(project_id: str) -> dict:
+    """Export portable identity/tokens/CSS/style guide and social-media brief; no posting."""
+    return request('/api/creative/brand/export', {'project_id': project_id})
+
+
+@mcp.tool()
+def creative_brand_import(project_id: str, brand: dict, expected_revision: int) -> dict:
+    """Import a tool-edited brand/identity.json with validation and undo."""
+    return request('/api/creative/brand/import', dict(project_id=project_id, brand=brand, expected_revision=expected_revision))
+
+
 if __name__ == '__main__':
     mcp.run(transport='stdio')

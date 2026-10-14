@@ -42,6 +42,26 @@ async def execute(payload):
         raise HTTPException(422, 'params must be an object')
     if payload['action'] in ('asset.add', 'layer.add', 'layer.update') and params.get('path'):
         params['path'] = str(media_path(params['path']))
+    if payload['action'] == 'project.batch':
+        commands = params.get('commands')
+        if not isinstance(commands, list) or not 1 <= len(commands) <= 64:
+            raise HTTPException(422, 'Batch requires 1..64 commands')
+        for command in commands:
+            if not isinstance(command, dict) or not isinstance(command.get('params', {}), dict):
+                raise HTTPException(422, 'Invalid batch command')
+            nested = command.get('params', {})
+            if command.get('action') in ('asset.add', 'layer.add', 'layer.update') and nested.get('path'):
+                nested['path'] = str(media_path(nested['path']))
+    brand_commands = params.get('commands', []) if payload['action'] == 'project.batch' else [payload]
+    for command in brand_commands:
+        if command.get('action') == 'brand.update':
+            brand = command.get('params', {}).get('brand')
+            if isinstance(brand, dict) and 'identity' in brand:
+                from creative_brand import normalize
+                try:
+                    command['params']['brand'] = normalize(brand)
+                except (ValueError, TypeError) as exc:
+                    raise HTTPException(422, str(exc))
     payload['params'] = params
     if not CORE.is_file():
         raise HTTPException(503, 'Rust core not built; run scripts/start-creative.sh')
@@ -133,7 +153,8 @@ async def run_job(job, func, *args):
     job['status'] = 'running'
     try:
         result = await asyncio.to_thread(func, *args)
-        job['output'] = str(result['path'] if isinstance(result, dict) else result)
+        if not isinstance(result, dict) or result.get('path'):
+            job['output'] = str(result['path'] if isinstance(result, dict) else result)
         if isinstance(result, dict):
             job['details'] = result
         job['status'] = 'completed'
@@ -259,3 +280,49 @@ async def lmms_export(payload: dict):
     if not isinstance(render, bool):
         raise HTTPException(422, 'render must be boolean')
     return schedule(export_lmms, project, OUTPUT / uuid.uuid4().hex, render)
+
+# Import after shared state/actions are defined to preserve one project authority.
+from creative_assistant_api import router as assistant_router
+router.include_router(assistant_router)
+
+@router.get('/api/creative/brand/presets')
+async def brand_presets():
+    from creative_brand import PRESETS, ROLES
+    return {'ok': True, 'result': {'presets': [{'id': key, 'label': value['label'], 'palette': dict(zip(ROLES, value['palette']))} for key, value in PRESETS.items()]}}
+
+
+@router.post('/api/creative/brand/create')
+async def brand_create(payload: dict):
+    from creative_brand import identity
+    project = (await execute({'action': 'project.get', 'project_id': payload.get('project_id'), 'params': {}}))['result']
+    try:
+        brand = identity(payload.get('preset', 'y2k'), payload.get('name') or project['name'],
+                         payload.get('brief', ''), payload.get('audience', ''), payload.get('goal', ''))
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc))
+    return await execute({'action': 'project.batch', 'project_id': project['id'], 'params': {
+        'expected_revision': project['revision'], 'commands': [{'action': 'brand.update', 'params': {'brand': brand}}]}})
+
+
+@router.post('/api/creative/brand/import')
+async def brand_import(payload: dict):
+    from creative_brand import normalize
+    project = (await execute({'action': 'project.get', 'project_id': payload.get('project_id'), 'params': {}}))['result']
+    try:
+        brand = normalize(payload.get('brand'))
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc))
+    return await execute({'action': 'project.batch', 'project_id': project['id'], 'params': {
+        'expected_revision': payload.get('expected_revision', project['revision']),
+        'commands': [{'action': 'brand.update', 'params': {'brand': brand}}]}})
+
+
+@router.post('/api/creative/brand/export')
+async def brand_export(payload: dict):
+    from creative_brand import export_project_brand, normalize
+    project = (await execute({'action': 'project.get', 'project_id': payload.get('project_id'), 'params': {}}))['result']
+    try:
+        normalize(project.get('brand'))
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc))
+    return schedule(export_project_brand, project, DATA / 'workspace/brand-projects')

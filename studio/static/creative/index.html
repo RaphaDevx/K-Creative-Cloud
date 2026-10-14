@@ -34,7 +34,7 @@
       ><span class="spacer"></span
       ><button id="undo" aria-label="Undo" title="Undo Ctrl/Cmd Z">↶</button
       ><button id="redo" aria-label="Redo" title="Redo Ctrl/Cmd Shift Z">↷</button
-      ><button id="console-toggle">⌘ AI & Terminal</button>
+      ><button id="assistant-toggle" aria-controls="assistant-panel" aria-expanded="false">✳ Creative Assistant</button><button id="console-toggle">⌘ AI & Terminal</button>
     </nav>
     <main>
       <aside class="library" aria-label="Project library and creative tools">
@@ -56,7 +56,7 @@
               id="brand-color"
               type="color"
               value="#95dbb8" /></label
-          ><button id="brand-save">Save brand</button
+          ><button id="brand-save">Save brand</button><div id="brand-palette" aria-label="Brand color roles"></div><button id="brand-build">Brand entwickeln</button><button id="brand-export">Brand-Paket exportieren</button><button id="brand-import">Identity importieren</button><input id="brand-import-file" type="file" accept="application/json,.json" hidden /><small id="brand-package-info"></small
           ><small>Shared across design, video and sound.</small>
         </section>
         <section class="speech">
@@ -192,10 +192,25 @@ Select or create a project to begin. This action console does not include an LLM
         </div>
       </div>
     </section>
+    <aside id="assistant-panel" aria-label="Creative Assistant" hidden>
+      <div class="assistant-heading"><div><strong>Creative Assistant</strong><small>Sprache, Skizzen und editierbare Ergebnisse</small></div><button id="assistant-close" aria-label="Assistant schliessen">×</button></div>
+      <label>KI-Anbieter<select id="assistant-provider" aria-describedby="assistant-privacy assistant-provider-info assistant-provider-help"><option value="builtin">Lokale 3D-Befehle</option><option value="codex">Codex · eigenes Konto</option><option value="claude">Claude · eigenes Konto</option><option value="qwen">Qwen · Text</option><option value="api">API · eigener Anbieter</option><option value="ollama">Ollama · lokal</option></select></label>
+      <small id="assistant-provider-info">Verfügbarkeit wird geprüft. Konto- und Modellzugriff werden beim Auftrag bestätigt.</small>
+      <small id="assistant-privacy">Lokale Befehle senden keine Daten an einen KI-Anbieter.</small>
+      <details class="assistant-settings"><summary>Anbieter einrichten</summary><label>Verbindung<select id="assistant-config-provider"><option value="api">OpenAI-kompatible API</option><option value="ollama">Ollama</option></select></label><label>Endpoint<input id="assistant-url" type="url" placeholder="https://provider.example/v1" /></label><label>Modell<input id="assistant-model" placeholder="Name des Modells" /></label><label>API-Schlüssel<input id="assistant-key" type="password" autocomplete="off" /></label><button id="assistant-config-save">Verbindung übernehmen</button><small>Schlüssel bleiben im Arbeitsspeicher bis zum Beenden der App. Dein Modell muss für Skizzen Bilder verstehen.</small></details>
+      <details class="assistant-help"><summary>Was kann ich hier tun?</summary><p id="assistant-provider-help">Lokale 3D-Befehle erstellen einfache Formen, zum Beispiel «Erstelle eine Kugel». Für Logos aus Skizzen, freie Änderungen und Erklärungen wähle einen KI-Anbieter; Skizzen benötigen ein Modell mit Bildverständnis. Eine installierte CLI wird erst beim Auftrag auf Konto- und Modellzugriff geprüft.</p><p>Wähle für Änderungen zuerst dein Objekt aus. Antworte auf Rückfragen im selben Eingabefeld. «Rückgängig» nimmt die letzte Projektänderung zurück; «Neuer Dialog» leert nur dieses Gespräch und seine Referenz.</p></details>
+      <div id="assistant-messages" role="log" aria-live="polite"><p>Beschreibe dein Vorhaben. Zum Beispiel: «Erstelle eine Kugel», «Erstelle ein Logo aus dieser Skizze» oder «Wie nutze ich K-Photo?»</p></div>
+      <div id="assistant-attachment" hidden><img id="assistant-reference" alt="Angehängte Skizze" /><span id="assistant-reference-name"></span><button id="assistant-reference-remove" aria-label="Skizze entfernen">×</button></div>
+      <details class="assistant-drawing"><summary>Skizze zeichnen oder anhängen</summary><canvas role="img" id="assistant-sketch" width="512" height="320" aria-label="Skizzenfläche. Alternativ eine Bilddatei anhängen."></canvas><div><button id="assistant-sketch-clear">Zeichenfläche leeren</button><button id="assistant-sketch-use">Skizze verwenden</button><button id="assistant-file-open">Bild anhängen</button><input id="assistant-file" type="file" accept="image/png,image/jpeg,image/webp" hidden /></div></details>
+      <div id="assistant-progress" role="status">Fähigkeiten werden geprüft…</div>
+      <form id="assistant-form"><label for="assistant-input">Dein Auftrag oder deine Antwort</label><textarea aria-describedby="assistant-input-help" id="assistant-input" rows="3" maxlength="12000" placeholder="Beschreiben, anpassen oder fragen…"></textarea><small id="assistant-speech-info" role="status">Lokales Diktat wird geprüft.</small><small id="assistant-input-help">Diktat wird lokal erkannt und bleibt vor dem Senden editierbar. Mikrofonaufnahme mit «Aufnahme beenden» stoppen, spätestens nach 90 Sekunden.</small><div class="assistant-input-actions"><button id="assistant-record" type="button" aria-pressed="false">Mikrofon</button><select id="assistant-language" aria-label="Diktiersprache"><option value="de">Deutsch</option><option value="en">English</option><option value="fr">Français</option><option value="it">Italiano</option><option value="auto">Automatisch</option></select><button id="assistant-send" class="primary">Senden</button></div><label class="assistant-preview-option"><input id="assistant-preview-first" type="checkbox" /> Entwurf vor dem Anwenden prüfen</label></form>
+      <div class="assistant-result-actions"><button id="assistant-apply" disabled>Entwurf anwenden</button><button id="assistant-undo">Rückgängig</button><button id="assistant-reset">Neuer Dialog</button></div>
+    </aside>
     <footer>
       <span id="message" role="status">Ready</span
       ><span>RUST PROJECT CORE · LOCAL MEDIA</span>
     </footer>
+    <dialog id="brand-dialog" aria-labelledby="brand-dialog-title"><form id="brand-form"><h2 id="brand-dialog-title">Deine Brand identity</h2><p>Farben, Typografie, Stilregeln und Social-Media-Brief als editierbarer Entwurf.</p><label>Markenname<input id="brand-project-name" required maxlength="160" /></label><label>Stilrichtung<select id="brand-preset"><option value="y2k">Y2K · bunt & futuristisch</option><option value="colorful">Bunt · Pop</option><option value="minimal">Minimal · ruhig</option></select></label><label>Dein Brief<textarea id="brand-brief" rows="3" maxlength="2000" placeholder="Ich will es bunt und Y2K. Für eine Streetwear-Marke…"></textarea></label><label>Zielgruppe<input id="brand-audience" maxlength="500" placeholder="Optional für den ersten Entwurf" /></label><label>Ziel<input id="brand-goal" maxlength="500" placeholder="Was soll die Marke erreichen?" /></label><div><button id="brand-cancel" type="button">Abbrechen</button><button id="brand-ai" type="button">Mit KI entwickeln</button><button class="primary">Stil-Entwurf erstellen</button></div><small>Stil-Entwurf läuft lokal. Freie Stilwünsche und Folgeänderungen entwickelt der Creative Assistant mit deinem gewählten KI-Anbieter.</small></form></dialog>
     <dialog id="new-dialog">
       <form id="new-form">
         <h2>A new creative space.</h2>
@@ -222,5 +237,6 @@ Select or create a project to begin. This action console does not include an LLM
     <script src="/static/creative/vendor/xterm.js"></script>
     <script src="/static/creative/vendor/addon-fit.js"></script>
     <script src="/static/creative/app.js"></script>
+    <script src="/static/creative/assistant.js"></script>
   </body>
 </html>

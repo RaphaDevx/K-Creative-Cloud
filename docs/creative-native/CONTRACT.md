@@ -20,3 +20,9 @@ Media worker interface: studio/creative_media.py exposes capabilities()->dict an
 ## Shared workflow discovery
 
 GET /api/creative/workflows?kind=photo returns {ok:true,result:{root,kind,tools,manifest_errors,note}}. kind is optional, restricted to photo/vector/video/reel/screen/statistics/audio/music/speech/3d/cad; unknown values return 422. CLI scripts/creative_tools.py, GUI and MCP creative_workflows use studio/creative_discovery.py. available_to_probe means adapter/binary presence, never runtime readiness. unavailable means missing prerequisites. review_required means candidate or missing acceptance evidence/adapter. Discovery reads inert metadata, installs nothing and executes no manifest commands. The native-editor launch allowlist remains separate.
+
+## Assistant/native additions
+
+layer.add/update kinds also include ellipse and polygon. Polygon points are 3..256 normalized [x,y] pairs in 0..1. Image layers accept brightness,contrast,saturation in 0..4; sources remain unchanged. project.batch {expected_revision:integer,commands:[{action,params}]} permits 1..64 catalogued project mutations, no nested batches/history/read/create commands or nested project_id. Native validation/mutation/persistence is atomic; one batch is one undo revision. HTTP revalidates asset paths inside batches.
+
+Assistant plan/apply, explicit sketch references and local transcription are documented in ASSISTANT.md. Project brand identity validation and portable social-media handoff are documented in BRANDING.md.
