@@ -10,6 +10,8 @@ alten Pfad /home/raphael/K-Learning und pushten per git — beides existiert so 
 
 Umgebung (nie ausgeben/loggen):
   SUPABASE_URL, SUPABASE_ANON_KEY   -> source /home/claude/.keys/tokens.env
+  SUPABASE_SERVICE_ROLE_KEY         -> nur für den Upload: seit 2026-10-17 dürfen nur Content-Admins
+                                       (private.content_admins) oder der Service-Key in den Bucket schreiben
   K_IMPORT_TOKEN oder K_IMPORT_TOKEN_FILE (Pfad zu Datei mit dem Token)
 
 Aufruf:
@@ -63,10 +65,15 @@ def public_url(filename: str) -> str:
 
 
 def upload(mp4: str, filename: str | None = None, upsert: bool = False) -> str:
-    """Der anon key darf nur INSERT (RLS): x-upsert/Ueberschreiben liefert 403. Neue Version => neuer Dateiname."""
+    """Upload in den Bucket. Der anon key darf seit 2026-10-17 nicht mehr schreiben (RLS);
+    erlaubt sind Content-Admins oder der Service-Key (SUPABASE_SERVICE_ROLE_KEY, nie loggen)."""
     filename = filename or Path(mp4).name
-    url, key = _env("SUPABASE_URL"), _env("SUPABASE_ANON_KEY")
-    headers = {"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "video/mp4"}
+    url, anon = _env("SUPABASE_URL"), _env("SUPABASE_ANON_KEY")
+    service = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    if not service:
+        sys.exit("SUPABASE_SERVICE_ROLE_KEY fehlt: Upload in den videos-Bucket ist nur noch für Admins erlaubt "
+                 "(Key aus Supabase Dashboard > Settings > API in /home/claude/.keys/tokens.env eintragen).")
+    headers = {"apikey": anon, "Authorization": f"Bearer {service}", "Content-Type": "video/mp4"}
     if upsert:
         headers["x-upsert"] = "true"
     req = urllib.request.Request(f"{url}/storage/v1/object/{BUCKET}/{filename}",
