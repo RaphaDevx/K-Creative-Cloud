@@ -1,0 +1,38 @@
+{
+  "created": "2026-10-20T18:03:53",
+  "fingerprint": {
+    "de": {
+      "engine": "piper",
+      "model_sha256": "d352a7641892cebf2903859af94e9ba81a141110215fe3943bcda7f7da401b7a",
+      "params": {},
+      "voice": "de_DE-kerstin-low"
+    },
+    "en": {
+      "engine": "kokoro",
+      "model_sha256": "6e742170d309016e5891a994e1ce1559c702a2ccd0075e67ef7157974f6406cb",
+      "params": {
+        "speed": 1.05
+      },
+      "voice": "af_heart",
+      "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+    }
+  },
+  "id": "piggy",
+  "name": "Piggy",
+  "notes": "Vorschlag, bei Bedarf per bump() ändern",
+  "version": 1,
+  "voices": {
+    "de": {
+      "engine": "piper",
+      "params": {},
+      "voice": "de_DE-kerstin-low"
+    },
+    "en": {
+      "engine": "kokoro",
+      "params": {
+        "speed": 1.05
+      },
+      "voice": "af_heart"
+    }
+  }
+}

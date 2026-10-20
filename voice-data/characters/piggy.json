@@ -1,0 +1,15 @@
+{
+  "id": "piggy",
+  "name": "Piggy",
+  "description": "Rundes Sparschwein-Maskottchen im Mobile-Game-Stil mit Münzschlitz. Quelle: brand/piggy (Tokens → Blender headless).",
+  "persona": "piggy",
+  "actions": ["pose_idle", "pose_cheer", "pose_catch", "anim_idle"],
+  "expressions": ["neutral", "happy", "surprised", "sad", "wink"],
+  "assets": {
+    "model": "brand/piggy/dist/3d/piggy.glb",
+    "poster": "brand/piggy/dist/3d/sprites/piggy-mascot-idle-neutral@2x.png",
+    "idle_video": "brand/piggy/dist/3d/piggy-idle.mp4",
+    "overview": "brand/piggy/dist/3d/piggy-mascot-overview.png",
+    "sprites_dir": "brand/piggy/dist/3d/sprites"
+  }
+}

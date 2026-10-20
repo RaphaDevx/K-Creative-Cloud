@@ -284,6 +284,8 @@ async def lmms_export(payload: dict):
 # Import after shared state/actions are defined to preserve one project authority.
 from creative_assistant_api import router as assistant_router
 router.include_router(assistant_router)
+from creative_characters import router as characters_router
+router.include_router(characters_router)
 
 @router.get('/api/creative/brand/presets')
 async def brand_presets():

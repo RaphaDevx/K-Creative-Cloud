@@ -1,0 +1,5 @@
+{
+  "en_terms": ["Safety Stock", "Newsvendor", "Economic Order Quantity", "Lead Time", "Forecast", "Bullwhip Effect",
+               "Overbooking", "Tracking Signal", "Exponential Smoothing", "Standard Deviation", "Machine Learning"],
+  "pronounce": {"de": {"EOQ": "E O Q", "MRP": "M R P"}, "en": {"MRP": "M R P"}}
+}

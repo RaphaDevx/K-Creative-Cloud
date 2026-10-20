@@ -143,13 +143,16 @@ function render() {
     photo: "Design canvas",
     video: "Video · selected source preview",
     audio: "Piano roll · click to add notes",
+    characters: "Characters · mascots & voices",
   }[mode];
   $("tools").innerHTML =
     mode === "photo"
       ? '<button data-tool="rect">＋ Rectangle</button><button data-tool="ellipse">＋ Ellipse</button><button data-tool="polygon">＋ Polygon</button><button data-tool="text">＋ Text</button>'
       : mode === "video"
         ? '<button data-tool="split">Split selected</button>'
-        : '<button data-tool="note">＋ Note</button><button data-tool="lmms-render">Render with LMMS</button><button data-tool="lmms-open">Open in LMMS</button>';
+        : mode === "characters"
+          ? ""
+          : '<button data-tool="note">＋ Note</button><button data-tool="lmms-render">Render with LMMS</button><button data-tool="lmms-open">Open in LMMS</button>';
   $("tools")
     .querySelectorAll("button")
     .forEach((el) => {
@@ -167,7 +170,10 @@ function render() {
     });
   $("stage").innerHTML = "";
   $("sequence").innerHTML = "";
-  if (!project)
+  if (mode === "characters") {
+    // Figures are project independent, so this tab skips the empty-project screen.
+    if (typeof drawCharacters === "function") drawCharacters();
+  } else if (!project)
     $("stage").innerHTML = empty(
       "Make something yours.",
       "A shared space for design, film and sound. Create a project to start editing.",

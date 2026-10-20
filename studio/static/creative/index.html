@@ -31,6 +31,8 @@
         ▣ <b>K-Video</b><small>EDIT & MOTION</small></button
       ><button data-mode="audio">
         ♫ <b>K-DAW</b><small>SOUND & MUSIC</small></button
+      ><button data-mode="characters">
+        ◉ <b>Characters</b><small>MASCOTS & VOICES</small></button
       ><span class="spacer"></span
       ><button id="undo" aria-label="Undo" title="Undo Ctrl/Cmd Z">↶</button
       ><button id="redo" aria-label="Redo" title="Redo Ctrl/Cmd Shift Z">↷</button
@@ -234,9 +236,11 @@ Select or create a project to begin. This action console does not include an LLM
         </div>
       </form>
     </dialog>
+    <script type="module" src="/static/creative/vendor/model-viewer.min.js"></script>
     <script src="/static/creative/vendor/xterm.js"></script>
     <script src="/static/creative/vendor/addon-fit.js"></script>
     <script src="/static/creative/app.js"></script>
+    <script src="/static/creative/characters.js"></script>
     <script src="/static/creative/assistant.js"></script>
   </body>
 </html>
