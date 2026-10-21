@@ -1,0 +1,17 @@
+{
+  "_comment": "Beispiel fuer --visemes. Zeiten in Sekunden, Visem-Set: rest, open, O, smile. Luecken = rest. Kein Audio-Parsing: die Liste kommt aus einem Phonem-/Forced-Alignment-Tool oder von Hand.",
+  "visemes": [
+    {"t_start": 0.00, "t_end": 0.20, "viseme": "rest"},
+    {"t_start": 0.20, "t_end": 0.38, "viseme": "open"},
+    {"t_start": 0.38, "t_end": 0.55, "viseme": "O"},
+    {"t_start": 0.55, "t_end": 0.70, "viseme": "open"},
+    {"t_start": 0.70, "t_end": 0.82, "viseme": "smile"},
+    {"t_start": 0.90, "t_end": 1.05, "viseme": "open"},
+    {"t_start": 1.05, "t_end": 1.20, "viseme": "smile"},
+    {"t_start": 1.20, "t_end": 1.45, "viseme": "O"},
+    {"t_start": 1.45, "t_end": 1.62, "viseme": "open"},
+    {"t_start": 1.62, "t_end": 1.80, "viseme": "rest"},
+    {"t_start": 1.80, "t_end": 2.00, "viseme": "open"},
+    {"t_start": 2.00, "t_end": 2.30, "viseme": "smile"}
+  ]
+}

@@ -4,6 +4,7 @@ status: working
 trigger: build.sh läuft (ohne --no-3d) oder jemand ändert brand/piggy/3d/build_piggy.py bzw. Maskottchen-Tokens
 files:
   - brand/piggy/3d/build_piggy.py
+  - brand/piggy/3d/marketing.py
   - brand/piggy/build.sh
   - brand/tokens/piggy.json
 depends: [piggy-palette]
@@ -55,6 +56,24 @@ graph LR
   - `export_glb()` — Pose- und Idle-Aktionen als NLA-Spuren → glTF-Animationen.
 - `build.sh` — Aufruf, Sprite-Skalierung, ffmpeg, Kopie nach `designer/assets/{mockups,motion}`.
 - Kopplung: Sprite-Namen `piggy-mascot-<pose>-<ausdruck>` werden von `tools/build.js` (`mascot.ts`) und vom Creator gelesen.
+
+### Marketing-Clips (`3d/marketing.py`)
+Zusatzschicht auf dem fertigen `piggy.blend`; `build_piggy.py` bleibt unberührt, nichts wird ins `.blend` zurückgespeichert.
+1. WENN `blender -b dist/3d/piggy.blend -P 3d/marketing.py -- --action <name> --format 9x16|1x1|16x9 --out <dir>` läuft
+   DANN baut das Skript die Clip-Aktion `mk_<name>` zur Laufzeit als dichte Keyframes (24-fps-Zeit; Squash&Stretch über die
+   Root-Skalierung, Ohren/Schwanz schwingen per Federsimulation der Kopfbeschleunigung nach). Aktionen: `hop`, `wave`,
+   `cheer_jump`, `coin_drop`, `turntable` (Orbit-Objekt mit Kamera + Lichtern, 72 Frames, Loop), `talk_loop`, dazu `idle`
+   (vorhandene `anim_idle`). `--list` zeigt alle.
+2. WENN `--fps 30` gesetzt ist DANN wird dieselbe Animation mit Zwischenbildern abgetastet (gleiche Dauer).
+3. WENN gerendert wird DANN immer Cycles CPU (EEVEE läuft headless nur über Software-EGL, ist langsamer und kennt den
+   Shadow Catcher nicht). Hintergrund = Token (`--bg brand|<Token-Pfad>`, Hex nur als CLI-Argument) per Compositor über
+   den transparenten Render; `--alpha` liefert RGBA. Ausgabe `<out>/<action>/frame_####.png` + `meta.json` (inkl. Renderzeit/Frame).
+4. WENN `--visemes <json>` übergeben wird DANN mappt `visemes_to_weights()` die Liste `[{t_start,t_end,viseme}]`
+   (rest, open, O, smile; Beispiel `3d/examples/visemes.example.json`) geglättet auf die Mund-/Zungen-Shape-Keys;
+   bei `talk_loop` wird der Clip auf die Visem-Länge verlängert. Kein Audio-Parsing.
+5. WENN `--format icon --still` läuft DANN entsteht `<out>/icon-1024.png`: Kopf-Close-up (Kamera misst die Figur im Bild
+   und passt sie auf ~70 % an), 1024², ohne Alpha, Fläche `component.appIcon.bgFrom`, kein Schatten, Rand frei.
+6. Test: `python3 tools/test_marketing.py` (Blender headless, 256 px, 32 Samples, ca. 1-2 min).
 
 ## Akzeptanz
 - [x] Modell entsteht aus Script; `piggy.blend` + `piggy.glb` (≈0.8 MB) reproduzierbar
