@@ -1,0 +1,50 @@
+{
+  "id": "dobermann",
+  "name": "Brutus",
+  "placeholder_name": true,
+  "description": "Muskulöser Dobermann mit Goldkette im Esport-Sticker-Look (dicke Outline, Cel-Shading, orange Aura). Name ist ein Platzhalter. Skin auf dem gemeinsamen FitDogs-Skelett (fitdogs-v1); Quelle: brand/fitdogs/skins/dobermann.json.",
+  "persona": null,
+  "skeleton": "fitdogs-v1",
+  "actions": [
+    "idle",
+    "flex",
+    "wave",
+    "hop",
+    "talk"
+  ],
+  "expressions": [
+    "neutral",
+    "happy",
+    "angry",
+    "surprised"
+  ],
+  "palette": {
+    "fur": "#F26B1D",
+    "head": "#2B3B57",
+    "chain": "#E9B72E",
+    "aura": "#FF6A1A",
+    "outline": "#150A06"
+  },
+  "icon": "brand/fitdogs/dist/icons/dobermann-1024.png",
+  "background": {
+    "top": "#2E3440",
+    "bottom": "#0B0D11",
+    "glow": "#FF6A1A",
+    "glow_strength": 0.2,
+    "glow_center": [
+      0.5,
+      0.45
+    ]
+  },
+  "assets": {
+    "model": "brand/fitdogs/dist/3d_traced/dobermann.glb",
+    "poster": "brand/fitdogs/dist/2d/dobermann/stills/pose_idle.png",
+    "idle_video": "brand/fitdogs/dist/2d/dobermann/idle.mp4",
+    "overview": "brand/fitdogs/dist/3d/dobermann-overview.png",
+    "sprites_dir": "brand/fitdogs/dist/3d/sprites",
+    "render2d": "brand/fitdogs/dist/2d/dobermann",
+    "model_blender_v1": "brand/fitdogs/dist/3d/dobermann.glb",
+    "traced_dir": "brand/fitdogs/dist/3d_traced/dobermann"
+  },
+  "skeleton2d": "fitdogs-2d-v1"
+}

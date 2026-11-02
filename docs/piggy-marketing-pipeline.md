@@ -24,10 +24,13 @@ Stimmwechsel nur per `registry.bump()`, sonst bricht die Synthese mit `VoiceDrif
 aus den Brand-Tokens (Blender headless, Cycles CPU). Plan: `brand/piggy/3d/marketing.py` ergänzt Aktionen (hop, wave, cheer_jump,
 coin_drop, turntable, talk_loop), rendert PNG-Sequenzen mit Alpha in 9:16, 1:1 und 16:9 und einen Icon-Render.
 
-**Compositing (Plan).** Vorhanden sind nur `ffmpeg`/`ffprobe` auf Linux. Das Skript, das Simulator-Video in einen Geräterahmen setzt,
-Piggy-Clips mit Alpha überlagert, Untertitel brennt und Stimme plus Musik mischt, ist noch nicht gebaut.
+**Compositing (vorhanden).** `brand/piggy/3d/compose.py` (ffmpeg + Pillow, Test `brand/piggy/tools/test_compose.py`) setzt ein Briefing
+(YAML/JSON, Format wie unten) zusammen: Piggy-PNG-Sequenzen auf Brand-Hintergrund, Simulator-Video im Geräterahmen mit optionalem Piggy-Overlay,
+Stimme über `voice.synthesize` (oder vorhandene WAV), gebrannte Untertitel plus SRT, Musik mit Ducking, Loudnorm, Thumbnail.
+Untertitel-Zeiten sind proportional zur Zeichenzahl, nicht per Spracherkennung ausgerichtet (Whisper-Abgleich bleibt geplant).
+Nur mit synthetischem Material getestet, noch nie mit echten Piggy-Clips und echter Simulator-Aufnahme.
 
-## Briefing-Format (Vorschlag, noch nicht implementiert)
+## Briefing-Format (von `compose.py` gelesen; Felder siehe Kopf der Datei)
 
 ```yaml
 feature: receipt-scan
@@ -63,7 +66,7 @@ scenes:
 3. **Demo-Daten:** Für Aufnahmen braucht es ein Testkonto mit erfundenen Belegen, keine echten Daten.
 4. **Login:** Wie bei K-Learning ist Google/Apple-Login im Simulator nicht automatisierbar. Es braucht einen Build mit Test-Login (capability `e2e_login`) oder vorbefüllten Zustand.
 5. **Kamera-Funktionen** (Beleg fotografieren) laufen im Simulator nur mit eingespieltem Testbild. Für solche Szenen ist ein vorbereitetes Bild nötig.
-6. **Compositing-Skript** (`ffmpeg`, Geräterahmen, Overlay, Untertitel) und **Lip-Sync-Zeiten aus der Stimme** sind noch nicht gebaut.
+6. **Lip-Sync-Zeiten aus der Stimme** und Untertitel-Ausrichtung per Whisper sind noch nicht gebaut; ein Briefing-Tool, das Piggy-Clips selbst rendert, fehlt (Clips müssen vorher mit `marketing.py` gerendert werden).
 7. Die **Piggy-3D-Clips** (hop, wave, cheer_jump, coin_drop, turntable, talk_loop) und der Icon-Render sind in `brand/piggy/3d/marketing.py` geplant (Datei noch nicht vorhanden).
 
 ## Arbeitsteilung

@@ -1,0 +1,139 @@
+{
+  "id": "dobermann",
+  "name": "Brutus",
+  "placeholder_name": true,
+  "species": "dobermann",
+  "palette": {
+    "fur": "#F26B1D",
+    "fur_light": "#F58F3A",
+    "head": "#2B3B57",
+    "neck": "#2B3B57",
+    "ear": "#2B3B57",
+    "ear_inner": "#F26B1D",
+    "muzzle": "#41587A",
+    "torso_front": "#F26B1D",
+    "paw": "#F26B1D",
+    "nose": "#0B0D12",
+    "eye_ring": "#14100C",
+    "eye_iris": "#F3D35B",
+    "pupil": "#0B0A0F",
+    "shine": "#FFFFFF",
+    "brow": "#10141C",
+    "mouth_line": "#0B0D12",
+    "mouth_inside": "#5B1420",
+    "tongue": "#D9506A",
+    "marking_orange": "#F26B1D",
+    "chain": "#E9B72E"
+  },
+  "toon": {
+    "shade_tint": "#2A0F12",
+    "shade_mix": 0.34,
+    "highlight_mix": 0.26
+  },
+  "outline": {
+    "color": "#150A06",
+    "thickness": 1.0
+  },
+  "aura": {
+    "color": "#FF6A1A",
+    "width": 0.016
+  },
+  "background": {
+    "top": "#2E3440",
+    "bottom": "#0B0D11",
+    "glow": "#FF6A1A",
+    "glow_strength": 0.2,
+    "glow_center": [
+      0.5,
+      0.45
+    ]
+  },
+  "head": {
+    "radii": [
+      0.7,
+      0.66,
+      0.64
+    ]
+  },
+  "snout": {
+    "w": 0.29,
+    "l": 0.74,
+    "h": 0.27,
+    "taper": 0.22,
+    "nose_w": 0.12
+  },
+  "ears": {
+    "w": 0.24,
+    "h": 0.58,
+    "thick": 0.055,
+    "taper": 0.97,
+    "x": 0.46,
+    "z": 0.52,
+    "tilt_out": 15,
+    "tilt_back": -6
+  },
+  "eyes": {
+    "x": 0.27,
+    "dz": 0.12,
+    "rx": 0.095,
+    "rz": 0.085,
+    "lid_in": 0.3,
+    "lid_out": 0.72,
+    "pupil": 0.5
+  },
+  "brow": {
+    "thick": 0.024,
+    "len": 0.22,
+    "dz": 0.04,
+    "slope": 0.05,
+    "color": "brow"
+  },
+  "body": {
+    "chest": 1.0,
+    "delt": 1.0,
+    "arm": 1.0
+  },
+  "tail": {
+    "length": 0.35,
+    "curl": 0.0,
+    "radius": 0.13
+  },
+  "markings": [
+    {
+      "on": "head",
+      "name": "brow_dot",
+      "mirror": true,
+      "x": 0.25,
+      "dz": 0.26,
+      "rx": 0.07,
+      "rz": 0.04,
+      "color": "marking_orange"
+    },
+    {
+      "on": "head",
+      "name": "cheek",
+      "mirror": true,
+      "x": 0.34,
+      "dz": -0.28,
+      "rx": 0.1,
+      "rz": 0.07,
+      "color": "marking_orange"
+    },
+    {
+      "on": "snout",
+      "name": "muzzle_side",
+      "mirror": true,
+      "x": 0.17,
+      "dz": -0.06,
+      "rx": 0.08,
+      "rz": 0.07,
+      "color": "marking_orange"
+    }
+  ],
+  "accessories": {
+    "chain": true
+  },
+  "icon": {
+    "expr": "angry"
+  }
+}

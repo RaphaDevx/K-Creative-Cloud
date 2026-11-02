@@ -25,6 +25,8 @@ def synthesize(text: str, out_path: str, channel: str | None = None, persona: st
     lex = load_lexicon()
     parts, used = [], []
     for seg in segment(text, lex):
+        if not any(ch.isalnum() for ch in seg.text):
+            continue  # reine Satzzeichen (z. B. "." nach {en:...}) ergeben kein Audio
         if seg.lang not in per["voices"]:
             raise KeyError(f"Persona {per['id']} hat keine Stimme für '{seg.lang}'")
         v = per["voices"][seg.lang]

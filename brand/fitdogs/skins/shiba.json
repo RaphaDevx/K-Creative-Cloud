@@ -1,0 +1,139 @@
+{
+  "id": "shiba",
+  "name": "Shiro",
+  "placeholder_name": true,
+  "species": "shiba",
+  "palette": {
+    "fur": "#E3A04A",
+    "fur_light": "#F6DFB2",
+    "head": "#E3A04A",
+    "neck": "#E3A04A",
+    "ear": "#E3A04A",
+    "ear_inner": "#F6DFB2",
+    "muzzle": "#F6DFB2",
+    "torso_front": "#F6DFB2",
+    "paw": "#E3A04A",
+    "nose": "#1D1B26",
+    "eye_ring": "#1B1A2E",
+    "eye_iris": "#2A1B14",
+    "pupil": "#0B0A0F",
+    "shine": "#FFFFFF",
+    "brow": "#8A5524",
+    "mouth_line": "#2A1B14",
+    "mouth_inside": "#7A1F2B",
+    "tongue": "#F0707E",
+    "marking_cream": "#F6DFB2",
+    "chain": "#E9B72E"
+  },
+  "toon": {
+    "shade_tint": "#8C3B14",
+    "shade_mix": 0.32,
+    "highlight_mix": 0.3
+  },
+  "outline": {
+    "color": "#1B1A2E",
+    "thickness": 1.0
+  },
+  "aura": {
+    "color": "#7ED321",
+    "width": 0.016
+  },
+  "background": {
+    "top": "#FFFFFF",
+    "bottom": "#F1E8D6",
+    "glow": "#FFFFFF",
+    "glow_strength": 0.0,
+    "glow_center": [
+      0.5,
+      0.55
+    ]
+  },
+  "head": {
+    "radii": [
+      0.8,
+      0.68,
+      0.64
+    ]
+  },
+  "snout": {
+    "w": 0.3,
+    "l": 0.42,
+    "h": 0.23,
+    "taper": 0.45,
+    "nose_w": 0.085
+  },
+  "ears": {
+    "w": 0.24,
+    "h": 0.34,
+    "thick": 0.075,
+    "taper": 0.9,
+    "x": 0.46,
+    "z": 0.5,
+    "tilt_out": 14,
+    "tilt_back": -6
+  },
+  "eyes": {
+    "x": 0.3,
+    "dz": 0.12,
+    "rx": 0.1,
+    "rz": 0.1,
+    "lid_in": 0.9,
+    "lid_out": 1.0,
+    "pupil": 0.62
+  },
+  "brow": {
+    "thick": 0.016,
+    "len": 0.2,
+    "dz": 0.05,
+    "slope": -0.01,
+    "color": "brow"
+  },
+  "body": {
+    "chest": 1.0,
+    "delt": 1.0,
+    "arm": 1.0
+  },
+  "tail": {
+    "length": 1.0,
+    "curl": 1.0,
+    "radius": 0.17
+  },
+  "markings": [
+    {
+      "on": "head",
+      "name": "cheek",
+      "mirror": true,
+      "x": 0.43,
+      "dz": -0.2,
+      "rx": 0.2,
+      "rz": 0.15,
+      "color": "marking_cream"
+    },
+    {
+      "on": "head",
+      "name": "brow_spot",
+      "mirror": true,
+      "x": 0.27,
+      "dz": 0.26,
+      "rx": 0.055,
+      "rz": 0.032,
+      "color": "marking_cream"
+    },
+    {
+      "on": "head",
+      "name": "blaze",
+      "mirror": false,
+      "x": 0.0,
+      "dz": -0.12,
+      "rx": 0.13,
+      "rz": 0.3,
+      "color": "marking_cream"
+    }
+  ],
+  "accessories": {
+    "chain": false
+  },
+  "icon": {
+    "expr": "happy"
+  }
+}

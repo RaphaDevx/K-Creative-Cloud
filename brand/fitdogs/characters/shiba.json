@@ -1,0 +1,50 @@
+{
+  "id": "shiba",
+  "name": "Shiro",
+  "placeholder_name": true,
+  "description": "Muskulöser, aufrecht stehender Shiba im Esport-Sticker-Look (dicke Outline, Cel-Shading, grüne Aura). Name ist ein Platzhalter. Skin auf dem gemeinsamen FitDogs-Skelett (fitdogs-v1); Quelle: brand/fitdogs/skins/shiba.json.",
+  "persona": null,
+  "skeleton": "fitdogs-v1",
+  "actions": [
+    "idle",
+    "flex",
+    "wave",
+    "hop",
+    "talk"
+  ],
+  "expressions": [
+    "neutral",
+    "happy",
+    "angry",
+    "surprised"
+  ],
+  "palette": {
+    "fur": "#E3A04A",
+    "fur_light": "#F6DFB2",
+    "nose": "#1D1B26",
+    "aura": "#7ED321",
+    "outline": "#1B1A2E"
+  },
+  "icon": "brand/fitdogs/dist/icons/shiba-1024.png",
+  "background": {
+    "top": "#FFFFFF",
+    "bottom": "#F1E8D6",
+    "glow": "#FFFFFF",
+    "glow_strength": 0.0,
+    "glow_center": [
+      0.5,
+      0.55
+    ]
+  },
+  "assets": {
+    "model": "brand/fitdogs/dist/3d_traced/shiba.glb",
+    "poster": "brand/fitdogs/dist/2d/shiba/stills/pose_idle.png",
+    "idle_video": "brand/fitdogs/dist/2d/shiba/idle.mp4",
+    "overview": "brand/fitdogs/dist/3d/shiba-overview.png",
+    "sprites_dir": "brand/fitdogs/dist/3d/sprites",
+    "render2d": "brand/fitdogs/dist/2d/shiba",
+    "model_blender_v1": "brand/fitdogs/dist/3d/shiba.glb",
+    "traced_dir": "brand/fitdogs/dist/3d_traced/shiba"
+  },
+  "skeleton2d": "fitdogs-2d-v1"
+}

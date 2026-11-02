@@ -1,0 +1,1099 @@
+{
+ "skeleton": "fitdogs-2d-v1",
+ "fps": 24,
+ "units": {
+  "rot": "Grad um den Pivot, positiv = im Uhrzeigersinn auf dem Bild; l = linke Bildseite (nach aussen = positiv), r = rechte Bildseite (nach aussen = negativ)",
+  "tx,ty": "Verschiebung als Anteil der Figurenh\u00f6he (y positiv = nach unten)",
+  "sx,sy": "Skalierung um den Pivot des Teils (root: F\u00fcsse)",
+  "keyframe": "[Zeit in s, Wert, Easing zum n\u00e4chsten Key: linear|in|out|inout|hold|out_back]",
+  "parents": "root > torso > head, upper_arm_l/r > forearm_l/r (Transformationen vererben sich)"
+ },
+ "actions": {
+  "idle": {
+   "duration": 2.0,
+   "loop": true,
+   "tracks": {
+    "torso": {
+     "sy": [
+      [
+       0,
+       1,
+       "inout"
+      ],
+      [
+       1.0,
+       1.012,
+       "inout"
+      ],
+      [
+       2.0,
+       1,
+       "inout"
+      ]
+     ],
+     "sx": [
+      [
+       0,
+       1,
+       "inout"
+      ],
+      [
+       1.0,
+       1.006,
+       "inout"
+      ],
+      [
+       2.0,
+       1,
+       "inout"
+      ]
+     ]
+    },
+    "head": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.7,
+       0.8,
+       "inout"
+      ],
+      [
+       1.4,
+       -0.6,
+       "inout"
+      ],
+      [
+       2.0,
+       0,
+       "inout"
+      ]
+     ],
+     "ty": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       1.0,
+       -0.003,
+       "inout"
+      ],
+      [
+       2.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       1.0,
+       1.2,
+       "inout"
+      ],
+      [
+       2.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       1.0,
+       -1.2,
+       "inout"
+      ],
+      [
+       2.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       1.0,
+       0.8,
+       "inout"
+      ],
+      [
+       2.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       1.0,
+       -0.8,
+       "inout"
+      ],
+      [
+       2.0,
+       0,
+       "inout"
+      ]
+     ]
+    }
+   }
+  },
+  "flex": {
+   "duration": 3.0,
+   "loop": false,
+   "tracks": {
+    "upper_arm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "out_back"
+      ],
+      [
+       0.6,
+       40,
+       "inout"
+      ],
+      [
+       1.0,
+       40,
+       "inout"
+      ],
+      [
+       1.4,
+       40,
+       "inout"
+      ],
+      [
+       1.8,
+       40,
+       "inout"
+      ],
+      [
+       2.2,
+       40.0,
+       "inout"
+      ],
+      [
+       2.5,
+       40,
+       "inout"
+      ],
+      [
+       3.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "out_back"
+      ],
+      [
+       0.6,
+       -40,
+       "inout"
+      ],
+      [
+       1.0,
+       -40,
+       "inout"
+      ],
+      [
+       1.4,
+       -40,
+       "inout"
+      ],
+      [
+       1.8,
+       -40,
+       "inout"
+      ],
+      [
+       2.2,
+       -40.0,
+       "inout"
+      ],
+      [
+       2.5,
+       -40,
+       "inout"
+      ],
+      [
+       3.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "out_back"
+      ],
+      [
+       0.6,
+       135,
+       "inout"
+      ],
+      [
+       1.0,
+       138,
+       "inout"
+      ],
+      [
+       1.4,
+       132,
+       "inout"
+      ],
+      [
+       1.8,
+       138,
+       "inout"
+      ],
+      [
+       2.2,
+       133.5,
+       "inout"
+      ],
+      [
+       2.5,
+       135,
+       "inout"
+      ],
+      [
+       3.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "out_back"
+      ],
+      [
+       0.6,
+       -135,
+       "inout"
+      ],
+      [
+       1.0,
+       -138,
+       "inout"
+      ],
+      [
+       1.4,
+       -132,
+       "inout"
+      ],
+      [
+       1.8,
+       -138,
+       "inout"
+      ],
+      [
+       2.2,
+       -133.5,
+       "inout"
+      ],
+      [
+       2.5,
+       -135,
+       "inout"
+      ],
+      [
+       3.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "torso": {
+     "sy": [
+      [
+       0,
+       1,
+       "out_back"
+      ],
+      [
+       0.6,
+       1.015,
+       "inout"
+      ],
+      [
+       2.5,
+       1.015,
+       "inout"
+      ],
+      [
+       3.0,
+       1,
+       "inout"
+      ]
+     ],
+     "sx": [
+      [
+       0,
+       1,
+       "out_back"
+      ],
+      [
+       0.6,
+       1.01,
+       "inout"
+      ],
+      [
+       1.2,
+       1.016,
+       "inout"
+      ],
+      [
+       1.8,
+       1.01,
+       "inout"
+      ],
+      [
+       2.4,
+       1.016,
+       "inout"
+      ],
+      [
+       3.0,
+       1,
+       "inout"
+      ]
+     ]
+    },
+    "head": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.6,
+       -2,
+       "inout"
+      ],
+      [
+       2.4,
+       -2,
+       "inout"
+      ],
+      [
+       3.0,
+       0,
+       "inout"
+      ]
+     ],
+     "ty": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.6,
+       -0.004,
+       "inout"
+      ],
+      [
+       2.4,
+       -0.004,
+       "inout"
+      ],
+      [
+       3.0,
+       0,
+       "inout"
+      ]
+     ]
+    }
+   }
+  },
+  "wave": {
+   "duration": 2.4,
+   "loop": false,
+   "tracks": {
+    "upper_arm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.5,
+       -65,
+       "inout"
+      ],
+      [
+       1.9,
+       -65,
+       "inout"
+      ],
+      [
+       2.4,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.5,
+       -105,
+       "inout"
+      ],
+      [
+       0.8,
+       -82,
+       "inout"
+      ],
+      [
+       1.1,
+       -122,
+       "inout"
+      ],
+      [
+       1.4,
+       -82,
+       "inout"
+      ],
+      [
+       1.7,
+       -122,
+       "inout"
+      ],
+      [
+       1.95,
+       -105,
+       "inout"
+      ],
+      [
+       2.4,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.6,
+       1.5,
+       "inout"
+      ],
+      [
+       1.8,
+       1.5,
+       "inout"
+      ],
+      [
+       2.4,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "head": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.5,
+       -3,
+       "inout"
+      ],
+      [
+       1.9,
+       -3,
+       "inout"
+      ],
+      [
+       2.4,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "torso": {
+     "sx": [
+      [
+       0,
+       1,
+       "inout"
+      ],
+      [
+       0.5,
+       1.004,
+       "inout"
+      ],
+      [
+       1.9,
+       1.004,
+       "inout"
+      ],
+      [
+       2.4,
+       1,
+       "inout"
+      ]
+     ]
+    }
+   }
+  },
+  "hop": {
+   "duration": 1.0,
+   "loop": false,
+   "tracks": {
+    "root": {
+     "sy": [
+      [
+       0,
+       1,
+       "inout"
+      ],
+      [
+       0.18,
+       0.88,
+       "out"
+      ],
+      [
+       0.32,
+       1.07,
+       "out"
+      ],
+      [
+       0.52,
+       1.02,
+       "inout"
+      ],
+      [
+       0.7,
+       1.03,
+       "in"
+      ],
+      [
+       0.78,
+       0.9,
+       "out"
+      ],
+      [
+       0.9,
+       1.03,
+       "inout"
+      ],
+      [
+       1.0,
+       1,
+       "inout"
+      ]
+     ],
+     "sx": [
+      [
+       0,
+       1,
+       "inout"
+      ],
+      [
+       0.18,
+       1.07,
+       "out"
+      ],
+      [
+       0.32,
+       0.96,
+       "out"
+      ],
+      [
+       0.52,
+       0.99,
+       "inout"
+      ],
+      [
+       0.7,
+       0.98,
+       "in"
+      ],
+      [
+       0.78,
+       1.06,
+       "out"
+      ],
+      [
+       0.9,
+       0.99,
+       "inout"
+      ],
+      [
+       1.0,
+       1,
+       "inout"
+      ]
+     ],
+     "ty": [
+      [
+       0,
+       0,
+       "hold"
+      ],
+      [
+       0.18,
+       0,
+       "out"
+      ],
+      [
+       0.52,
+       -0.09,
+       "in"
+      ],
+      [
+       0.74,
+       0,
+       "hold"
+      ],
+      [
+       1.0,
+       0,
+       "linear"
+      ]
+     ]
+    },
+    "head": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.18,
+       3,
+       "inout"
+      ],
+      [
+       0.52,
+       -2,
+       "inout"
+      ],
+      [
+       0.8,
+       2,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.18,
+       -6,
+       "inout"
+      ],
+      [
+       0.45,
+       16,
+       "inout"
+      ],
+      [
+       0.78,
+       -4,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.18,
+       6,
+       "inout"
+      ],
+      [
+       0.45,
+       -16,
+       "inout"
+      ],
+      [
+       0.78,
+       4,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.18,
+       -4,
+       "inout"
+      ],
+      [
+       0.45,
+       12,
+       "inout"
+      ],
+      [
+       0.78,
+       -3,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "forearm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.18,
+       4,
+       "inout"
+      ],
+      [
+       0.45,
+       -12,
+       "inout"
+      ],
+      [
+       0.78,
+       3,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    }
+   }
+  },
+  "talk": {
+   "duration": 1.0,
+   "loop": true,
+   "tracks": {
+    "head": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.12,
+       -3.5,
+       "inout"
+      ],
+      [
+       0.3,
+       1.0,
+       "inout"
+      ],
+      [
+       0.5,
+       0,
+       "inout"
+      ],
+      [
+       0.62,
+       -3.0,
+       "inout"
+      ],
+      [
+       0.8,
+       0.8,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ],
+     "ty": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.12,
+       0.006,
+       "inout"
+      ],
+      [
+       0.3,
+       -0.002,
+       "inout"
+      ],
+      [
+       0.5,
+       0,
+       "inout"
+      ],
+      [
+       0.62,
+       0.005,
+       "inout"
+      ],
+      [
+       0.8,
+       -0.002,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "torso": {
+     "sy": [
+      [
+       0,
+       1,
+       "inout"
+      ],
+      [
+       0.12,
+       1.004,
+       "inout"
+      ],
+      [
+       0.5,
+       1,
+       "inout"
+      ],
+      [
+       0.62,
+       1.004,
+       "inout"
+      ],
+      [
+       1.0,
+       1,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_l": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.3,
+       1.5,
+       "inout"
+      ],
+      [
+       0.5,
+       0,
+       "inout"
+      ],
+      [
+       0.8,
+       1.5,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    },
+    "upper_arm_r": {
+     "rot": [
+      [
+       0,
+       0,
+       "inout"
+      ],
+      [
+       0.3,
+       -1.5,
+       "inout"
+      ],
+      [
+       0.5,
+       0,
+       "inout"
+      ],
+      [
+       0.8,
+       -1.5,
+       "inout"
+      ],
+      [
+       1.0,
+       0,
+       "inout"
+      ]
+     ]
+    }
+   }
+  }
+ },
+ "poses": {
+  "pose_idle": {
+   "torso": {
+    "rot": 0
+   },
+   "head": {
+    "rot": 0
+   },
+   "upper_arm_l": {
+    "rot": 0
+   },
+   "upper_arm_r": {
+    "rot": 0
+   },
+   "forearm_l": {
+    "rot": 0
+   },
+   "forearm_r": {
+    "rot": 0
+   }
+  },
+  "pose_flex": {
+   "torso": {
+    "sx": 1.016,
+    "sy": 1.015
+   },
+   "head": {
+    "rot": -2,
+    "ty": -0.004
+   },
+   "upper_arm_l": {
+    "rot": 40
+   },
+   "upper_arm_r": {
+    "rot": -40
+   },
+   "forearm_l": {
+    "rot": 135
+   },
+   "forearm_r": {
+    "rot": -135
+   }
+  },
+  "pose_wave": {
+   "torso": {
+    "rot": 0
+   },
+   "head": {
+    "rot": -3
+   },
+   "upper_arm_l": {
+    "rot": 0
+   },
+   "upper_arm_r": {
+    "rot": -65
+   },
+   "forearm_l": {
+    "rot": 0
+   },
+   "forearm_r": {
+    "rot": -105
+   }
+  }
+ }
+}

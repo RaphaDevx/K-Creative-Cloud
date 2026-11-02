@@ -110,3 +110,4 @@ workspace/native-media/
 # Voice-Schicht: Modelle wiederbeschaffbar, Referenzsamples privat (nur per backup-voices.sh)
 voice-models/
 voice-data/samples/
+ai-models/
