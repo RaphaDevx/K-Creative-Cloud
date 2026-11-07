@@ -573,7 +573,12 @@ if (process.platform === 'linux') {
   app.commandLine.appendSwitch('disable-gpu-sandbox');
 }
 
+// One GUI/backend process per installed app identity.
+const ownsInstance = app.requestSingleInstanceLock();
+if (!ownsInstance) app.quit();
+app.on('second-instance', () => { if (mainWindow) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.show(); mainWindow.focus(); } });
 app.whenReady().then(async () => {
+  if (!ownsInstance) return;
   loadLocalFlags();
 
   buildMenu();

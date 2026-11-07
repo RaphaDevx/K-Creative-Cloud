@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "bundleIdentifier": "cloud.k-creative.studio",
+  "bundleName": "K-Creative Studio.app",
+  "feed": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-creative/latest-mac.yml",
+  "singleInstance": true,
+  "installation": "applications",
+  "evidenceFiles": [
+    "main.js"
+  ]
+}

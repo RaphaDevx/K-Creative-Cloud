@@ -143,7 +143,12 @@ ipcMain.handle('download-update', () => autoUpdater.downloadUpdate().catch(conso
 ipcMain.handle('install-update',  () => autoUpdater.quitAndInstall(false, true));
 
 // ── App lifecycle ──────────────────────────────────────────────────────────────
+// One GUI/backend process per installed app identity.
+const ownsInstance = app.requestSingleInstanceLock();
+if (!ownsInstance) app.quit();
+app.on('second-instance', () => { if (mainWindow) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.show(); mainWindow.focus(); } });
 app.whenReady().then(() => {
+  if (!ownsInstance) return;
   startServer();
   createWindow().then(() => {
     if (mainWindow) setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 3000);

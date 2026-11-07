@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "bundleIdentifier": "io.k-creative.kdaw",
+  "bundleName": "K-DAW.app",
+  "feed": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-daw/latest-mac.yml",
+  "singleInstance": true,
+  "installation": "applications",
+  "evidenceFiles": [
+    "main.js"
+  ]
+}

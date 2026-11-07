@@ -1,19 +1,19 @@
 {
   "name": "k-creative-desktop",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "description": "K-Creative Studio — Open-Source Creative Cloud",
   "homepage": "https://github.com/RaphaDevx/K-Creative-Cloud",
   "author": "RaphaDevx",
   "main": "main.js",
   "scripts": {
-    "dev":          "electron . --no-sandbox",
-    "dev:kiosk":    "electron . --no-sandbox --kiosk",
-    "dev:debug":    "electron . --no-sandbox --dev",
-    "build":        "electron-builder --linux AppImage deb",
-    "build:mac":    "bash scripts/build-backend.sh && electron-builder --mac dmg",
-    "build:win":    "electron-builder --win nsis",
-    "build:all":    "electron-builder --linux AppImage deb --mac dmg --win nsis",
-    "release":      "electron-builder --publish always"
+    "dev": "electron . --no-sandbox",
+    "dev:kiosk": "electron . --no-sandbox --kiosk",
+    "dev:debug": "electron . --no-sandbox --dev",
+    "build": "electron-builder --linux AppImage deb",
+    "build:mac": "bash scripts/build-backend.sh && electron-builder --mac dmg",
+    "build:win": "electron-builder --win nsis",
+    "build:all": "electron-builder --linux AppImage deb --mac dmg --win nsis",
+    "release": "electron-builder --publish always"
   },
   "build": {
     "appId": "cloud.k-creative.studio",
@@ -22,21 +22,36 @@
     "directories": {
       "output": "release"
     },
-    "publish": [
-      {
-        "provider": "generic",
-        "url": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-creative",
-        "channel": "latest"
-      }
-    ],
+    "publish": {
+      "provider": "generic",
+      "url": "https://pub-f8a055810aee4622b6883b39e71485fe.r2.dev/k-creative",
+      "channel": "latest"
+    },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "AudioVideo",
       "icon": "src-tauri/icons/512x512.png",
       "maintainer": "RaphaDevx"
     },
     "mac": {
-      "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
       "icon": "src-tauri/icons/512x512.png",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
@@ -45,7 +60,14 @@
       "entitlementsInherit": "entitlements.mac.plist"
     },
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "src-tauri/icons/512x512.png",
       "requestedExecutionLevel": "asInvoker"
     },

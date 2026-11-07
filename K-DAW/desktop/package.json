@@ -1,6 +1,6 @@
 {
   "name": "k-daw",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "productName": "K-DAW",
   "description": "AI-powered Music Production & DJ App — K-Creative Suite",
   "main": "main.js",
@@ -30,12 +30,26 @@
       {
         "from": "../backend/dist/kdaw-server",
         "to": "kdaw-server",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "mac": {
       "target": [
-        { "target": "dmg", "arch": ["arm64", "x64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
       ],
       "icon": "build/icon.icns",
       "category": "public.app-category.music",
@@ -52,10 +66,15 @@
     },
     "dmg": {
       "title": "K-DAW ${version}",
-      "window": { "width": 580, "height": 380 }
+      "window": {
+        "width": 580,
+        "height": 380
+      }
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "icon": "build/icon.png",
       "category": "AudioVideo"
     }
