@@ -8,10 +8,13 @@
       "note": "macOS 12+ · Apple Silicon + Intel · Auto-Update"
     },
     "k-daw": {
-      "version": "0.2.0",
-      "arm64": "k-daw/K-DAW-0.2.0-arm64.dmg",
-      "x64": "k-daw/K-DAW-0.2.0.dmg",
-      "note": "macOS 12+ · Apple Silicon + Intel · Auto-Update"
+      "version": "0.2.1",
+      "arm64": "k-daw/K-DAW-0.2.1-arm64.dmg",
+      "note": "Aktiv · Apple Silicon · Signiert & notarisiert · R2 Auto-Update ab 0.2.1 · Altinstallation einmal ersetzen",
+      "sha256": "bd685e553b9dba2f331d14d3f8e28f4765d832e45bc54b0d4ad5ad313f8e654d",
+      "bytes": 120604117,
+      "lifecycle": "active",
+      "updater_from": "0.2.1"
     },
     "k-dev-dashboard": {
       "version": "2.0.7",
@@ -20,9 +23,13 @@
       "x64": "k-dev-dashboard-tauri/K-Dev-Dashboard-2.0.7-x64.dmg"
     },
     "k-ai-dashboard": {
-      "version": "1.1.0",
-      "arm64": "k-ai-dashboard/K-AI Dashboard-1.1.0-arm64.dmg",
-      "note": "macOS 12+ · Signed & Notarized · Auto-Update"
+      "version": "1.1.1",
+      "arm64": "k-ai-dashboard/K-AI-Dashboard-1.1.1-arm64.dmg",
+      "note": "Aktiv · Apple Silicon · Signiert & notarisiert · R2 Auto-Update ab 1.1.1 · Altinstallation einmal ersetzen",
+      "sha256": "8e2bf0afd11de2b2d2ae909ab4889d890db70ee90afa40aa4402d12dc40c6c2c",
+      "bytes": 94526246,
+      "lifecycle": "active",
+      "updater_from": "1.1.1"
     },
     "k-research": {
       "version": "1.0.0",
@@ -37,6 +44,26 @@
       "sha256_linux": "00bc355b83d9a18e48b959aa1f4ff3f1cd4bfb3dd0c4856497474d2bf2d7e5bf",
       "note": "macOS 12+ · Linux x86_64 · Signiert & Notarisiert",
       "version_linux": "1.3.2"
+    },
+    "omnicode": {
+      "version": "0.3.1",
+      "arm64": "omnisphere/omnicode/Omnicode-0.3.1-aarch64.dmg",
+      "sha256": "2e32c659f5a280fef82ccacbf9ab4e60a6112c55b1fe963ed235f2333b369e93",
+      "bytes": 7706180,
+      "status": "beta",
+      "note": "Aktiv · Apple Silicon · Signiert & notarisiert · R2 Auto-Update ab 0.3.1 · Altinstallation einmal ersetzen",
+      "lifecycle": "active",
+      "updater_from": "0.3.1"
+    },
+    "prometheus": {
+      "version": "0.2.4",
+      "arm64": "prometheus/Prometheus-Notch-0.2.4-aarch64.dmg",
+      "sha256": "802d38b05db48cbde981bf0e7d4414a009c2dc65e310c7d2b9bef0bf02f7636d",
+      "bytes": 3841211,
+      "status": "beta",
+      "note": "Aktiv · Apple Silicon · Signiert & notarisiert · R2 Auto-Update ab 0.2.4 · Altinstallation einmal ersetzen",
+      "lifecycle": "active",
+      "updater_from": "0.2.4"
     }
   }
 }
