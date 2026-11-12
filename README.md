@@ -1,5 +1,9 @@
 # K-Creative-Cloud
 
+## Eigenständiger Rust-3D-Editor
+
+[`3d-editor/`](3d-editor/README.md) enthält den begonnenen nativen Rust-Neubau: GPU-Viewport, editierbare Polygon-Meshes, Flächenextrusion, Szenendateien, OBJ und nachvollziehbare Bearbeitungsgruppen. Start über `./3d-editor/start.sh`, sobald ein Desktop-Test-/Releasebinary bereitsteht. Neutraler Auftritt mit austauschbaren Brandingprofilen. Stand und Grenzen: [Roadmap](3d-editor/ROADMAP.md). Bestehende Werkzeuge unten bleiben verfügbar.
+
 Open-Source Creative Cloud — vollständig über MCP (Model Context Protocol) steuerbar.
 Claude behält volle Kontrolle über alle Tools; die GUIs bleiben gleichzeitig bedienbar.
 

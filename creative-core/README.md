@@ -9,3 +9,5 @@ Projects use UUID filenames. Each JSON file stores the current canonical project
 The host bridge must serialize invocations against each store; this CLI intentionally does not act as a concurrent server. Asset filesystem access/confinement belongs to the host bridge. The core stores asset references and verifies clip references; it never opens imported media.
 
 Clip splits accept absolute timeline time strictly inside the clip. The left clip retains its ID. The right clip gets a new ID and advances its source offset by the left segment's duration.
+
+Suite document manifests and acyclic dependencies are implemented in `src/documents.rs`. Use `document.archive_preview` before revision-guarded `document.archive`; preservation creates local manifest copies, cascade archives transitive users. No native files are removed or snapshotted. These actions reuse persistence/undo and the generic HTTP/MCP bridge. See `docs/creative-native/CONTRACT.md` and `docs/suite/MASTERPLAN.md` from the repository root for scope and later milestones.

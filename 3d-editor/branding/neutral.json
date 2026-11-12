@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "app_name": "3d-editor",
+  "wordmark": "3d-editor",
+  "monogram": "3D",
+  "launch_line": "Raum für deine Ideen.",
+  "workspace_signature": "3d-editor",
+  "accent": [174, 188, 205],
+  "launch_background": [23, 27, 33],
+  "show_workspace_signature": true
+}

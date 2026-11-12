@@ -6,6 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use uuid::Uuid;
+mod documents;
 type Result<T> = std::result::Result<T, String>;
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -48,6 +49,21 @@ fn schema(action: &str) -> Value {
             ("expected_revision", "integer", true),
         ],
         "brand.update" => vec![("brand", "object", true)],
+        "document.create" => vec![
+            ("name", "string", true),
+            ("kind", "string", true),
+            ("content", "object", true),
+        ],
+        "document.link" => vec![
+            ("dependent_id", "string", true),
+            ("source_id", "string", true),
+        ],
+        "document.archive_preview" => vec![("id", "string", true), ("mode", "string", true)],
+        "document.archive" => vec![
+            ("id", "string", true),
+            ("mode", "string", true),
+            ("expected_revision", "integer", true),
+        ],
         "asset.add" => vec![
             ("path", "string", true),
             ("name", "string", true),
@@ -99,11 +115,22 @@ fn schema(action: &str) -> Value {
         }
         let mut s = json!({"type":kind});
         if key == "kind" {
-            s["enum"] = if action.starts_with("asset") {
+            s["enum"] = if action.starts_with("document.") {
+                json!([
+                    "sketch", "cad", "scene", "photo", "vector", "music", "video", "notes",
+                    "textile"
+                ])
+            } else if action.starts_with("asset") {
                 json!(["image", "video", "audio", "blender"])
             } else {
                 json!(["rect", "text", "image", "ellipse", "polygon"])
             };
+        }
+        if key == "mode" && action.starts_with("document.") {
+            s["enum"] = json!(["preserve_dependents", "cascade_dependents"]);
+        }
+        if key == "expected_revision" {
+            s["minimum"] = json!(0);
         }
         if kind == "string" && key != "text" {
             s["minLength"] = json!(1);
@@ -167,6 +194,10 @@ const ACTIONS: &[&str] = &[
     "project.settings",
     "project.batch",
     "brand.update",
+    "document.create",
+    "document.link",
+    "document.archive_preview",
+    "document.archive",
     "asset.add",
     "layer.add",
     "layer.update",
@@ -228,6 +259,7 @@ fn validate(c: &Command) -> Result<()> {
                 "opacity" | "velocity" => n >= 0.0 && n <= 1.0,
                 "brightness" | "contrast" | "saturation" | "volume" => n >= 0.0 && n <= 4.0,
                 "pitch" => n >= 0.0 && n <= 127.0,
+                "expected_revision" => n >= 0.0,
                 _ => true,
             };
             if !valid {
@@ -249,12 +281,17 @@ fn validate(c: &Command) -> Result<()> {
                 || command.action.starts_with("history.")
                 || matches!(
                     command.action.as_str(),
-                    "project.create" | "project.get" | "project.list" | "system.actions"
+                    "project.create"
+                        | "project.get"
+                        | "project.list"
+                        | "system.actions"
+                        | "document.archive_preview"
+                        | "document.archive"
                 )
                 || command.project_id.is_some()
             {
                 return Err(
-                    "Only project mutation commands without project_id may be batched".into(),
+                    "Only project mutation commands without project_id may be batched; archive requires a standalone preview/revision guard".into(),
                 );
             }
             validate(&command)?;
@@ -342,6 +379,9 @@ fn execute(store: &Path, c: Command) -> Result<Value> {
     if a == "project.get" {
         return Ok(r.project);
     }
+    if a == "document.archive_preview" {
+        return documents::preview(&r.project, &p);
+    }
     if a == "project.batch" && p["expected_revision"].as_u64() != r.project["revision"].as_u64() {
         return Err("Project changed; request a new plan".into());
     }
@@ -381,6 +421,9 @@ fn execute(store: &Path, c: Command) -> Result<Value> {
     Ok(r.project)
 }
 fn mutate(project: &mut Value, a: &str, p: &Value) -> Result<()> {
+    if a.starts_with("document.") {
+        return documents::apply(project, a, p);
+    }
     match a {
         "project.rename" => project["name"] = p["name"].clone(),
         "project.settings" => {

@@ -1,0 +1,27 @@
+[package]
+name = "editor-3d"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Independent Rust 3D scene editor for K-Creative"
+publish = false
+
+[lib]
+name = "editor_3d"
+
+[[bin]]
+name = "3d-editor"
+path = "src/main.rs"
+
+[features]
+default = ["desktop"]
+desktop = ["dep:eframe", "dep:bytemuck", "dep:rfd"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "=1.8.0", features = ["v4"] }
+glam = { version = "=0.30.9", features = ["serde"] }
+eframe = { version = "=0.31.1", default-features = false, features = ["accesskit", "default_fonts", "wgpu", "x11", "wayland"], optional = true }
+bytemuck = { version = "1", features = ["derive"], optional = true }
+rfd = { version = "=0.17.2", optional = true }

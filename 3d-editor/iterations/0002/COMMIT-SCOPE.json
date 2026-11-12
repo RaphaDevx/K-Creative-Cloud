@@ -1,0 +1,14 @@
+[
+  "3d-editor",
+  "ARCHITECTURE.md",
+  "README.md",
+  "creative-core/README.md",
+  "creative-core/src/main.rs",
+  "creative-core/src/documents.rs",
+  "creative-core/tests/documents.rs",
+  "docs/creative-native/CONTRACT.md",
+  "docs/adr/0006-suite-documents-and-engine-adapters.md",
+  "docs/adr/0007-independent-rust-3d-editor.md",
+  "docs/suite",
+  "tests/test_suite_documents.py"
+]

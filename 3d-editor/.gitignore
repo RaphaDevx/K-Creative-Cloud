@@ -1,0 +1,4 @@
+/target/
+/artifacts/
+*.scene3d.tmp
+__pycache__/

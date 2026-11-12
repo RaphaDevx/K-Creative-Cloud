@@ -26,3 +26,15 @@ GET /api/creative/workflows?kind=photo returns {ok:true,result:{root,kind,tools,
 layer.add/update kinds also include ellipse and polygon. Polygon points are 3..256 normalized [x,y] pairs in 0..1. Image layers accept brightness,contrast,saturation in 0..4; sources remain unchanged. project.batch {expected_revision:integer,commands:[{action,params}]} permits 1..64 catalogued project mutations, no nested batches/history/read/create commands or nested project_id. Native validation/mutation/persistence is atomic; one batch is one undo revision. HTTP revalidates asset paths inside batches.
 
 Assistant plan/apply, explicit sketch references and local transcription are documented in ASSISTANT.md. Project brand identity validation and portable social-media handoff are documented in BRANDING.md.
+
+## Suite document graph (P0)
+
+Optional `project.document_graph` contains `documents`, `links` and optional `last_archive`. Legacy projects gain the field only on their first graph mutation. A document has generated `id`, `name`, `kind`, bounded JSON `content`, `archived`, optional `owner_id` and `origin_id`. Kinds: sketch/cad/scene/photo/vector/music/video/notes/textile. `content` is inert manifest data, not code, not a verified media snapshot. Limit: 4096 document records (including archived copies), 16384 links and 256 KiB content per manifest.
+
+Actions:
+- `document.create {name,kind,content:object}` adds a manifest; returns the updated project.
+- `document.link {dependent_id,source_id}` adds an active project-local dependency. Missing/archived targets, duplicate links and cycles are rejected.
+- `document.archive_preview {id,mode}` reads affected documents and direct users without writing history/revision. Returns `{expected_revision,id,mode,archive:[{id,name,kind}],preserve_for:[dependent_id],physical_files_deleted:false,scope:"project_manifest_only"}`.
+- `document.archive {id,mode,expected_revision}` is one atomic, undoable mutation and returns the updated project. `preserve_dependents` creates one local manifest copy per direct dependent, rewires its link, retains the source's upstream links, and archives the original. `cascade_dependents` archives the original and transitive active users, preserving unrelated/shared inputs. `last_archive` records preview and replacement IDs. Changed revision rejects the operation.
+
+Archive is soft deletion; neither files nor historical links are physically removed. `owner_id` is logical placement/provenance, not filesystem ownership or an authorization boundary. Copies share manifest references but are not guaranteed durable binary versions. Native program adapters, blob storage/GC, cross-project references and distributed merge are outside P0. Archive and preview are forbidden inside `project.batch`; create/link may be batched. The integrated language planner allowlist is unchanged. Generic HTTP/MCP action transport exposes the new catalog without a second state store. UI for archive choices follows P1.
