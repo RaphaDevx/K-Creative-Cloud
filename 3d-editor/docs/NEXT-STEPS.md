@@ -4,7 +4,7 @@ Stand: Iteration 0002, 12. November 2026. Eigener Rust-Editor, Standardauftritt 
 
 | Reihenfolge | Arbeitspaket | Nachweis vor Abschluss |
 |---|---|---|
-| 1 — jetzt | Inset, gemeinsame Polygonunterteilung, Punkt-/Kantenauswahl, Punktposition bearbeiten | Geometrie-/Pickingtests, gespeicherte Commands/Undo und echte GUI-Bedienung |
+| 1 — erledigt in Iteration 0002 | Inset, gemeinsame Polygonunterteilung, Punkt-/Kantenauswahl, Punktposition bearbeiten | Geometrie-/Pickingtests, gespeicherte Commands/Undo und echte GUI-Bedienung bestanden |
 | 2 | Mehrfachauswahl und Achsen-Gizmos für Verschieben/Drehen/Skalieren; Fangraster und lokale/weltweite Achsen | Drag wird genau eine rückgängig machbare Gruppe; perspektivisch korrekte Achsen und Snapping-Fixtures |
 | 3 | Topologie-Grundlage: stabile Element-IDs, Kanten-/Flächenoperationen, Inset/Extrusion mit metrischen Optionen, Normalenwerkzeuge | keine stillen T-Junctions/ungültigen Flächen; IDs bleiben über spezifizierte Operationen zuordenbar |
 | 4 | Modifier und Szenenhierarchie, Parenting, Sammlungen, Instanzen | nicht destruktiver Stack und Transformations-/Abhängigkeitsfixtures; Undo und Dateimigration |

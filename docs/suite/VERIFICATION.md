@@ -36,4 +36,4 @@ G2 Rust-Operationen: erfüllt, 16 Tests bestanden.
 
 G3 gemeinsamer HTTP-/MCP-Vertrag: erfüllt, neue und vorhandene Integrationsprüfungen bestanden.
 
-G4 Dokumentation und Erhaltung bestehender Arbeiten: erfüllt durch Scoped-Diff-Review und [HANDOVER.md](HANDOVER.md). **API-Übergabe separat offen:** vorhandene fremde Stage-Einträge, keine Dateiauswahl in der Handover-Route. Nicht als ausgeführter Commit/Push darstellen.
+G4 Dokumentation und Erhaltung bestehender Arbeiten: erfüllt durch Scoped-Diff-Review und [HANDOVER.md](HANDOVER.md). Nachfolgende API-Übergabe erfolgt: signierter Commit `f8dc0f7547b7900a97714a83719e777be1371f7a`, zu `kdev` gepusht, einschliesslich dieser Foundation und des neuen Editors. 122 fremde Stage-Pfade nachweislich erhalten. Release-Paket bleibt ein separater Schritt.

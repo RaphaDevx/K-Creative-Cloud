@@ -2,6 +2,8 @@
 
 12 November 2026. Ledger: `20261112-160731-ab4c`.
 
+This report records the initial 14-test milestone. The subsequent [iteration 0002](iterations/0002/VERIFICATION.md) expands the editor to 39 distinct Rust tests plus new modeling GUI checks and records the executed source handover.
+
 ## Automated source checks
 
 - `cargo test --locked --no-default-features`: 14 tests pass, comprising 12 engine and 2 real-process CLI tests. Headless CLI runs with DISPLAY removed.
@@ -46,4 +48,4 @@ No Blender parity, .blend importer, robust general topology solver, UV/texturing
 
 ## Acceptance and handover
 
-G1–G4 are met for this first usable milestone. K-Dev commit/push/package delivery is separately pending because the shared index contains pre-existing unrelated changes; see HANDOVER.md. No complete Blender replacement or published download is claimed.
+G1–G4 are met for this first usable milestone. The subsequent iteration committed this source and Suite foundation via K-Dev as `f8dc0f7547b7900a97714a83719e777be1371f7a`, signed and pushed to `kdev`; 122 foreign staged paths retained. Release packaging remains separate. See HANDOVER.md. No complete Blender replacement or published download is claimed.

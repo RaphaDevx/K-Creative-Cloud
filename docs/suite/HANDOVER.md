@@ -34,11 +34,9 @@ Neue Dateien:
 
 ## Commit-/Push-Status
 
-Noch **keine API-Übergabe ausgelöst**, nichts neu gestaged und kein Commit/Push ausgeführt. Bereits vor dieser Sitzung enthält der gemeinsame Git-Index umfangreiche Brand-Verschiebungen anderer Arbeiten. Die geprüfte K-Dev-Route `Dashboard/routes/handover.js` akzeptiert project/message/push/build, aber keine Dateiauswahl und reicht diese auch nicht an den Signierdienst weiter. Eine Übergabe des gemeinsamen Index könnte fremde Arbeiten mit veröffentlichen.
+Die P0-Foundation wurde gemeinsam mit dem neuen Rust-Editor und dessen Iteration 0002 über `POST /api/handover` committet: `f8dc0f7547b7900a97714a83719e777be1371f7a`, signiert, 64 eigene Source-/Dokumentdateien, zum Remote `kdev` gepusht. Keine Release-Veröffentlichung.
 
-Vor K-Dev-Commit muss die Builder-Session den oben genannten Umfang unabhängig von den bestehenden Indexeinträgen isolieren. Fremde Stage-Einträge bleiben unangetastet. Danach ausschliesslich den vorgesehenen `POST /api/handover` verwenden; keine Projekt-Session signiert oder pusht selbst.
-
-Vorgeschlagener Commit-Titel: `Add suite masterplan and reversible Rust document lifecycle`.
+Die vorher offene Staging-Trennung ist für dieses koordinierte Git-Zeitfenster gelöst: temporärer eigener Index, vorab geprüfte index-only Zwei-Baum-Zusammenführung und Wiederherstellung der 122 fremden staged Pfade mit identischen Blob-IDs/Modes. Zusätzliche Prüfung nach dem Commit bestätigte sowohl den Commit-Dateiumfang als auch das Fremd-Staging. Keine direkten Commit-/Push-Befehle der Projekt-Session. Weitere Schritte verwenden denselben überprüften K-Dev-Weg.
 
 ## Weiterarbeit
 

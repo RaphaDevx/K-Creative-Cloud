@@ -1,0 +1,16 @@
+{
+  "project": "kcreative",
+  "branch": "main",
+  "source_commit": "f8dc0f7547b7900a97714a83719e777be1371f7a",
+  "signed": true,
+  "pushed": ["kdev"],
+  "source_files": 64,
+  "author": "Chad (Codex)",
+  "foreign_staged_paths_preserved": 122,
+  "automated_tests": 72,
+  "native_editor_tests": 39,
+  "linux_gui_smoke": "run-5dfbc01da5",
+  "linux_modeling_smoke": "run-a0cc5d0e61",
+  "mac_editor_test": "pending dedicated builder route",
+  "release_published": false
+}

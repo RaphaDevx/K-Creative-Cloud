@@ -29,6 +29,10 @@ Explicit source scope includes the earlier uncommitted Suite foundation and inde
 
 Helper review fixed cleanup of another writer's `index.lock`, proxy-timeout classification and false-success receipt validation. The utility requires a coordinated exclusive Git window; all team leaves are finished and no subagent stages. It does not claim general immunity to uncoordinated external Git writers. Execution and its signed commit receipt are recorded after the actual API call.
 
+## Executed source handover
+
+`POST /api/handover` completed with HTTP 200: `f8dc0f7547b7900a97714a83719e777be1371f7a`, project kcreative, branch main, signed, 64 files, pushed to kdev. Author/committer both Chad (Codex). Root independently compared all committed paths with the manifest and all 122 remaining staged paths with original index blob/mode records. No foreign files were included. The public summary is DELIVERY.json; private recovery snapshots remain outside the repository.
+
 ## macOS status
 
 Live K-Dev metadata: `builder-macbook`, worker 1.14.0, online, GUI session available. Registry currently exposes the old `kcreative` production `dmgscript` path; no dedicated Rust-editor test route. No macOS test, release build, signing package or publication was triggered or claimed. The portable source-check script and concrete native Metal/dialog/event-loop acceptance are ready in docs/TEST-MATRIX.md.

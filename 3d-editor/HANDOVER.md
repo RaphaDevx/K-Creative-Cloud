@@ -7,13 +7,13 @@
 - Additive native-editor sections in root `ARCHITECTURE.md` and `README.md`.
 - Direction-change notes in `docs/suite/MASTERPLAN.md` and `docs/suite/plans/05-cad-3d.md`.
 
-The Suite masterplan/docs and some architecture additions originated in the previous local P0 foundation, also pending handover. Coordinate with `docs/suite/HANDOVER.md`; do not silently commit a partial dependency set or unrelated Brand changes.
+The Suite masterplan/docs and some architecture additions originated in the previous local P0 foundation. They were included with the editor and iteration 0002 in the signed source commit below, without unrelated Brand changes.
 
 ## Status
 
-Source implementation and local verification complete. No release build, commit, push or handover API was triggered. The shared Git index already contains unrelated Brand moves; the inspected handover route has no file-selection argument. Existing index entries and user work remain unchanged. The builder session must isolate the review scope before invoking the mandatory K-Dev `POST /api/handover` for project `kcreative`.
+Source implementation and local verification complete. Executed `POST /api/handover` for `kcreative`: signed commit `f8dc0f7547b7900a97714a83719e777be1371f7a`, 64 owned source/document files, pushed to `kdev`. Author and committer: Chad (Codex). The 122 pre-existing foreign staged paths were restored with identical blob IDs/modes and independently checked afterwards.
 
-Suggested message: `Start independent Rust 3d-editor with editable meshes and brand profiles`.
+User preference is now recorded in AGENTS.md and docs/NEXT-STEPS.md: commit each coherent verified increment directly through K-Dev. `scripts/scoped_handover.py` uses a reviewed manifest in a coordinated exclusive Git window, preserves foreign staging and rejects unknown signing outcomes. It never invokes direct git commit/push. No release/package build was requested or published.
 
 ## Build inputs
 
