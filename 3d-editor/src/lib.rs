@@ -1,8 +1,10 @@
 pub mod branding;
 pub mod camera;
 pub mod commands;
+pub mod manipulation;
 pub mod mesh;
 pub mod obj;
+pub mod object_selection;
 pub mod persistence;
 pub mod scene;
 pub mod selection;

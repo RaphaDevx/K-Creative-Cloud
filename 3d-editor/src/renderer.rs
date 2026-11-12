@@ -216,7 +216,7 @@ impl Viewport {
     pub fn new(
         scene: &Scene,
         camera: &Camera,
-        selected: Option<&str>,
+        selected: &[String],
         selection: ViewSelection,
         wireframe: bool,
         accent: [u8; 3],
@@ -262,7 +262,7 @@ impl Viewport {
         }
         for object in scene.objects.iter().filter(|o| o.visible) {
             let matrix = object.transform.matrix();
-            let chosen = selected == Some(object.id.as_str());
+            let chosen = selected.contains(&object.id);
             for (index, tri) in object.mesh.triangles() {
                 let p = tri.map(|v| {
                     matrix.transform_point3(Vec3::from(object.mesh.positions[v as usize]))

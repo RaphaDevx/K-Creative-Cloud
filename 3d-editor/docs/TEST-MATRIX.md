@@ -35,7 +35,7 @@ It needs Xvfb, xdotool, Pillow in the project's `.venv`, and a software OpenGL
 stack. It drives actual mouse and keyboard events and writes screenshots and
 fixtures under `artifacts/gui-smoke/`. This validates the Linux window and
 interaction flow under a virtual display, not the native OS file chooser or
-physical GPU drivers. On a desktop session it can also be run directly with the
+physical GPU drivers. `scripts/gui_modeling_smoke.py` additionally checks vertex/edge editing, inset and subdivision. `scripts/gui_translation_smoke.py` checks Shift multiselection, shared numeric translation, Undo/Redo, Escape cancellation, a released axis drag producing exactly one revision and group Undo/Redo. Run these after the source checks have finished: headless test compilation replaces the shared debug binary. On a desktop session it can also be run directly with the
 same Python script and a valid `DISPLAY`.
 
 ## macOS checks still requiring builder registration

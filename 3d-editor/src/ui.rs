@@ -2,9 +2,12 @@ use crate::{
     branding::Brand,
     camera::Camera,
     commands::{Command, CommandGroup, Document},
+    manipulation::{self, Axis, AxisDrag},
     mesh::Primitive,
-    obj, persistence, renderer,
-    scene::Object,
+    obj,
+    object_selection::ObjectSelection,
+    persistence, renderer,
+    scene::{Object, Scene},
     selection::{self, Element, ElementMode},
     Result,
 };
@@ -60,6 +63,15 @@ enum Pending {
     Open(PathBuf),
     Close,
 }
+struct TranslationGesture {
+    drag: AxisDrag,
+    axis: Axis,
+    ids: Vec<String>,
+    revision: u64,
+    base: Scene,
+    viewport: egui::Rect,
+    delta: [f32; 3],
+}
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum SelectionMode {
     Object,
@@ -83,7 +95,7 @@ pub struct Editor {
     path: Option<PathBuf>,
     dirty: bool,
     start: bool,
-    selected: Option<String>,
+    selected: ObjectSelection,
     face: Option<usize>,
     draft: Option<Object>,
     camera: Camera,
@@ -94,6 +106,12 @@ pub struct Editor {
     wireframe: bool,
     extrusion: f32,
     inset_factor: f32,
+    group_offset: [f32; 3],
+    snap_enabled: bool,
+    snap_step: f32,
+    show_gizmo: bool,
+    gesture: Option<TranslationGesture>,
+    suppress_primary: bool,
     error: Option<String>,
     status: String,
     pending: Option<Pending>,
@@ -120,9 +138,12 @@ fn apply_identity(ctx: &egui::Context, brand: &Brand) {
 impl Editor {
     fn new(brand: Brand, document: Document, path: Option<PathBuf>) -> Self {
         let start = path.is_none();
-        let selected = document.scene.objects.first().map(|o| o.id.clone());
+        let mut selected = ObjectSelection::default();
+        if let Some(object) = document.scene.objects.iter().find(|o| o.visible) {
+            selected.select_only(object.id.clone());
+        }
         let draft = selected
-            .as_deref()
+            .active()
             .and_then(|id| document.scene.object(id).ok())
             .cloned();
         Self {
@@ -142,6 +163,12 @@ impl Editor {
             wireframe: false,
             extrusion: 0.35,
             inset_factor: 0.2,
+            group_offset: [0.; 3],
+            snap_enabled: false,
+            snap_step: 0.25,
+            show_gizmo: true,
+            gesture: None,
+            suppress_primary: false,
             error: None,
             status: "Bereit".into(),
             pending: None,
@@ -150,18 +177,15 @@ impl Editor {
         }
     }
     fn refresh(&mut self) {
-        if self
-            .selected
-            .as_deref()
-            .is_some_and(|id| self.document.scene.object(id).is_err())
-        {
-            self.selected = None;
+        let previous = self.active_id();
+        self.selected.prune(&self.document.scene);
+        if previous != self.active_id() || self.selected.is_empty() {
             self.face = None;
             self.element = None;
         }
         self.draft = self
             .selected
-            .as_deref()
+            .active()
             .and_then(|id| self.document.scene.object(id).ok())
             .cloned();
         if self.face.is_some_and(|face| {
@@ -182,13 +206,32 @@ impl Editor {
         }
     }
     fn select(&mut self, id: Option<String>, face: Option<usize>) {
-        self.selected = id;
+        match id {
+            Some(id) => self.selected.select_only(id),
+            None => self.selected.clear(),
+        }
         self.face = face;
         self.element = None;
         self.edge_offset = [0.; 3];
         self.refresh();
     }
+    fn active_id(&self) -> Option<String> {
+        self.selected.active().map(str::to_owned)
+    }
+    fn toggle_object(&mut self, id: String) {
+        self.selected.toggle(id);
+        self.mode = SelectionMode::Object;
+        self.face = None;
+        self.element = None;
+        self.group_offset = [0.; 3];
+        self.refresh();
+    }
     fn set_mode(&mut self, mode: SelectionMode) {
+        if mode != SelectionMode::Object {
+            if let Some(id) = self.active_id() {
+                self.selected.select_only(id);
+            }
+        }
         self.mode = mode;
         self.face = None;
         self.element = None;
@@ -280,6 +323,8 @@ impl Editor {
         }
     }
     fn request(&mut self, pending: Pending, ctx: &egui::Context) {
+        self.gesture = None;
+        self.suppress_primary = true;
         if self.dirty {
             self.pending = Some(pending);
         } else {
@@ -287,6 +332,8 @@ impl Editor {
         }
     }
     fn proceed(&mut self, pending: Pending, ctx: &egui::Context) {
+        self.gesture = None;
+        self.suppress_primary = false;
         match pending {
             Pending::New => {
                 self.document = Document::default();
@@ -305,7 +352,10 @@ impl Editor {
                     self.dirty = false;
                     self.start = false;
                     self.camera = Camera::default();
-                    self.selected = self.document.scene.objects.first().map(|o| o.id.clone());
+                    self.selected.clear();
+                    if let Some(object) = self.document.scene.objects.iter().find(|o| o.visible) {
+                        self.selected.select_only(object.id.clone());
+                    }
                     self.face = None;
                     self.error = None;
                     self.refresh();
@@ -382,32 +432,83 @@ impl Editor {
         }
     }
     fn focus(&mut self) {
+        if self.selected.len() > 1 {
+            let mut min = glam::Vec3::splat(f32::INFINITY);
+            let mut max = glam::Vec3::splat(f32::NEG_INFINITY);
+            for id in self.selected.ids() {
+                if let Ok(object) = self.document.scene.object(id) {
+                    for p in &object.mesh.positions {
+                        let world = object
+                            .transform
+                            .matrix()
+                            .transform_point3(glam::Vec3::from(*p));
+                        min = min.min(world);
+                        max = max.max(world);
+                    }
+                }
+            }
+            if min.is_finite() && max.is_finite() {
+                self.camera.target = (min + max) * 0.5;
+                self.camera.distance = ((max - min).length() * 1.7).clamp(0.3, 2000.);
+            }
+            return;
+        }
         if let Some(object) = self
             .selected
-            .as_deref()
+            .active()
             .and_then(|id| self.document.scene.object(id).ok())
         {
             self.camera.focus(object);
         }
     }
     fn duplicate(&mut self) {
-        if let Some(id) = self.selected.clone() {
+        if !self.selected.is_empty() {
             let revision = self.document.revision;
-            self.execute("Objekt duplizieren", vec![Command::Duplicate { id }]);
+            let before: std::collections::BTreeSet<_> = self
+                .document
+                .scene
+                .objects
+                .iter()
+                .map(|o| o.id.clone())
+                .collect();
+            self.execute(
+                "Auswahl duplizieren",
+                vec![Command::DuplicateObjects {
+                    ids: self.selected.ids().to_vec(),
+                }],
+            );
             if revision != self.document.revision {
-                self.select(
-                    self.document.scene.objects.last().map(|o| o.id.clone()),
-                    None,
-                );
+                self.selected.clear();
+                for object in &self.document.scene.objects {
+                    if !before.contains(&object.id) {
+                        self.selected.toggle(object.id.clone());
+                    }
+                }
+                self.face = None;
+                self.element = None;
+                self.refresh();
             }
         }
     }
     fn remove(&mut self) {
-        if let Some(id) = self.selected.clone() {
-            self.execute("Objekt entfernen", vec![Command::Remove { id }]);
+        if !self.selected.is_empty() {
+            self.execute(
+                "Auswahl entfernen",
+                vec![Command::RemoveObjects {
+                    ids: self.selected.ids().to_vec(),
+                }],
+            );
         }
     }
     fn shortcuts(&mut self, ctx: &egui::Context) {
+        if self.gesture.is_some() {
+            if ctx.input(|input| input.key_pressed(egui::Key::Escape)) {
+                self.gesture = None;
+                self.suppress_primary = true;
+                self.status = "Verschiebung abgebrochen".into();
+            }
+            return;
+        }
         if self.pending.is_some() {
             return;
         }
@@ -435,6 +536,12 @@ impl Editor {
             self.save(false);
         }
         if !ctx.wants_keyboard_input() && !self.start {
+            if self.mode == SelectionMode::Object && consume(egui::Key::A, false) {
+                self.selected.select_all(&self.document.scene);
+                self.face = None;
+                self.element = None;
+                self.refresh();
+            }
             if consume(egui::Key::Z, true) || consume(egui::Key::Y, false) {
                 self.travel(true);
             } else if consume(egui::Key::Z, false) {
@@ -527,7 +634,7 @@ impl Editor {
                     ui.separator();
                     if ui
                         .add_enabled(
-                            self.selected.is_some(),
+                            !self.selected.is_empty(),
                             egui::Button::new("Duplizieren     Ctrl/Cmd+D"),
                         )
                         .clicked()
@@ -537,7 +644,7 @@ impl Editor {
                     }
                     if ui
                         .add_enabled(
-                            self.selected.is_some(),
+                            !self.selected.is_empty(),
                             egui::Button::new("Entfernen       Delete"),
                         )
                         .clicked()
@@ -547,7 +654,7 @@ impl Editor {
                     }
                 });
                 ui.menu_button("Modellieren", |ui| {
-                    let face_selection = self.selected.clone().zip(self.face);
+                    let face_selection = self.active_id().zip(self.face);
                     if ui
                         .add_enabled(
                             face_selection.is_some(),
@@ -588,12 +695,12 @@ impl Editor {
                     }
                     if ui
                         .add_enabled(
-                            self.selected.is_some(),
+                            !self.selected.is_empty(),
                             egui::Button::new("Mesh linear unterteilen"),
                         )
                         .clicked()
                     {
-                        if let Some(id) = self.selected.clone() {
+                        if let Some(id) = self.active_id() {
                             self.execute("Mesh unterteilen", vec![Command::Subdivide { id }]);
                         }
                         ui.close_menu();
@@ -718,9 +825,16 @@ impl Editor {
                         let text = if visible {
                             name
                         } else {
-                            format!("{name} (verborgen)")
+                            format!("{name} (klicken: zeigen)")
                         };
-                        let selected = self.selected.as_deref() == Some(&id);
+                        let selected = self.selected.contains(&id);
+                        let text = if self.selected.len() > 1
+                            && self.selected.active() == Some(id.as_str())
+                        {
+                            format!("{text} · aktiv")
+                        } else {
+                            text
+                        };
                         let text = RichText::new(text).color(if selected {
                             rgb(Brand::ink_on(self.brand.accent))
                         } else {
@@ -733,7 +847,20 @@ impl Editor {
                             )
                             .clicked()
                         {
-                            self.select(Some(id), None);
+                            if !visible {
+                                self.execute(
+                                    "Objekt zeigen",
+                                    vec![Command::Visibility {
+                                        id: id.clone(),
+                                        visible: true,
+                                    }],
+                                );
+                            }
+                            if ui.input(|i| i.modifiers.shift) {
+                                self.toggle_object(id);
+                            } else {
+                                self.select(Some(id), None);
+                            }
                         }
                     }
                 });
@@ -749,6 +876,45 @@ impl Editor {
                 ui.heading("Eigenschaften");
                 ui.add_space(12.);
                 egui::ScrollArea::vertical().show(ui, |ui| {
+                    if self.selected.len() > 1 {
+                        ui.label(format!("{} Objekte ausgewählt", self.selected.len()));
+                        ui.label("Gemeinsam verschieben · m");
+                        for (axis, value) in ["X", "Y", "Z"]
+                            .into_iter()
+                            .zip(self.group_offset.iter_mut())
+                        {
+                            ui.add(
+                                egui::DragValue::new(value)
+                                    .prefix(format!("{axis} "))
+                                    .speed(0.01)
+                                    .max_decimals(3),
+                            );
+                        }
+                        if ui.button("Auswahl verschieben").clicked() {
+                            let rev = self.document.revision;
+                            self.execute(
+                                "Auswahl verschieben",
+                                vec![Command::TranslateObjects {
+                                    ids: self.selected.ids().to_vec(),
+                                    offset: self.group_offset,
+                                    snap: self.snap_enabled.then_some(self.snap_step),
+                                }],
+                            );
+                            if self.document.revision != rev {
+                                self.group_offset = [0.; 3];
+                            }
+                        }
+                        ui.label(
+                            "Raster rundet den gemeinsamen Versatz; Abstände bleiben erhalten.",
+                        );
+                        if ui.button("Auswahl duplizieren").clicked() {
+                            self.duplicate();
+                        }
+                        if ui.button("Auswahl entfernen").clicked() {
+                            self.remove();
+                        }
+                        return;
+                    }
                     let mut apply = false;
                     if let Some(draft) = &mut self.draft {
                         ui.label("Objektname");
@@ -832,7 +998,7 @@ impl Editor {
                             }
                         }
                     }
-                    if let (Some(id), Some(face)) = (self.selected.clone(), self.face) {
+                    if let (Some(id), Some(face)) = (self.active_id(), self.face) {
                         ui.add_space(12.);
                         ui.heading("Fläche");
                         ui.label(format!("Ausgewählt: {}", face + 1));
@@ -883,12 +1049,12 @@ impl Editor {
                                 }],
                             );
                         }
-                    } else if self.selected.is_some() && self.mode == SelectionMode::Face {
+                    } else if !self.selected.is_empty() && self.mode == SelectionMode::Face {
                         ui.add_space(12.);
                         ui.label("Im Flächenmodus eine Fläche anklicken, um sie zu extrudieren.");
                     }
                     if let (Some(id), Some(Element::Vertex(vertex))) =
-                        (self.selected.clone(), self.element)
+                        (self.active_id(), self.element)
                     {
                         ui.add_space(12.);
                         ui.heading(format!("Punkt {}", vertex + 1));
@@ -927,8 +1093,7 @@ impl Editor {
                             }
                         }
                     }
-                    if let (Some(id), Some(Element::Edge(edge))) =
-                        (self.selected.clone(), self.element)
+                    if let (Some(id), Some(Element::Edge(edge))) = (self.active_id(), self.element)
                     {
                         ui.add_space(12.);
                         ui.heading("Kante");
@@ -968,7 +1133,7 @@ impl Editor {
                             }
                         }
                     }
-                    if self.selected.is_some()
+                    if !self.selected.is_empty()
                         && self.element.is_none()
                         && matches!(self.mode, SelectionMode::Vertex | SelectionMode::Edge)
                     {
@@ -979,12 +1144,12 @@ impl Editor {
                             "Eine sichtbare Kante in der 3D-Ansicht anklicken."
                         });
                     }
-                    if self.selected.is_some() {
+                    if !self.selected.is_empty() {
                         ui.add_space(12.);
                         ui.collapsing("Mesh-Werkzeuge", |ui| {
                             ui.label("Linear unterteilen: gemeinsame Kantenpunkte, ohne Glättung.");
                             if ui.button("Mesh linear unterteilen").clicked() {
-                                if let Some(id) = self.selected.clone() {
+                                if let Some(id) = self.active_id() {
                                     self.execute(
                                         "Mesh unterteilen",
                                         vec![Command::Subdivide { id }],
@@ -1078,23 +1243,102 @@ impl Editor {
                             self.set_mode(SelectionMode::Edge);
                         }
                         ui.checkbox(&mut self.wireframe, "Kanten");
+                        if self.mode == SelectionMode::Object {
+                            ui.add_enabled_ui(self.gesture.is_none(), |ui| {
+                                ui.checkbox(&mut self.show_gizmo, "Verschieben");
+                                ui.checkbox(&mut self.snap_enabled, "Raster");
+                                if self.snap_enabled {
+                                    ui.add(
+                                        egui::DragValue::new(&mut self.snap_step)
+                                            .range(0.001..=1000.)
+                                            .speed(0.01)
+                                            .suffix(" m"),
+                                    );
+                                }
+                            });
+                        }
                     });
                 });
                 let size = ui.available_size();
                 let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click_and_drag());
-                if response.dragged_by(egui::PointerButton::Secondary) {
+                let mut claimed = self.gesture.is_some() || self.suppress_primary;
+                let dimensions = [rect.width(), rect.height()];
+                if self.mode == SelectionMode::Object
+                    && self.show_gizmo
+                    && response.hovered()
+                    && ctx.input(|i| i.pointer.primary_pressed())
+                {
+                    if let (Some(pivot), Some(pos)) = (
+                        manipulation::selection_pivot(&self.document.scene, self.selected.ids()),
+                        ctx.input(|i| i.pointer.interact_pos()),
+                    ) {
+                        let pointer = [pos.x - rect.left(), pos.y - rect.top()];
+                        if let Some(axis) =
+                            manipulation::pick_axis(&self.camera, pivot, pointer, dimensions, 8.)
+                        {
+                            if let Some(drag) =
+                                AxisDrag::new(&self.camera, pivot, axis, pointer, dimensions)
+                            {
+                                self.gesture = Some(TranslationGesture {
+                                    drag,
+                                    axis,
+                                    ids: self.selected.ids().to_vec(),
+                                    revision: self.document.revision,
+                                    base: self.document.scene.clone(),
+                                    viewport: rect,
+                                    delta: [0.; 3],
+                                });
+                                claimed = true;
+                            }
+                        }
+                    }
+                }
+                if let Some(gesture) = &mut self.gesture {
+                    if gesture.viewport == rect && gesture.revision == self.document.revision {
+                        if let Some(pos) = ctx.input(|i| i.pointer.interact_pos()) {
+                            if let Some(delta) = gesture.drag.delta(
+                                [pos.x - rect.left(), pos.y - rect.top()],
+                                self.snap_enabled.then_some(self.snap_step),
+                            ) {
+                                gesture.delta = delta;
+                            }
+                        }
+                    } else {
+                        self.gesture = None;
+                        self.suppress_primary = true;
+                    }
+                }
+                if ctx.input(|i| i.pointer.primary_released()) {
+                    if let Some(gesture) = self.gesture.take() {
+                        if gesture.revision != self.document.revision {
+                            self.error =
+                                Some("Die Szene wurde während der Bewegung geändert.".into());
+                        } else if gesture.delta != [0.; 3] {
+                            self.execute(
+                                "Auswahl verschieben",
+                                vec![Command::TranslateObjects {
+                                    ids: gesture.ids,
+                                    offset: gesture.delta,
+                                    snap: None,
+                                }],
+                            );
+                        }
+                    }
+                    self.suppress_primary = false;
+                }
+                if !claimed && response.dragged_by(egui::PointerButton::Secondary) {
                     let delta = response.drag_motion();
                     self.camera.orbit(delta.x, delta.y);
                 }
-                if response.dragged_by(egui::PointerButton::Middle) {
+                if !claimed && response.dragged_by(egui::PointerButton::Middle) {
                     let delta = response.drag_motion();
                     self.camera.pan(delta.x, delta.y);
                 }
-                if response.hovered() {
+                if !claimed && response.hovered() {
                     self.camera
                         .zoom(ctx.input(|input| input.smooth_scroll_delta.y));
                 }
-                if response.clicked_by(egui::PointerButton::Primary) {
+                if !claimed && response.clicked_by(egui::PointerButton::Primary) {
                     if let Some(pos) = response.interact_pointer_pos() {
                         let ndc = [
                             (pos.x - rect.left()) / rect.width() * 2. - 1.,
@@ -1120,7 +1364,7 @@ impl Editor {
                                 10.,
                             );
                             if let Some(picked) = picked {
-                                self.selected = Some(picked.object_id);
+                                self.selected.select_only(picked.object_id);
                                 self.face = None;
                                 self.element = Some(picked.element);
                                 self.edge_offset = [0.; 3];
@@ -1131,20 +1375,45 @@ impl Editor {
                             }
                         } else {
                             match hit {
+                                Some((id, _))
+                                    if self.mode == SelectionMode::Object
+                                        && ctx.input(|i| i.modifiers.shift) =>
+                                {
+                                    self.toggle_object(id)
+                                }
                                 Some((id, face)) => self.select(
                                     Some(id),
                                     (self.mode == SelectionMode::Face).then_some(face),
                                 ),
+                                None if ctx.input(|i| i.modifiers.shift) => {}
                                 None => self.select(None, None),
                             }
                         }
                     }
                 }
+                let preview = self.gesture.as_ref().map(|gesture| {
+                    let mut scene = gesture.base.clone();
+                    for object in &mut scene.objects {
+                        if gesture.ids.contains(&object.id) {
+                            for (value, delta) in
+                                object.transform.translation.iter_mut().zip(gesture.delta)
+                            {
+                                *value += delta;
+                            }
+                        }
+                    }
+                    if scene.validate().is_ok() {
+                        scene
+                    } else {
+                        gesture.base.clone()
+                    }
+                });
+                let rendered = preview.as_ref().unwrap_or(&self.document.scene);
                 let scale = ctx.pixels_per_point();
                 let callback = renderer::Viewport::new(
-                    &self.document.scene,
+                    rendered,
                     &self.camera,
-                    self.selected.as_deref(),
+                    self.selected.ids(),
                     renderer::ViewSelection {
                         face: self.face,
                         element: self.element,
@@ -1167,6 +1436,53 @@ impl Editor {
                     ));
                 let painter = ui.painter_at(rect);
                 let muted = Color32::from_rgb(190, 199, 212);
+                if self.mode == SelectionMode::Object && self.show_gizmo {
+                    if let Some(pivot) =
+                        manipulation::selection_pivot(rendered, self.selected.ids())
+                    {
+                        for (axis, color) in [
+                            (Axis::X, Color32::from_rgb(245, 100, 100)),
+                            (Axis::Y, Color32::from_rgb(110, 225, 140)),
+                            (Axis::Z, Color32::from_rgb(110, 165, 255)),
+                        ] {
+                            if let Some(handle) =
+                                manipulation::axis_handle(&self.camera, pivot, axis, dimensions)
+                            {
+                                let start = rect.min + egui::vec2(handle.start[0], handle.start[1]);
+                                let end = rect.min + egui::vec2(handle.end[0], handle.end[1]);
+                                let active = self.gesture.as_ref().is_some_and(|g| g.axis == axis);
+                                painter.arrow(
+                                    start,
+                                    end - start,
+                                    egui::Stroke::new(
+                                        if active { 4_f32 } else { 2_f32 },
+                                        if active { Color32::WHITE } else { color },
+                                    ),
+                                );
+                                painter.text(
+                                    end,
+                                    egui::Align2::LEFT_BOTTOM,
+                                    axis.label(),
+                                    egui::FontId::proportional(14.),
+                                    color,
+                                );
+                            }
+                        }
+                    }
+                }
+                if let Some(gesture) = &self.gesture {
+                    painter.text(
+                        rect.left_top() + egui::vec2(18., 40.),
+                        egui::Align2::LEFT_TOP,
+                        format!(
+                            "{}: {:.3} m · Escape: abbrechen",
+                            gesture.axis.label(),
+                            glam::Vec3::from(gesture.delta).dot(gesture.axis.vector())
+                        ),
+                        egui::FontId::proportional(14.),
+                        Color32::WHITE,
+                    );
+                }
                 painter.text(
                     rect.left_top() + egui::vec2(18., 16.),
                     egui::Align2::LEFT_TOP,
@@ -1232,7 +1548,14 @@ impl eframe::App for Editor {
         if ctx.input(|input| input.viewport().close_requested()) && !self.allow_close && self.dirty
         {
             ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
+            self.gesture = None;
+            self.suppress_primary = true;
             self.pending = Some(Pending::Close);
+        }
+        if !ctx.input(|i| i.viewport().focused.unwrap_or(true)) && self.gesture.is_some() {
+            self.gesture = None;
+            self.suppress_primary = true;
+            self.status = "Verschieben bei Fokusverlust abgebrochen".into();
         }
         self.shortcuts(ctx);
         self.header(ctx);

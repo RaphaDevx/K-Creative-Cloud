@@ -8,7 +8,8 @@ Eigenständiger 3D-Editor mit Rust-Anwendungscode, nativer egui-Oberfläche und 
 - Tiefengeprüfte 3D-Ansicht mit Beleuchtung, Bodenraster, Auswahlkonturen und optionalen Polygonkanten.
 - Würfel, Kugel, Zylinder, Fläche; Auswahl durch tatsächlichen Strahl-/Dreiecktest.
 - Position, Rotation, positive Skalierung, Name, Farbe und Sichtbarkeit im Inspektor; explizit als eine Gruppe anwenden.
-- Objekt duplizieren/entfernen, Fläche auswählen und entlang ihrer lokalen Normalen extrudieren.
+- Mehrere Objekte mit Shift auswählen, gemeinsam verschieben/duplizieren/entfernen; Weltachsen-Gizmo mit Vorschau, Abbruch und relativem Fangraster.
+- Fläche auswählen und entlang ihrer lokalen Normalen extrudieren.
 - Punkt-/Kantenauswahl mit Tiefenprüfung, lokale Punktposition und Kantenverschiebung; angrenzende Polygone werden bei Bedarf in derselben Gruppe trianguliert.
 - Flächen proportional zur Mitte einrücken und Meshes mit gemeinsam verwendeten Kantenpunkten linear unterteilen, ohne Glättung.
 - Persistente Bearbeitungsgruppen mit Actor, Aufgabenpfad, technischen Befehlen und Vorher/Nachher-Unterschieden; Undo/Redo mit weiterlaufenden Revisionen.
@@ -31,6 +32,8 @@ Der Launcher kompiliert nichts. Er nimmt `EDITOR_3D_BIN`, das vorhandene Release
 ## Bedienung
 
 Neue Szene erstellt einen bearbeitbaren Würfel. Links Objekte hinzufügen/auswählen, rechts Eigenschaften ändern und **Änderungen anwenden**. **Fläche** in der Viewportleiste wählen und eine sichtbare Fläche anklicken; rechts erscheint die Extrusion. Maßangaben sind Meter; Extrusionslänge bezieht sich auf lokale Meshkoordinaten, also vor Objektskalierung.
+
+**Objekt**: Shift-Klick im Baum oder Viewport erweitert/verkleinert die Auswahl; Ctrl/Cmd+A wählt alle sichtbaren Objekte. Die aktive Baumzeile ist bei Mehrfachauswahl markiert. Rechts kann ein gemeinsamer numerischer Versatz angewandt werden. Die X/Y/Z-Pfeile verschieben entlang der Weltachsen. Loslassen erzeugt einen Undo-Schritt, Escape oder Fensterwechsel verwirft die Vorschau. **Raster** rundet den gemeinsamen Versatz; es richtet einzelne Objektpositionen nicht absolut am Raster aus. Nahezu frontal betrachtete Achsen werden ausgeblendet. Ein Klick auf eine verborgene Baumzeile blendet das Objekt wieder ein.
 
 **Punkt** beziehungsweise **Kante** aktiviert die Elementauswahl in einem Abstand von zehn logischen Pixeln. Verdeckte Elemente werden nicht ausgewählt. Der Inspektor bearbeitet Punktkoordinaten beziehungsweise verschiebt beide Kantenpunkte gemeinsam. **Modellieren** bietet Extrusion, proportionales Einrücken und lineare Unterteilung auch über das Menü. Einrücken `0.2` bewegt jeden Flächenpunkt 20 Prozent zur Punktmittelposition; das ist kein metrisch gleich breiter Rand. Lineare Unterteilung glättet die Form nicht.
 
@@ -65,7 +68,7 @@ Eine Befehlsgruppe für eine leere Datei mit Revision 0:
 }
 ```
 
-Weitere Aktionen: `import_mesh`, `transform`, `rename`, `color`, `visibility`, `duplicate`, `remove`, `extrude`, `inset`, `subdivide`, `move_vertex`, `move_edge`. Parameter stehen in `src/commands.rs`. `inspect` liefert die vollständige Szene mit Objekt-IDs und Verlauf. Gruppen sind atomar und revisionsgesichert; bei Fehlern wird die Ausgabedatei nicht überschrieben. Actor ist im lokalen CLI eine Herkunftsangabe, keine authentifizierte Identität. Es gibt noch keinen HTTP-/MCP-Server für diese neue Fachengine.
+Weitere Aktionen: `import_mesh`, `transform`, `translate_objects`, `duplicate_objects`, `remove_objects`, `rename`, `color`, `visibility`, `duplicate`, `remove`, `extrude`, `inset`, `subdivide`, `move_vertex`, `move_edge`. Parameter stehen in `src/commands.rs`. `inspect` liefert die vollständige Szene mit Objekt-IDs und Verlauf. Gruppen sind atomar und revisionsgesichert; bei Fehlern wird die Ausgabedatei nicht überschrieben. Actor ist im lokalen CLI eine Herkunftsangabe, keine authentifizierte Identität. Es gibt noch keinen HTTP-/MCP-Server für diese neue Fachengine.
 
 ## Branding
 

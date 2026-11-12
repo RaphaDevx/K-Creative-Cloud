@@ -2,7 +2,7 @@
 
 The direction is a Rust-native replacement. Milestones are capabilities to prove, not a claim that all Blender features can be recreated in one session.
 
-Iteration 0002 adds single vertex/edge picking with occlusion, point/edge position editing, proportional face inset and shared-edge linear subdivision. Multi-selection, drag gizmos and smoothing remain future modeling work. Ordered working plan: [NEXT-STEPS](docs/NEXT-STEPS.md).
+Iteration 0002 adds single vertex/edge picking with occlusion, point/edge position editing, proportional face inset and shared-edge linear subdivision. Iteration 0003 adds object multiselection, world-axis translation previews, relative snapping and atomic group operations. Rotation/scale gizmos, element multiselection and smoothing remain future modeling work. Ordered working plan: [NEXT-STEPS](docs/NEXT-STEPS.md).
 
 1. **v0.1 — scene and polygon foundation:** independent desktop GPU viewport; orbit/pan/zoom; selectable mesh primitives; transforms/material color/visibility; face extrusion; grouped journal and undo/redo; atomic scene files; OBJ; headless command groups; configurable startup/workspace branding.
 2. **Modeling:** robust editable topology, vertex/edge/face multi-selection, interactive axis gizmos, snapping, bevel/inset/loop cut, normals, subdivision and modifier stack. Acceptance: saved edit histories plus manifold reference fixtures; no degenerate results silently saved.

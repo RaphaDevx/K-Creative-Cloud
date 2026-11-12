@@ -20,6 +20,18 @@ pub enum Command {
         id: String,
         transform: Transform,
     },
+    TranslateObjects {
+        ids: Vec<String>,
+        offset: [f32; 3],
+        #[serde(default)]
+        snap: Option<f32>,
+    },
+    DuplicateObjects {
+        ids: Vec<String>,
+    },
+    RemoveObjects {
+        ids: Vec<String>,
+    },
     Rename {
         id: String,
         name: String,
@@ -68,6 +80,9 @@ impl Command {
             Self::Add { .. } => "Objekt hinzufügen",
             Self::ImportMesh { .. } => "Mesh importieren",
             Self::Transform { .. } => "Transformieren",
+            Self::TranslateObjects { .. } => "Auswahl verschieben",
+            Self::DuplicateObjects { .. } => "Auswahl duplizieren",
+            Self::RemoveObjects { .. } => "Auswahl entfernen",
             Self::Rename { .. } => "Umbenennen",
             Self::Color { .. } => "Materialfarbe ändern",
             Self::Visibility { .. } => "Sichtbarkeit ändern",
@@ -104,6 +119,32 @@ impl Command {
             }),
             Self::Transform { id, transform } => {
                 scene.object_mut(id)?.transform = transform.clone()
+            }
+            Self::TranslateObjects { ids, offset, snap } => {
+                validate_ids(scene, ids)?;
+                let offset = crate::manipulation::snap_delta(*offset, *snap)?;
+                for id in ids {
+                    let transform = &mut scene.object_mut(id)?.transform;
+                    for (value, delta) in transform.translation.iter_mut().zip(offset) {
+                        *value += delta;
+                    }
+                }
+            }
+            Self::DuplicateObjects { ids } => {
+                validate_ids(scene, ids)?;
+                let mut copies = Vec::with_capacity(ids.len());
+                for id in ids {
+                    let mut copy = scene.object(id)?.clone();
+                    copy.id = new_id();
+                    copy.name = format!("{} Kopie", copy.name);
+                    copy.transform.translation[0] += 1.25;
+                    copies.push(copy);
+                }
+                scene.objects.extend(copies);
+            }
+            Self::RemoveObjects { ids } => {
+                validate_ids(scene, ids)?;
+                scene.objects.retain(|object| !ids.contains(&object.id));
             }
             Self::Rename { id, name } => scene.object_mut(id)?.name = name.clone(),
             Self::Color { id, color } => scene.object_mut(id)?.color = *color,
@@ -162,6 +203,17 @@ impl Command {
         }
         scene.validate()
     }
+}
+
+fn validate_ids(scene: &Scene, ids: &[String]) -> Result<()> {
+    let unique: std::collections::BTreeSet<_> = ids.iter().collect();
+    if ids.is_empty() || ids.len() > 256 || unique.len() != ids.len() {
+        return Err("Auswahl benötigt 1–256 eindeutige Objekt-IDs.".into());
+    }
+    for id in ids {
+        scene.object(id)?;
+    }
+    Ok(())
 }
 
 // Moving polygon vertices can make adjacent quads non-planar. Preserve an

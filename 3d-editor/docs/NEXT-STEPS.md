@@ -1,11 +1,12 @@
 # 3d-editor — nächste Schritte und Arbeitsrhythmus
 
-Stand: Iteration 0002, 12. November 2026. Eigener Rust-Editor, Standardauftritt weiterhin neutral. Jede Zeile ist eine begrenzte Ausbaustufe mit eigener Abnahme.
+Stand: Iteration 0003, 13. November 2026. Eigener Rust-Editor, Standardauftritt weiterhin neutral. Jede Zeile ist eine begrenzte Ausbaustufe mit eigener Abnahme.
 
 | Reihenfolge | Arbeitspaket | Nachweis vor Abschluss |
 |---|---|---|
 | 1 — erledigt in Iteration 0002 | Inset, gemeinsame Polygonunterteilung, Punkt-/Kantenauswahl, Punktposition bearbeiten | Geometrie-/Pickingtests, gespeicherte Commands/Undo und echte GUI-Bedienung bestanden |
-| 2 | Mehrfachauswahl und Achsen-Gizmos für Verschieben/Drehen/Skalieren; Fangraster und lokale/weltweite Achsen | Drag wird genau eine rückgängig machbare Gruppe; perspektivisch korrekte Achsen und Snapping-Fixtures |
+| 2a — Iteration 0003 | Objekt-Mehrfachauswahl, gemeinsam verschieben/duplizieren/entfernen, Weltachsen-Verschieben mit relativem Fangraster | Ein Drag = eine Gruppe; Escape verwirft Vorschau; gemeinsame Abstände bleiben erhalten |
+| 2b — als Nächstes | Drehen-/Skalieren-Gizmos, lokale Achsen und Rechteckauswahl | Gemeinsamer Pivot und explizite Koordinatenräume; ein Undo je Geste |
 | 3 | Topologie-Grundlage: stabile Element-IDs, Kanten-/Flächenoperationen, Inset/Extrusion mit metrischen Optionen, Normalenwerkzeuge | keine stillen T-Junctions/ungültigen Flächen; IDs bleiben über spezifizierte Operationen zuordenbar |
 | 4 | Modifier und Szenenhierarchie, Parenting, Sammlungen, Instanzen | nicht destruktiver Stack und Transformations-/Abhängigkeitsfixtures; Undo und Dateimigration |
 | 5 | Materialsystem/PBR, Licht und Kameras; UV-Editor, Texturen, glTF | Referenzassets mit geprüften Farben/Einheiten und explizitem Verlustbericht |
@@ -29,4 +30,4 @@ Der Mac-Prüfjob wird früh vorbereitet und soll die laufenden Iterationen begle
 
 Lokal ist Linux jederzeit verfügbar. Der Mac-Worker ist online, aber die aktuelle Registry verweist für `kcreative` nur auf den bestehenden `dmgscript`-Productionpfad. Das belegt noch keinen Mac-Test des neuen Editors. Keine automatische Veröffentlichung/TestFlight-Freigabe durch Testläufe.
 
-[Testmatrix](TEST-MATRIX.md) · [Iteration 0002](../iterations/0002/PLAN.md)
+[Testmatrix](TEST-MATRIX.md) · [Iteration 0003](../iterations/0003/PLAN.md)
