@@ -1,0 +1,18 @@
+{
+  "project": "kcreative",
+  "branch": "main",
+  "source_commit": "796bafb58d5ecfefb53d40c520e3b28385083a16",
+  "signed": true,
+  "pushed": [
+    "kdev"
+  ],
+  "source_files": 19,
+  "foreign_staged_paths_preserved": 122,
+  "native_editor_tests": 60,
+  "handover_helper_tests": 6,
+  "linux_gui_smoke": "run-abddf393f8",
+  "linux_modeling_smoke": "run-a41ff03d68",
+  "linux_translation_smoke": "run-e54c3ad287",
+  "mac_editor_test": "pending dedicated builder route",
+  "release_published": false
+}

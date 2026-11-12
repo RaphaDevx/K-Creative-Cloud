@@ -12,3 +12,7 @@
 Early GUI attempts overlapped headless/desktop debug-binary replacement; final GUI runs use the completed desktop binary. Linux Xvfb/software-GPU evidence does not establish macOS Metal, native file-dialog or iPad behavior. Dedicated Mac editor test route remains pending. No production build or publication triggered.
 
 Source delivery uses the explicit `3d-editor` manifest and mandatory K-Dev API. Initial dry run independently retained all 122 foreign staged paths and prepared only this iteration. Actual signed receipt and final staging/remote verification follow delivery.
+
+## Executed source handover
+
+HTTP 200 from K-Dev: `796bafb58d5ecfefb53d40c520e3b28385083a16`, signed, 19 files, pushed to kdev. Root independently checked actual commit scope, signature header, remote main equals HEAD and exact blob/mode identity of all 122 foreign staged paths. Own source scope clean after delivery. Public receipt: DELIVERY.json.

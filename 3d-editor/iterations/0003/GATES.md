@@ -12,6 +12,6 @@
 - [x] G4 UI: shift selection, numeric movement, gizmo commit/cancel and previous modeling flows work in a real GPU window.
   CHECK: scripts/check-native.sh plus explicit GUI smoke runs.
   EXPECT: Rust tests, fmt, Clippy and real GUI evidence pass; no hidden document mutation during preview.
-- [ ] G5 Delivery: reviewed source committed through K-Dev, foreign staging restored and remote verified.
+- [x] G5 Delivery: reviewed source committed through K-Dev, foreign staging restored and remote verified.
   CHECK: Manual comparison of API receipt, tree/file scope, original staged blobs and remote HEAD.
   EXPECT: Signed commit(s) to kdev, own scope clean, no release publication.
